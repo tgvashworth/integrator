@@ -1,5 +1,6 @@
+/* jshint esnext:true */
 function noop(x) { return x; }
-function pluck(k) { return o => o[k] }
+function pluck(k) { return o => o[k]; }
 
 var actions = {};
 
@@ -12,7 +13,7 @@ makeAction('open tweetdeck', [], {
     run: noop,
     assert: noop,
     teardown: noop
-})
+});
 
 makeAction('login', ['open tweetdeck'], {
     setup: data => data.set('user', Immutable.fromJS({ screenName: 'tom' })),
@@ -31,9 +32,7 @@ makeAction('send tweet', ['login'], {
     },
     assert: data => {
         if (data.get('tweetsSent') !== 1) {
-            var e = Error('Tweets sent is not correct');
-            e.data = data;
-            throw e;
+            throw Error('Tweets sent is not correct');
         }
         return data;
     },
@@ -45,15 +44,12 @@ makeAction('read sent tweet', ['send tweet'], {
     run: data => data.update('tweetsRead', function (a) { return (a || 0) + 1; }),
     assert: data => {
         if (data.get('tweetsRead') !== data.get('tweetsSent')) {
-            var e = Error('Read fewer Tweets than were sent');
-            e.data = data;
-            throw e;
+          throw Error('Read fewer Tweets than were sent');
         }
         return data;
     },
     teardown: noop
 });
-
 
 makeAction('retweet', ['login'], {
     setup: noop,
@@ -71,23 +67,37 @@ function walkUp(actionName) {
     return [].concat.apply([], action.deps.map(walkUp)).concat([action.name]);
 }
 
+function wrap(action, phase) {
+  return function (data) {
+    try {
+        return action.spec[phase](data);
+    } catch (why) {
+        var e = Error(`${action.name} ${phase}: ${why.message}`);
+        e.data = data;
+        // FIXME: e.stack = why.stack;
+        throw e;
+    }
+  };
+}
+
 function go(actionName) {
-    console.log('Action:', actionName)
+    console.log('Action:', actionName);
+
     var action = getAction(actionName);
     var initialData = Promise.resolve(Immutable.fromJS({
         action: action,
         ran: []
-    }))
+    }));
+
     walkUp(actionName)
         .map(getAction)
         .reduce((previous, action) => {
-            return previous
-                // Remember what we ran
-                .then(data => data.update('ran', ran => ran.concat(action)))
-                .then(action.spec.setup)
-                .then(action.spec.run)
-                .then(action.spec.assert)
-                .then(action.spec.teardown);
+            var logged = previous.then(data => data.update('ran', ran => ran.concat(action)));
+
+            return ['setup','run','assert','teardown'].reduce(
+                (previous, phase) => previous.then(wrap(action, phase)),
+                logged
+            );
         }, initialData)
         .then(result => {
             console.log('Done!');
@@ -103,4 +113,4 @@ function randomAction() {
     return names[~~(Math.random() * names.length)];
 }
 
-go('read sent tweet')
+go('read sent tweet');
