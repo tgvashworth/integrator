@@ -1,5 +1,5 @@
-ENTRY = src.js
-OUT = out.js
+ENTRY = src/index.js
+OUT = build/out.js
 CMD = babel $(ENTRY) -o $(OUT) -s
 
 .PHONY: all

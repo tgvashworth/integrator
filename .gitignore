@@ -1,2 +1,2 @@
-out.js
-out.js.map
+build/
+node_modules
