@@ -1,11 +1,11 @@
 /* jshint esnext:true */
 function noop(x) { return x; }
-function pluck(k) { return o => o[k]; }
+function pluck(k) { return o => o.get(k); }
 
 var actions = {};
 
 function makeAction(name, deps, spec) {
-    actions[name] = { name, deps, spec };
+    actions[name] = Immutable.fromJS({ name, deps, spec });
 }
 
 makeAction('open tweetdeck', [], {
@@ -64,15 +64,16 @@ function getAction(name) {
 
 function walkUp(actionName) {
     var action = actions[actionName];
-    return [].concat.apply([], action.deps.map(walkUp)).concat([action.name]);
+    return action.get('deps').flatMap(walkUp).concat([action.get('name')]);
 }
 
 function wrap(action, phase) {
   return function (data) {
     try {
-        return action.spec[phase](data);
+        let result = action.getIn(['spec', phase])(data.get('model'));
+        return data.set('model', result);
     } catch (why) {
-        var e = Error(`${action.name} ${phase}: ${why.message}`);
+        var e = Error(`${action.get('name')} ${phase}: ${why.message}`);
         e.data = data;
         // FIXME: e.stack = why.stack;
         throw e;
@@ -86,13 +87,16 @@ function go(actionName) {
     var action = getAction(actionName);
     var initialData = Promise.resolve(Immutable.fromJS({
         action: action,
-        ran: []
+        ran: [],
+        model: {}
     }));
 
     walkUp(actionName)
         .map(getAction)
         .reduce((previous, action) => {
-            var logged = previous.then(data => data.update('ran', ran => ran.concat(action)));
+            var logged = previous.then(data => {
+                return data.update('ran', ran => ran.concat([action]))
+            });
 
             return ['setup','run','assert','teardown'].reduce(
                 (previous, phase) => previous.then(wrap(action, phase)),
@@ -104,7 +108,15 @@ function go(actionName) {
             console.log(result.toJS());
         }, why => {
             console.error(why.stack);
-            console.log('Ran:', why.data.get('ran').toJS().map(pluck('name')).join(', '));
+            console.log(
+                'Ran:',
+                why.data
+                    .get('ran')
+                    .map(pluck('name'))
+                    .toJS()
+                    .join(', ')
+            );
+            console.log('Data:', why.data.get('model').toJS());
         });
 }
 
