@@ -109,7 +109,8 @@ function go(actionName) {
                 return data.update('ran', ran => ran.concat([action]))
             });
 
-            return ['setup','run','assert','teardown'].reduce(
+            // TODO add teardown on the way back out
+            return ['setup','run','assert'].reduce(
                 (previous, phase) => previous.then(wrap(action, phase)),
                 logged
             );
