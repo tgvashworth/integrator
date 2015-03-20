@@ -1,6 +1,17 @@
 /* jshint esnext:true */
+
 function noop(x) { return x; }
 function pluck(k) { return o => o.get(k); }
+function fakeStack(e, f) {
+    return e.stack
+        // Just the first line
+        .split('\n').slice(0,1)
+        .concat(
+            // All but the first line
+            f.stack.split('\n').slice(1)
+        )
+        .join('\n')
+}
 
 var actions = {};
 
@@ -73,9 +84,9 @@ function wrap(action, phase) {
         let result = action.getIn(['spec', phase])(data.get('model'));
         return data.set('model', result);
     } catch (why) {
-        var e = Error(`${action.get('name')} ${phase}: ${why.message}`);
+        var e = Error(`${action.get('name')}, ${phase}: ${why.message}`);
         e.data = data;
-        // FIXME: e.stack = why.stack;
+        e.stack = fakeStack(e, why);
         throw e;
     }
   };
