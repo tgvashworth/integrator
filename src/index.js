@@ -1,5 +1,7 @@
 /* jshint esnext:true */
 
+import Immutable from 'immutable';
+
 function noop(x) { return x; }
 function pluck(k) { return o => o.get(k); }
 function fakeStack(e, f) {

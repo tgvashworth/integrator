@@ -17,6 +17,16 @@
   },
   "homepage": "https://github.com/phuu/quick-integrate",
   "devDependencies": {
-    "babel": "^4.7.16"
+    "jspm": "^0.14.0",
+    "nodemon": "^1.3.7"
+  },
+  "jspm": {
+    "directories": {
+      "lib": ".",
+      "packages": "jspm_packages"
+    },
+    "dependencies": {
+      "immutable": "npm:immutable@^3.6.4"
+    }
   }
 }

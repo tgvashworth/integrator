@@ -1,11 +1,17 @@
-ENTRY = src/index.js
-OUT = build/out.js
-CMD = babel $(ENTRY) -o $(OUT) -s
+PATH := node_modules/.bin:$(PATH)
+
+ENTRY := src/index
+OUT := build/build.js
 
 .PHONY: all
 
 all:
-	$(CMD)
+	@jspm bundle-sfx $(ENTRY) $(OUT)
+
+install:
+	@npm install
+	@jspm install
 
 watch:
-	$(CMD) -w
+	@make install
+	@nodemon -q -w $(dir $(ENTRY)) --exec make
