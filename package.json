@@ -1,0 +1,22 @@
+{
+  "name": "quick-integrate",
+  "version": "1.0.0",
+  "description": "```shell $ make $ make watch ```",
+  "main": "src.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/phuu/quick-integrate.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/phuu/quick-integrate/issues"
+  },
+  "homepage": "https://github.com/phuu/quick-integrate",
+  "devDependencies": {
+    "babel": "^4.7.16"
+  }
+}
