@@ -9,6 +9,7 @@ System.config({
 
 System.config({
   "map": {
+    "fnkit": "npm:fnkit@1.0.0",
     "immutable": "npm:immutable@3.6.4"
   }
 });

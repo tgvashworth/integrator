@@ -1,142 +1,71 @@
-/* jshint esnext:true */
-
 import Immutable from 'immutable';
+import { Runner, Action } from './qi';
+import { pluck, findByKey } from './immutable-kit';
 
 function noop(x) { return x; }
-function pluck(k) { return o => o.get(k); }
-function fakeStack(e, f) {
-    return e.stack
-        // Just the first line
-        .split('\n').slice(0,1)
-        .concat(
-            // All but the first line
-            f.stack.split('\n').slice(1)
-        )
-        .join('\n')
-}
 
-var actions = {};
+let actions = Immutable.List([
+    Action('open tweetdeck', [], {
+        setup: data => data.set('open', true),
+        run: noop,
+        assert: noop,
+        teardown: noop
+    }),
 
-function makeAction(name, deps, spec) {
-    actions[name] = Immutable.fromJS({ name, deps, spec });
-}
+    Action('login', ['open tweetdeck'], {
+        setup: data => data.set('user', Immutable.fromJS({ screenName: 'tom' })),
+        run: noop,
+        assert: noop,
+        teardown: noop
+    }),
 
-makeAction('open tweetdeck', [], {
-    setup: data => data.set('open', true),
-    run: noop,
-    assert: noop,
-    teardown: noop
-});
-
-makeAction('login', ['open tweetdeck'], {
-    setup: data => data.set('user', Immutable.fromJS({ screenName: 'tom' })),
-    run: noop,
-    assert: noop,
-    teardown: noop
-});
-
-makeAction('send tweet', ['login'], {
-    setup: noop,
-    run: data => {
-        if (data.getIn(['user', 'token'])) {
+    Action('send tweet', ['login'], {
+        setup: noop,
+        run: data => {
+            // return data;
             return data.update('tweetsSent', function (a) { return (a || 0) + 1; });
-        }
-        return data;
-    },
-    assert: data => {
-        if (data.get('tweetsSent') !== 1) {
-            throw Error('Tweets sent is not correct');
-        }
-        return data;
-    },
-    teardown: noop
-});
+        },
+        assert: data => {
+            if (data.get('tweetsSent') !== 1) {
+                throw Error('Tweets sent is not correct');
+            }
+            return data;
+        },
+        teardown: noop
+    }),
 
-makeAction('read sent tweet', ['send tweet'], {
-    setup: noop,
-    run: data => data.update('tweetsRead', function (a) { return (a || 0) + 1; }),
-    assert: data => {
-        if (data.get('tweetsRead') !== data.get('tweetsSent')) {
-          throw Error('Read fewer Tweets than were sent');
-        }
-        return data;
-    },
-    teardown: noop
-});
+    Action('read sent tweet', ['send tweet'], {
+        setup: noop,
+        run: data => data.update('tweetsRead', function (a) { return (a || 0) + 1; }),
+        assert: data => {
+            if (data.get('tweetsRead') !== data.get('tweetsSent')) {
+              throw Error('Read fewer Tweets than were sent');
+            }
+            return data;
+        },
+        teardown: noop
+    }),
 
-makeAction('retweet', ['login'], {
-    setup: noop,
-    run: noop,
-    assert: noop,
-    teardown: noop
-});
+    Action('retweet', ['login'], {
+        setup: noop,
+        run: noop,
+        assert: noop,
+        teardown: noop
+    })
+]);
 
-function getAction(name) {
-    return actions[name];
+const handleFailure = why => {
+    console.error(why.stack);
+    console.log(
+        'Ran:',
+        why.data
+            .get('ran')
+            .map(pluck('name'))
+            .toJS()
+            .join(', ')
+    );
+    console.log('Data:', why.data.get('model').toJS());
 }
 
-function walkUp(actionName) {
-    var action = actions[actionName];
-    return action.get('deps').flatMap(walkUp).concat([action.get('name')]);
-}
-
-function wrap(action, phase) {
-  return function (data) {
-    try {
-        let result = action.getIn(['spec', phase])(data.get('model'));
-        return data.set('model', result);
-    } catch (why) {
-        var e = Error(`${action.get('name')}, ${phase}: ${why.message}`);
-        e.data = data;
-        e.stack = fakeStack(e, why);
-        throw e;
-    }
-  };
-}
-
-function go(actionName) {
-    console.log('Action:', actionName);
-
-    var action = getAction(actionName);
-    var initialData = Promise.resolve(Immutable.fromJS({
-        action: action,
-        ran: [],
-        model: {}
-    }));
-
-    walkUp(actionName)
-        .map(getAction)
-        .reduce((previous, action) => {
-            var logged = previous.then(data => {
-                return data.update('ran', ran => ran.concat([action]))
-            });
-
-            // TODO add teardown on the way back out
-            return ['setup','run','assert'].reduce(
-                (previous, phase) => previous.then(wrap(action, phase)),
-                logged
-            );
-        }, initialData)
-        .then(result => {
-            console.log('Done!');
-            console.log(result.toJS());
-        }, why => {
-            console.error(why.stack);
-            console.log(
-                'Ran:',
-                why.data
-                    .get('ran')
-                    .map(pluck('name'))
-                    .toJS()
-                    .join(', ')
-            );
-            console.log('Data:', why.data.get('model').toJS());
-        });
-}
-
-function randomAction() {
-    var names = Object.keys(actions);
-    return names[~~(Math.random() * names.length)];
-}
-
-go('read sent tweet');
+Runner(actions, Immutable.Map())('read sent tweet')
+    .then(console.log.bind(console, 'Done:'), handleFailure);
