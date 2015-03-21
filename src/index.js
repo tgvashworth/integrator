@@ -2,7 +2,7 @@ import Immutable from 'immutable';
 import { Runner, Action } from './qi';
 import { pluck, findByKey } from './immutable-kit';
 
-function noop(x) { return x; }
+let noop = (x => x);
 
 let actions = Immutable.List([
     Action('open tweetdeck', [], {
@@ -23,10 +23,10 @@ let actions = Immutable.List([
         setup: noop,
         run: data => {
             // return data;
-            return data.update('tweetsSent', function (a) { return (a || 0) + 1; });
+            return data.updateIn(['sent'], function (a) { return (a || 0) + 1; });
         },
         assert: data => {
-            if (data.get('tweetsSent') !== 1) {
+            if (data.getIn(['sent']) !== 1) {
                 throw Error('Tweets sent is not correct');
             }
             return data;
@@ -36,9 +36,9 @@ let actions = Immutable.List([
 
     Action('read sent tweet', ['send tweet'], {
         setup: noop,
-        run: data => data.update('tweetsRead', function (a) { return (a || 0) + 1; }),
+        run: data => data.updateIn(['read'], function (a) { return (a || 0) + 1; }),
         assert: data => {
-            if (data.get('tweetsRead') !== data.get('tweetsSent')) {
+            if (data.getIn(['read']) !== data.getIn(['sent'])) {
               throw Error('Read fewer Tweets than were sent');
             }
             return data;
@@ -67,5 +67,10 @@ const handleFailure = why => {
     console.log('Data:', why.data.get('model').toJS());
 }
 
-Runner(actions, Immutable.Map())('read sent tweet')
-    .then(console.log.bind(console, 'Done:'), handleFailure);
+var run = Runner(actions, Immutable.fromJS({
+    open: false,
+    user: [],
+    sent: 0,
+    read: 0
+}));
+run('read sent tweet').then(console.log.bind(console, 'Done:'), handleFailure);
