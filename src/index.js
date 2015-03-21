@@ -2,25 +2,25 @@ import Immutable from 'immutable';
 import { Runner, Action } from './qi';
 import { pluck, findByKey } from './immutable-kit';
 
-let noop = (x => x);
+let identity = (x => x);
 
 let actions = Immutable.List([
     Action('open tweetdeck', [], {
         setup: data => data.set('open', true),
-        run: noop,
-        assert: noop,
-        teardown: noop
+        run: identity,
+        assert: identity,
+        teardown: identity
     }),
 
     Action('login', ['open tweetdeck'], {
         setup: data => data.set('user', Immutable.fromJS({ screenName: 'tom' })),
-        run: noop,
-        assert: noop,
-        teardown: noop
+        run: identity,
+        assert: identity,
+        teardown: identity
     }),
 
     Action('send tweet', ['login'], {
-        setup: noop,
+        setup: identity,
         run: data => {
             // return data;
             return data.updateIn(['sent'], function (a) { return (a || 0) + 1; });
@@ -31,11 +31,11 @@ let actions = Immutable.List([
             }
             return data;
         },
-        teardown: noop
+        teardown: identity
     }),
 
     Action('read sent tweet', ['send tweet'], {
-        setup: noop,
+        setup: identity,
         run: data => data.updateIn(['read'], function (a) { return (a || 0) + 1; }),
         assert: data => {
             if (data.getIn(['read']) !== data.getIn(['sent'])) {
@@ -43,14 +43,14 @@ let actions = Immutable.List([
             }
             return data;
         },
-        teardown: noop
+        teardown: identity
     }),
 
     Action('retweet', ['login'], {
-        setup: noop,
-        run: noop,
-        assert: noop,
-        teardown: noop
+        setup: identity,
+        run: identity,
+        assert: identity,
+        teardown: identity
     })
 ]);
 

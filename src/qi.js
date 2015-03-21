@@ -21,8 +21,6 @@ const utils = {
             .join('\n')
     ),
 
-    noop: (x => x),
-
     rememberRanAction: action => data => data.update('ran', ran => ran.concat([action])),
 
     findByName: findByKey('name')
@@ -46,7 +44,7 @@ const walkUp = (actions, actionName) =>
 
 const wrapPhase = (action, phase) => data => {
     try {
-        let result = action.getIn(['spec', phase], utils.noop)(data.get('model'));
+        let result = action.getIn(['spec', phase], _.identity)(data.get('model'));
         return data.set('model', result);
     } catch (why) {
         var e = Error(`${action.get('name')}, ${phase}: ${why.message}`);
