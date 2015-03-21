@@ -3,7 +3,8 @@ import _ from 'fnkit';
 
 import { pluck, findByKey } from './immutable-kit';
 
-const orderedPhaseNames = ['setup', 'run', 'assert'];
+const forwardPhaseNames = ['setup', 'run', 'assert'];
+const reversePhaseNames = ['teardown'];
 
 const utils = {
     /**
@@ -42,12 +43,12 @@ const walkUp = (actions, actionName) =>
         .flatMap(_.partial(walkUp, actions))
         .concat([actionName]);
 
-const wrapPhase = (action, phase) => data => {
+const wrapPhase = (action, phaseName) => data => {
     try {
-        let result = action.getIn(['spec', phase], _.identity)(data.get('model'));
+        let result = action.getIn(['spec', phaseName], _.identity)(data.get('model'));
         return data.set('model', result);
     } catch (why) {
-        var e = Error(`${action.get('name')}, ${phase}: ${why.message}`);
+        var e = Error(`${action.get('name')}, ${phaseName}: ${why.message}`);
         e.data = data;
         e.stack = utils.fakeStack(e, why);
         throw e;
@@ -55,7 +56,7 @@ const wrapPhase = (action, phase) => data => {
 }
 
 
-const runAction = (pPreviousData, action) =>
+const attachActions = orderedPhaseNames => (pPreviousData, action) =>
     // TODO add teardown on the way back out
     orderedPhaseNames.reduce(
         (pPrev, phaseName) => pPrev.then(wrapPhase(action, phaseName)),
@@ -63,9 +64,20 @@ const runAction = (pPreviousData, action) =>
     );
 
 
-const Runner = (actions, model) => target =>
-    walkUp(actions, target)
-        .map(utils.findByName(actions))
-        .reduce(runAction, Promise.resolve(InitialData(target, model)));
+const Runner = (actions, model) => target => {
+    let actionsPath = walkUp(actions, target).map(utils.findByName(actions));
+
+    // Attach the actions that play when walking forward through the tree
+    let runForward = actionsPath.reduce(
+        attachActions(forwardPhaseNames),
+        Promise.resolve(InitialData(target, model)) // TODO return this to be resolved later
+    );
+
+    // After the forward actions have been added, add the actions that reverse back out
+    return actionsPath.reverse().reduce(
+        attachActions(reversePhaseNames),
+        runForward
+    );
+}
 
 export { Runner, Action };

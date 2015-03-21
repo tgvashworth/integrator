@@ -1,3 +1,10 @@
+/**
+ * TODO
+ *
+ * - [x] Add teardown phase
+ * - [ ] Run back through minimal actions to move to a different phase
+ */
+
 import Immutable from 'immutable';
 import { Runner, Action } from './qi';
 import { pluck, findByKey } from './immutable-kit';
