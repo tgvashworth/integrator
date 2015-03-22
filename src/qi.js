@@ -57,7 +57,6 @@ const wrapPhase = (action, phaseName) => data => {
 
 
 const attachActions = orderedPhaseNames => (pPreviousData, action) =>
-    // TODO add teardown on the way back out
     orderedPhaseNames.reduce(
         (pPrev, phaseName) => pPrev.then(wrapPhase(action, phaseName)),
         pPreviousData.then(utils.rememberRanAction(action))
