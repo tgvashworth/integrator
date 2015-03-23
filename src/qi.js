@@ -57,28 +57,25 @@ const wrapPhase = (action, phaseName) => data => {
     }
 }
 
-
 const attachActions = orderedPhaseNames => (pPreviousData, action) =>
     orderedPhaseNames.reduce(
         (pPrev, phaseName) => pPrev.then(wrapPhase(action, phaseName)),
         pPreviousData.then(utils.rememberRanAction(action))
     );
 
-
-const Runner = (actions, model) => target => {
-    let actionsPath = walkUp(actions, target).map(utils.findByName(actions));
-
-    // Attach the actions that play when walking forward through the tree
-    let runForward = actionsPath.reduce(
-        attachActions(forwardPhaseNames),
-        Promise.resolve(InitialData(target, model)) // TODO return this to be resolved later
-    );
-
-    // After the forward actions have been added, add the actions that reverse back out
-    return actionsPath.reverse().reduce(
+const walkActionsPath = (actionsPath, pInput) =>
+    // 2: After the forward actions have been added, add the actions that reverse back out
+    actionsPath.reverse().reduce(
         attachActions(reversePhaseNames),
-        runForward
+        // 1: Attach the actions that play when walking forward through the tree
+        actionsPath.reduce(attachActions(forwardPhaseNames), pInput)
     );
-}
+
+
+const Runner = (actions, model) => target =>
+    walkActionsPath(
+        walkUp(actions, target).map(utils.findByName(actions)),
+        Promise.resolve(InitialData(target, model))
+    );
 
 export { Runner, Action };
