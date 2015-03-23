@@ -45,8 +45,10 @@ const walkUp = (actions, actionName) =>
 
 const wrapPhase = (action, phaseName) => data => {
     try {
-        let result = action.getIn(['spec', phaseName], _.identity)(data.get('model'));
-        return data.set('model', result);
+        return data.update(
+            'model',
+            action.getIn(['spec', phaseName], _.identity)
+        );
     } catch (why) {
         var e = Error(`${action.get('name')}, ${phaseName}: ${why.message}`);
         e.data = data;
