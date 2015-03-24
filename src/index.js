@@ -37,11 +37,11 @@ let actions = Immutable.List([
 
 const logRan = (data) =>
     console.log(
-        'Ran:',
+        'Ran:\n',
         data.get('ran')
             .map(([action, phaseName]) => `${action.get('name')} (${phaseName})`)
             .toJS()
-            .join(', ')
+            .join('\n ')
     );
 
 const handleFailure = why => {
