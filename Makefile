@@ -12,6 +12,9 @@ install:
 	@npm install
 	@jspm install
 
+lint:
+	@eslint $(dir $(ENTRY))
+
 watch:
 	@make install
 	@nodemon -q -w $(dir $(ENTRY)) --exec make

@@ -39,16 +39,15 @@ const utils = {
      *
      * Returns a string.
      */
-    fakeStack: ((e, f) =>
+    fakeStack: (e, f) =>
         e.stack
             // Just the first line
-            .split('\n').slice(0,1)
+            .split('\n').slice(0, 1)
             .concat(
                 // All but the first line
                 f.stack.split('\n').slice(1)
             )
-            .join('\n')
-    ),
+            .join('\n'),
 
     /**
      * Find keyed value in Immutable iterable by key 'name'.
@@ -73,7 +72,7 @@ const utils = {
  *
  * Returns an Immutable.Map.
  */
-const Action = (name, deps, spec) =>
+const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
     Immutable.fromJS({
         name,
         deps: Immutable.OrderedSet(deps),
@@ -125,12 +124,12 @@ const wrapPhase = (action, phaseName) => data => {
             ran => ran.concat([Immutable.List([ action, phaseName ])])
         );
     } catch (why) {
-        let e = Error(`${action.get('name')}, ${phaseName}: ${why.message}`);
+        let e = new Error(`${ action.get('name') }, ${phaseName}: ${why.message}`);
         e.data = data;
         e.stack = utils.fakeStack(e, why);
         throw e;
     }
-}
+};
 
 /**
  * Add the phases, specified by `orderedPhaseNames`, from the supplied action as callbacks to the
@@ -189,12 +188,12 @@ const buildActionPath = (actions, targetName) =>
  *
  * Returns a Promise for the result of the actions.
  */
-const Runner = (actions, model) => targetName => {
+const Runner = (actions, model) => targetName => { // eslint-disable-line no-unused-vars
     let actionPath = buildActionPath(actions, targetName);
     return walkActionsPath(
         actionPath.map(utils.findByName(actions)),
         Promise.resolve(RunnerData(targetName, model))
     );
-}
+};
 
 export { Runner, Action };

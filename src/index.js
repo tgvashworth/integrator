@@ -13,8 +13,6 @@ import { pluck, findByKey } from './immutable-kit';
 
 // UTILS
 
-const identity = (x => x);
-
 const logRan = (data) => {
     console.log('Data:', data.toJS());
     console.log(
@@ -23,16 +21,14 @@ const logRan = (data) => {
             .map(([action, phaseName]) => `${action.get('name')} (${phaseName})`)
             .toJS()
     );
-}
+};
 
 const handleFailure = why => {
     console.error(why.stack);
     logRan(why.data);
-}
+};
 
-const handleSuccess = data => {
-    logRan(data);
-}
+const handleSuccess = data => logRan(data);
 
 /**
  * Temporary and stupid assertion lib.
@@ -43,7 +39,7 @@ const assert = {
     // Throw with `msg` if `v` isn't truthy
     ok: (v, msg) => {
         if (!v) {
-            throw Error(msg);
+            throw new Error(msg);
         }
     }
 };
@@ -58,7 +54,7 @@ const assert = {
  *
  * Returns a function that calls the passed `fn` and returns its argument.
  */
-const effect = fn => data => { fn(data); return data; }
+const effect = fn => data => { fn(data); return data; };
 
 // APP
 
@@ -102,13 +98,13 @@ let actions = Immutable.List([
     Action('open app', [], {
         setup: data => {
             app.open();
-            return data.set('open', true)
+            return data.set('open', true);
         },
         assert: effect(data => {
             assert.ok(
                 data.get('open') === appState.open,
                 'App did not open'
-            )
+            );
         }),
         teardown: data => {
             app.close();
@@ -118,7 +114,7 @@ let actions = Immutable.List([
             assert.ok(
                 data.get('open') === appState.open,
                 'App did not close'
-            )
+            );
         })
     }),
     Action('B', ['open app'], {}),
