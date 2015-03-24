@@ -11,6 +11,18 @@ import { pluck, findByKey } from './immutable-kit';
 
 let identity = (x => x);
 
+/*
+
+      A
+     / \
+    B   C
+   / \   \
+  D   E — G
+ /       / \
+F ————— H   I
+
+ */
+
 let actions = Immutable.List([
     Action('A', [], {}),
     Action('B', ['A'], {}),
