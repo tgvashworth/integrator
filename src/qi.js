@@ -3,7 +3,7 @@ import _ from 'fnkit';
 
 import { pluck, findByKey } from './immutable-kit';
 
-const forwardPhaseNames = ['setup', 'run', 'assert'];
+const forwardPhaseNames = ['setup', 'assert'];
 const reversePhaseNames = ['teardown'];
 
 const utils = {
