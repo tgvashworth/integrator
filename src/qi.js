@@ -28,7 +28,11 @@ const utils = {
 };
 
 const Action = (name, deps, spec) =>
-    Immutable.fromJS({ name, deps, spec });
+    Immutable.fromJS({
+        name,
+        deps: Immutable.OrderedSet(deps),
+        spec
+    });
 
 const InitialData = (target, model) =>
     Immutable.Map({
@@ -39,12 +43,16 @@ const InitialData = (target, model) =>
 
 const wrapPhase = (action, phaseName) => data => {
     try {
+        // TODO this is really hard to read
         return data.update(
             'model',
             action.getIn(['spec', phaseName], _.identity)
+        ).update(
+            'ran',
+            ran => ran.concat([Immutable.List([ action, phaseName ])])
         );
     } catch (why) {
-        var e = Error(`${action.get('name')}, ${phaseName}: ${why.message}`);
+        let e = Error(`${action.get('name')}, ${phaseName}: ${why.message}`);
         e.data = data;
         e.stack = utils.fakeStack(e, why);
         throw e;
@@ -54,8 +62,14 @@ const wrapPhase = (action, phaseName) => data => {
 const attachActions = orderedPhaseNames => (pPreviousData, action) =>
     orderedPhaseNames.reduce(
         (pPrev, phaseName) => pPrev.then(wrapPhase(action, phaseName)),
-        pPreviousData.then(utils.rememberRanAction(action))
+        pPreviousData
     );
+
+const buildActionPath = (actions, targetName) =>
+    utils.findByName(actions)(targetName)
+        .get('deps')
+        .flatMap(_.partial(buildActionPath, actions))
+        .add(targetName);
 
 const walkActionsPath = (actionsPath, pInput) =>
     // 2: After the forward actions have been added, add the actions that reverse back out
@@ -65,25 +79,8 @@ const walkActionsPath = (actionsPath, pInput) =>
         actionsPath.reduce(attachActions(forwardPhaseNames), pInput)
     );
 
-const dedupe = (arr) =>
-    arr.reduce(
-        (memo, v) =>
-            (memo.contains(v) ?
-                memo :
-                memo.concat(Immutable.List(v))),
-        Immutable.List()
-    );
-
-const buildActionPath = (actions, targetName) =>
-    dedupe(
-        utils.findByName(actions)(targetName)
-            .get('deps')
-            .flatMap(_.partial(buildActionPath, actions))
-    ).concat([targetName]);
-
 const Runner = (actions, model) => targetName => {
     let actionPath = buildActionPath(actions, targetName);
-    console.log('actionPath', actionPath.map(utils.findByName(actions)).toJS());
     return walkActionsPath(
         actionPath.map(utils.findByName(actions)),
         Promise.resolve(InitialData(targetName, model))

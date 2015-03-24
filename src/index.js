@@ -35,21 +35,24 @@ let actions = Immutable.List([
     Action('I', ['G'], {})
 ]);
 
-const handleFailure = why => {
-    console.error(why.stack);
+const logRan = (data) =>
     console.log(
         'Ran:',
-        why.data
-            .get('ran')
-            .map(pluck('name'))
+        data.get('ran')
+            .map(([action, phaseName]) => `${action.get('name')} (${phaseName})`)
             .toJS()
             .join(', ')
     );
+
+const handleFailure = why => {
+    console.error(why.stack);
+    logRan(why.data);
     console.log('Data:', why.data.get('model').toJS());
 }
 
 const handleSuccess = data => {
     console.log('Data:', data.toJS());
+    logRan(data);
 }
 
 var run = Runner(actions, Immutable.fromJS({
