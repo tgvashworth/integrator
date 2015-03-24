@@ -2,6 +2,8 @@
  * TODO
  *
  * - [x] Add teardown phase
+ * - [ ] Can you return a promise from a phase fn?
+ * - [ ] How does data dependency work?
  * - [ ] Run back through minimal actions to move to a different phase
  */
 
@@ -9,7 +11,80 @@ import Immutable from 'immutable';
 import { Runner, Action } from './qi';
 import { pluck, findByKey } from './immutable-kit';
 
-let identity = (x => x);
+// UTILS
+
+const identity = (x => x);
+
+const logRan = (data) => {
+    console.log('Data:', data.toJS());
+    console.log(
+        'Ran:',
+        data.get('ran')
+            .map(([action, phaseName]) => `${action.get('name')} (${phaseName})`)
+            .toJS()
+    );
+}
+
+const handleFailure = why => {
+    console.error(why.stack);
+    logRan(why.data);
+}
+
+const handleSuccess = data => {
+    logRan(data);
+}
+
+/**
+ * Temporary and stupid assertion lib.
+ *
+ * TODO: remove
+ */
+const assert = {
+    // Throw with `msg` if `v` isn't truthy
+    ok: (v, msg) => {
+        if (!v) {
+            throw Error(msg);
+        }
+    }
+};
+
+/**
+ * Create side-effect function that acts as identity of its argument, unless the argument is
+ * mutable.
+ *
+ * Usage:
+ *
+ *      effect(_ => mutateAllTheThings())(a) -> a
+ *
+ * Returns a function that calls the passed `fn` and returns its argument.
+ */
+const effect = fn => data => { fn(data); return data; }
+
+// APP
+
+// Note: mutable, side-effecty, eww... just like the real world.
+var appState = {
+    open: false,
+    todos: [],
+    todoText: ''
+};
+
+var app = {
+    open() {
+        appState.open = true;
+    },
+    close() {
+        appState.open = false;
+    }
+};
+
+// ACTIONS
+
+const model = Immutable.fromJS({
+    open: false,
+    todos: [],
+    todoText: ''
+});
 
 /*
 
@@ -21,12 +96,33 @@ let identity = (x => x);
  /       / \
 F ————— H   I
 
- */
+*/
 
 let actions = Immutable.List([
-    Action('A', [], {}),
-    Action('B', ['A'], {}),
-    Action('C', ['A'], {}),
+    Action('open app', [], {
+        setup: data => {
+            app.open();
+            return data.set('open', true)
+        },
+        assert: effect(data => {
+            assert.ok(
+                data.get('open') === appState.open,
+                'App did not open'
+            )
+        }),
+        teardown: data => {
+            app.close();
+            return data.set('open', false);
+        },
+        finally: effect(data => {
+            assert.ok(
+                data.get('open') === appState.open,
+                'App did not close'
+            )
+        })
+    }),
+    Action('B', ['open app'], {}),
+    Action('C', ['open app'], {}),
     Action('D', ['B'], {}),
     Action('E', ['B'], {}),
     Action('F', ['D'], {}),
@@ -35,31 +131,6 @@ let actions = Immutable.List([
     Action('I', ['G'], {})
 ]);
 
-const logRan = (data) =>
-    console.log(
-        'Ran:\n',
-        data.get('ran')
-            .map(([action, phaseName]) => `${action.get('name')} (${phaseName})`)
-            .toJS()
-            .join('\n ')
-    );
-
-const handleFailure = why => {
-    console.error(why.stack);
-    logRan(why.data);
-    console.log('Data:', why.data.get('model').toJS());
-}
-
-const handleSuccess = data => {
-    console.log('Data:', data.toJS());
-    logRan(data);
-}
-
-var run = Runner(actions, Immutable.fromJS({
-    open: false,
-    user: [],
-    sent: 0,
-    read: 0
-}));
+var run = Runner(actions, model);
 
 run('H').then(handleSuccess, handleFailure);
