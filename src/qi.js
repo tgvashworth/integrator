@@ -37,12 +37,6 @@ const InitialData = (target, model) =>
         ran: Immutable.List()
     });
 
-const walkUp = (actions, actionName) =>
-    utils.findByName(actions)(actionName)
-        .get('deps')
-        .flatMap(_.partial(walkUp, actions))
-        .concat([actionName]);
-
 const wrapPhase = (action, phaseName) => data => {
     try {
         return data.update(
@@ -71,11 +65,29 @@ const walkActionsPath = (actionsPath, pInput) =>
         actionsPath.reduce(attachActions(forwardPhaseNames), pInput)
     );
 
-
-const Runner = (actions, model) => target =>
-    walkActionsPath(
-        walkUp(actions, target).map(utils.findByName(actions)),
-        Promise.resolve(InitialData(target, model))
+const dedupe = (arr) =>
+    arr.reduce(
+        (memo, v) =>
+            (memo.contains(v) ?
+                memo :
+                memo.concat(Immutable.List(v))),
+        Immutable.List()
     );
+
+const buildActionPath = (actions, targetName) =>
+    dedupe(
+        utils.findByName(actions)(targetName)
+            .get('deps')
+            .flatMap(_.partial(buildActionPath, actions))
+    ).concat([targetName]);
+
+const Runner = (actions, model) => targetName => {
+    let actionPath = buildActionPath(actions, targetName);
+    console.log('actionPath', actionPath.map(utils.findByName(actions)).toJS());
+    return walkActionsPath(
+        actionPath.map(utils.findByName(actions)),
+        Promise.resolve(InitialData(targetName, model))
+    );
+}
 
 export { Runner, Action };
