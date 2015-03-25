@@ -9,6 +9,10 @@ all:
 	@jspm bundle-sfx $(ENTRY) $(OUT)
 
 install:
+	@echo "Git hooks..."
+	@ln -s -f ../../hooks/pre-commit .git/hooks/pre-commit
+	@chmod +x .git/hooks/pre-commit
+	@echo "Dependencies..."
 	@npm install
 	@jspm install
 
