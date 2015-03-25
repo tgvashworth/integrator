@@ -115,14 +115,9 @@ const RunnerData = (targetName, model) =>
  */
 const wrapPhase = (action, phaseName) => data => {
     try {
-        // TODO this is really hard to read
-        return data.update(
-            'model',
-            action.getIn(['spec', phaseName], _.identity)
-        ).update(
-            'ran',
-            ran => ran.concat([Immutable.List([ action, phaseName ])])
-        );
+        return data
+            .update('model', action.getIn(['spec', phaseName], _.identity))
+            .update('ran', ran => ran.concat([{ action, phaseName }]));
     } catch (why) {
         let e = new Error(`${ action.get('name') }, ${phaseName}: ${why.message}`);
         e.data = data;

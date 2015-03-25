@@ -18,7 +18,7 @@ const logRan = (data) => {
     console.log(
         'Ran:',
         data.get('ran')
-            .map(([action, phaseName]) => `${action.get('name')} (${phaseName})`)
+            .map(({action, phaseName}) => `${action.get('name')} (${phaseName})`)
             .toJS()
     );
 };
