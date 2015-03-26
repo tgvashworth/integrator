@@ -98,7 +98,7 @@ F ————— H   I
 */
 
 let actions = Immutable.List([
-    Action('open app', [], {
+    Action('A', [], {
         setup: data =>
             // Arbitrary timeout to test it
             Promise.timeout(500)
@@ -122,8 +122,8 @@ let actions = Immutable.List([
                 'App did not close'
             ))
     }),
-    Action('B', ['open app'], {}),
-    Action('C', ['open app'], {}),
+    Action('B', ['A'], {}),
+    Action('C', ['A'], {}),
     Action('D', ['B'], {}),
     Action('E', ['B'], {}),
     Action('F', ['D'], {}),
