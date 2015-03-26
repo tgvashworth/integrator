@@ -1,4 +1,5 @@
-/* eslint-disable */
+/*eslint-env browser, es6*/
+/*globals Action:false, Immutable:false*/
 
 /**
  * Data dependency sketch
@@ -26,8 +27,9 @@ const compose = Immutable.fromJS({
     'empty DM': { mode: 'DM', text: '' }
 });
 
-let inherit = identity
+let inherit = x => x;
 let fallback = (f, v) => x => f(x) || v;
+let always = x => () => x;
 
 // Action specifies the data it's interested in with keys on a `data` Map
 // It supplies a (non-async?) function that returns the data for that key
@@ -40,13 +42,13 @@ Action('login', [], {
     data: {
         user: fallback(inherit, users.get('tom'))
     }
-})
+});
 
 Action('send DM to mutually followed user', ['login'], {
     data: {
         user: always(users.get('wally'))
     }
-})
+});
 
 // Ideas for Action definition:
 
@@ -54,14 +56,14 @@ Action('login', {
     data: {
         user: fallback(inherit, users.get('tom'))
     }
-})
+});
 
 Action('send DM to mutually followed user', {
     needs: ['login', 'open compose', 'DM mode'],
 
     context: {
-        compose: always(compose.get('empty DM'))
+        compose: always(compose.get('empty DM')),
         user: always(users.get('wally'))
     }
-})
+});
 
