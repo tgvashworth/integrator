@@ -17,7 +17,7 @@ install:
 	@jspm install
 
 lint:
-	@eslint $(dir $(ENTRY))
+	@eslint $(dir $(ENTRY)) -c .eslintrc
 
 watch:
 	@make install

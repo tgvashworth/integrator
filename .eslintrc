@@ -1,4 +1,7 @@
 {
+    "env": {
+        "browser": true
+    },
     "ecmaFeatures": {
         "arrowFunctions": true,
         "blockBindings": true,
@@ -10,11 +13,6 @@
         "objectLiteralShorthandProperties": true,
         "spread": true,
         "templateStrings": true
-    },
-    {
-        "env": {
-            "browser": true
-        }
     },
     "parser": "babel-eslint",
     "rules": {
