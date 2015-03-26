@@ -1,6 +1,8 @@
 PATH := node_modules/.bin:$(PATH)
 
 ENTRY := src/index
+SRC = $(wildcard src/*.js)
+SKETCHES = $(wildcard sketches/*.js)
 OUT := build/build.js
 
 .PHONY: all
@@ -17,7 +19,7 @@ install:
 	@jspm install
 
 lint:
-	@eslint $(dir $(ENTRY)) -c .eslintrc
+	@eslint $(SRC) $(SKETCHES) config.js -c .eslintrc
 
 watch:
 	@nodemon -q -w $(dir $(ENTRY)) --exec make

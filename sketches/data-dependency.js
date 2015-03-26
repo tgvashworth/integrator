@@ -1,6 +1,3 @@
-/*eslint-env browser, es6*/
-/*globals Action:false, Immutable:false*/
-
 /**
  * Data dependency sketch
  *
