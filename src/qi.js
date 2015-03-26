@@ -110,21 +110,23 @@ const RunnerData = (targetName, model) =>
  *
  *      wrapPhase(loginAction, 'setup')
  *
- * Returns a function that takes the full RunnerData object and return a new version with changes
- * made by the action, or throws an error to be caught futher on.
+ * Returns a function that takes the full RunnerData object and return a Promise for a new version
+ * with changes made by the action, or a fails with an error to be caught futher on.
  */
-const wrapPhase = (action, phaseName) => data => {
-    try {
-        return data
-            .update('model', action.getIn(['spec', phaseName], _.identity))
-            .update('ran', ran => ran.concat([{ action, phaseName }]));
-    } catch (why) {
-        let e = new Error(`${ action.get('name') }, ${phaseName}: ${why.message}`);
-        e.data = data;
-        e.stack = utils.fakeStack(e, why);
-        throw e;
-    }
-};
+const wrapPhase = (action, phaseName) => data =>
+    Promise.resolve(data.get('model'))
+        .then(action.getIn(['spec', phaseName], _.identity))
+        .then(model => data.set('model', model))
+        .then(data =>
+            data.update('ran', ran =>
+                ran.concat({ action, phaseName })
+            )
+        ).catch(why => {
+            let e = new Error(`${ action.get('name') }, ${phaseName}: ${why.message}`);
+            e.data = data;
+            e.stack = utils.fakeStack(e, why);
+            throw e;
+        });
 
 /**
  * Add the phases, specified by `orderedPhaseNames`, from the supplied action as callbacks to the

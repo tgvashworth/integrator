@@ -2,7 +2,7 @@
  * TODO
  *
  * - [x] Add teardown phase
- * - [ ] Can you return a promise from a phase fn?
+ * - [x] Can you return a promise from a phase fn?
  * - [ ] How does data dependency work?
  * - [ ] Run back through minimal actions to move to a different phase
  */
@@ -43,6 +43,9 @@ const assert = {
         }
     }
 };
+
+Promise.timeout = t =>
+    new Promise(resolve => window.setTimeout(resolve, t));
 
 /**
  * Create side-effect function that acts as identity of its argument, unless the argument is
@@ -96,10 +99,13 @@ F ————— H   I
 
 let actions = Immutable.List([
     Action('open app', [], {
-        setup: data => {
-            app.open();
-            return data.set('open', true);
-        },
+        setup: data =>
+            // Arbitrary timeout to test it
+            Promise.timeout(500)
+                .then(() => {
+                    app.open();
+                    return data.set('open', true);
+                }),
         assert: effect(data => {
             assert.ok(
                 data.get('open') === appState.open,
