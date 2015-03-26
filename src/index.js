@@ -116,12 +116,11 @@ let actions = Immutable.List([
             app.close();
             return data.set('open', false);
         },
-        finally: effect(data => {
+        finally: effect(data =>
             assert.ok(
                 data.get('open') === appState.open,
                 'App did not close'
-            );
-        })
+            ))
     }),
     Action('B', ['open app'], {}),
     Action('C', ['open app'], {}),
