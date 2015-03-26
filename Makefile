@@ -20,5 +20,4 @@ lint:
 	@eslint $(dir $(ENTRY)) -c .eslintrc
 
 watch:
-	@make install
 	@nodemon -q -w $(dir $(ENTRY)) --exec make
