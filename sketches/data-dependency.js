@@ -26,8 +26,8 @@ const compose = Immutable.fromJS({
     'empty DM': { mode: 'DM', text: '' }
 });
 
-inherit = identity
-fallback = (f, v) => x => f(x) || v;
+let inherit = identity
+let fallback = (f, v) => x => f(x) || v;
 
 // Action specifies the data it's interested in with keys on a `data` Map
 // It supplies a (non-async?) function that returns the data for that key
