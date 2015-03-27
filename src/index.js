@@ -5,6 +5,7 @@
  * - [x] Can you return a promise from a phase fn?
  * - [ ] How does data dependency work?
  * - [ ] Run back through minimal actions to move to a different phase
+ * - [ ] "Warning: X requires a user, but has no default"
  */
 
 import Immutable from 'immutable';
@@ -29,6 +30,10 @@ const handleFailure = why => {
 };
 
 const handleSuccess = data => logRan(data);
+
+let inherit = x => x;
+let fallback = (f, v) => x => f(x) || v;
+// let always = x => () => x;
 
 /**
  * Temporary and stupid assertion lib.
@@ -57,7 +62,7 @@ Promise.timeout = t =>
  *
  * Returns a function that calls the passed `fn` and returns its argument.
  */
-const effect = fn => data => { fn(data); return data; };
+const effect = fn => x => { return Promise.resolve(fn(x)).then(() => x); };
 
 // APP
 
@@ -65,7 +70,8 @@ const effect = fn => data => { fn(data); return data; };
 var appState = {
     open: false,
     todos: [],
-    todoText: ''
+    todoText: '',
+    loginFormData: {}
 };
 
 var app = {
@@ -74,8 +80,23 @@ var app = {
     },
     close() {
         appState.open = false;
+    },
+
+    fillInLoginForm(username, password) {
+        appState.loginFormData = { username, password };
+    },
+    clickLogin() {
+        return Promise.timeout(1000)
+            .then(() => {
+                appState.loggedIn = true;
+            });
     }
 };
+
+const users = Immutable.fromJS({
+    wally: { screenName: 'wally', password: '12345' },
+    tom: { screenName: 'tom', password: '12345' }
+});
 
 // ACTIONS
 
@@ -85,53 +106,71 @@ const model = Immutable.fromJS({
     todoText: ''
 });
 
-/*
-
-      A
-     / \
-    B   C
-   / \   \
-  D   E — G
- /       / \
-F ————— H   I
-
-*/
-
 let actions = Immutable.List([
-    Action('A', [], {
-        setup: data =>
+    Action('open app', [], {
+        setup: model =>
             // Arbitrary timeout to test it
             Promise.timeout(500)
                 .then(() => {
                     app.open();
-                    return data.set('open', true);
+                    return model.set('open', true);
                 }),
-        assert: effect(data => {
+        assert: effect(model => {
             assert.ok(
-                data.get('open') === appState.open,
+                model.get('open') === appState.open,
                 'App did not open'
             );
         }),
-        teardown: data => {
+        teardown: model => {
             app.close();
-            return data.set('open', false);
+            return model.set('open', false);
         },
-        finally: effect(data =>
+        finally: effect(model =>
             assert.ok(
-                data.get('open') === appState.open,
+                model.get('open') === appState.open,
                 'App did not close'
             ))
     }),
-    Action('B', ['A'], {}),
-    Action('C', ['A'], {}),
-    Action('D', ['B'], {}),
-    Action('E', ['B'], {}),
-    Action('F', ['D'], {}),
-    Action('G', ['E', 'C'], {}),
-    Action('H', ['F', 'G'], {}),
-    Action('I', ['G'], {})
+
+    Action('fill in login form', ['open app'], {
+        env: {
+            user: fallback(inherit, users.get('wally'))
+        },
+
+        setup: (model, env) => {
+            app.fillInLoginForm(
+                env.getIn(['user', 'screenName']),
+                env.getIn(['user', 'password'])
+            );
+            return model.set('user', env.get('user'));
+        },
+
+        assert: effect(model => {
+            assert.ok(
+                model.getIn(['user', 'screenName']) === appState.loginFormData.username,
+                'Username was not set correctly'
+            );
+        })
+    }),
+
+    Action('login', ['fill in login form'], {
+        env: {
+            user: fallback(inherit, users.get('wally'))
+        },
+
+        setup: effect(() => {
+            return app.clickLogin();
+        }),
+
+        assert: effect(() => {
+            assert.ok(
+                appState.loggedIn,
+                'Failed to login'
+            );
+        })
+    })
 ]);
 
 var run = Runner(actions, model);
 
-run('H').then(handleSuccess, handleFailure);
+run('login').then(handleSuccess, handleFailure);

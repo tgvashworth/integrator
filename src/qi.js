@@ -1,6 +1,8 @@
 import Immutable from 'immutable';
 import _ from 'fnkit';
 
+const { Map, fromJS, OrderedSet, List } = Immutable;
+
 import { pluck, findByKey } from './immutable-kit';
 
 /**
@@ -18,7 +20,7 @@ import { pluck, findByKey } from './immutable-kit';
  * All phases are optional, but it's recommended that you at least supply setup and teardown phase
  * functions.
  *
- * Phase functions are passed the model (an Immutable.Map) and should return it with any changes. If
+ * Phase functions are passed the model (an Map) and should return it with any changes. If
  * your phase function does not need to return any data you can wrap it in `utils.effect` from this
  * file, but the returned value will be ignored.
  */
@@ -63,19 +65,19 @@ const utils = {
 
 /**
  * Exported.
- * Create an action. Passedd `deps` are converted to an Immutable.OrderedSet because you don't want
+ * Create an action. Passedd `deps` are converted to an OrderedSet because you don't want
  * duplicate dependencies.
  *
  * Usage:
  *
  *     Action('login', ['open the app'], { ... })
  *
- * Returns an Immutable.Map.
+ * Returns an Map.
  */
 const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
-    Immutable.fromJS({
+    fromJS({
         name,
-        deps: Immutable.OrderedSet(deps),
+        deps: OrderedSet(deps),
         spec
     });
 
@@ -89,11 +91,12 @@ const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
  *
  * Returns an Immtuable.Map.
  */
-const RunnerData = (targetName, model) =>
-    Immutable.fromJS({
+const RunnerData = (targetName, model, env) =>
+    fromJS({
         targetName,
         model,
-        ran: Immutable.List()
+        env,
+        ran: List()
     });
 
 
@@ -104,7 +107,7 @@ const RunnerData = (targetName, model) =>
  * If an error is caught, it adds to the Error's data to make a more useful error message while
  * maintaing the Error's stack.
  *
- * Takes an `action` (Immutable.Map) and a `phaseName` to be wrapped.
+ * Takes an `action` (Map) and a `phaseName` to be wrapped.
  *
  * Usage:
  *
@@ -115,14 +118,17 @@ const RunnerData = (targetName, model) =>
  */
 const wrapPhase = (action, phaseName) => data =>
     Promise.resolve(data.get('model'))
-        .then(action.getIn(['spec', phaseName], _.identity))
+        .then(model => {
+            let fn = action.getIn(['spec', phaseName], _.identity);
+            return fn(model, data.get('env'));
+        })
         .then(model => data.set('model', model))
         .then(data =>
             data.update('ran', ran =>
                 ran.concat({ action, phaseName })
             )
         ).catch(why => {
-            let e = new Error(`${ action.get('name') }, ${phaseName}: ${why.message}`);
+            let e = new Error(`${phaseName} "${ action.get('name') }": ${why.message}`);
             e.data = data;
             e.stack = utils.fakeStack(e, why);
             throw e;
@@ -157,7 +163,7 @@ const walkActionsPath = (actionsPath, pInput) =>
     );
 
 /**
- * Build an Immutable.OrderedSet of action names should be run to execute and teardown the action
+ * Build an OrderedSet of action names should be run to execute and teardown the action
  * specified by `targetName`.
  *
  * Recurses into the dependency tree of each dependency, left-to-right, to produce the ordered set
@@ -166,7 +172,7 @@ const walkActionsPath = (actionsPath, pInput) =>
  * It relies on the `deps` property of each action being an OrderedSet so that `flatMap` and `add`
  * remove duplicates.
  *
- * Returns an Immutable.OrderedSet of action names to be run.
+ * Returns an OrderedSet of action names to be run.
  */
 const buildActionPath = (actions, targetName) =>
     utils.findByName(actions)(targetName)
@@ -186,10 +192,21 @@ const buildActionPath = (actions, targetName) =>
  * Returns a Promise for the result of the actions.
  */
 const Runner = (actions, model) => targetName => { // eslint-disable-line no-unused-vars
-    let actionPath = buildActionPath(actions, targetName);
+    let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
+
+    const env = actionPath.reverse().reduce((env, action) => {
+        return action
+            .getIn(['spec', 'env'], Map())
+            .entrySeq()
+            .reduce((env, [k, fn]) =>
+                (typeof fn === 'function' ? env.update(k, fn) : env),
+                env
+            );
+    }, Map());
+
     return walkActionsPath(
-        actionPath.map(utils.findByName(actions)),
-        Promise.resolve(RunnerData(targetName, model))
+        actionPath,
+        Promise.resolve(RunnerData(targetName, model, env))
     );
 };
 

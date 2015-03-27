@@ -19,7 +19,7 @@ install:
 	@jspm install
 
 lint:
-	@eslint $(SRC) $(SKETCHES) config.js -c .eslintrc
+	@eslint $(SRC) $(SKETCHES) -c .eslintrc
 
 watch:
 	@nodemon -q -w $(dir $(ENTRY)) --exec make

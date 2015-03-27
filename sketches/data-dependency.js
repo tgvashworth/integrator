@@ -3,7 +3,7 @@
  *
  * Questions:
  *     - How does an action specify the data it cares about?
- *     - How does an action specify when it needs specific data?
+ *     - How does an action specify when it needs specific data (as opposed to *any* data)?
  *     - How are conflicts resolved?
  *     - Can the data at each stage be saved an rolled back?
  *     - Does the data live on the model or separate?
@@ -12,7 +12,7 @@
  *         - Separate pros: can't be mutated in the phase fn, acts like 'context'
  *         - Separate cons: people will inevitably want to combine model/data stuff
  *     - Too many things called 'data'?
- *     - why not Action('X', { deps: [], data: {}, setup: {}, ... })
+ *     - why not Action('X', { deps: [], env: {}, setup: {}, ... })
  */
 
 const users = Immutable.fromJS({
@@ -36,13 +36,13 @@ let always = x => () => x;
 //      - use this
 
 Action('login', [], {
-    data: {
+    env: {
         user: fallback(inherit, users.get('tom'))
     }
 });
 
 Action('send DM to mutually followed user', ['login'], {
-    data: {
+    env: {
         user: always(users.get('wally'))
     }
 });
@@ -50,7 +50,7 @@ Action('send DM to mutually followed user', ['login'], {
 // Ideas for Action definition:
 
 Action('login', {
-    data: {
+    env: {
         user: fallback(inherit, users.get('tom'))
     }
 });
@@ -58,9 +58,8 @@ Action('login', {
 Action('send DM to mutually followed user', {
     needs: ['login', 'open compose', 'DM mode'],
 
-    context: {
+    env: {
         compose: always(compose.get('empty DM')),
         user: always(users.get('wally'))
     }
 });
-
