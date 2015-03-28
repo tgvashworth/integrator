@@ -59,7 +59,8 @@ Promise.timeout = t =>
  *
  * Usage:
  *
- *      effect(_ => mutateAllTheThings())(a) -> a
+ *      fn = effect(() => mutateAllTheThings())
+ *      fn(a) // -> a (mutateAllTheThings will have been called)
  *
  * Returns a function that calls the passed `fn` and returns its argument.
  */
