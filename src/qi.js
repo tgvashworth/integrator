@@ -183,6 +183,46 @@ const buildActionPath = (actions, targetName) =>
         .add(targetName);
 
 /**
+ * Build an 'environment' for the tests to run in. Walks the action path backwards to build up a
+ * Map that will stay constant for the duration of the test running, and throws if it finds any
+ * conflicts on the way.
+ *
+ * Takes a List of Actions, returns a Map.
+ */
+const buildEnv = actionPath => {
+    const initialEnvData = fromJS({ env: {}, envSources: {} });
+    return actionPath.reverse()
+        // Creates [action, k, v] triples for every k/v pair in the action's env spec
+        .flatMap(action =>
+            action
+                .getIn(['spec', 'env'], Map())
+                .entrySeq()
+                .map(([k, v]) => [action, k, v]))
+        // Builds up envData from initialEnvData, growing the env object and remembering the source
+        // of the env's data so that helpful error messages can be generated.
+        .reduce((envData, [action, k, v]) => {
+            let keyPath = ['env', k];
+            // v can be a function, in which case we use it update the env value — otherwise
+            // we just use it as the value directly
+            var newEnvData = envData.updateIn(
+                keyPath,
+                (utils.is('function', v) ? v : () => v)
+            );
+            // Throw if this is not new data and two actions require different data
+            if (envData.getIn(keyPath) &&
+                newEnvData.getIn(keyPath) !== envData.getIn(keyPath)) {
+                throw new Error(
+                    `The required "${k}" context for action "${action.get('name')}"` +
+                    `conflicts with action "${envData.getIn('envSources', k)}"`
+                );
+            }
+            // Remember that this action 'owns' this piece of the env
+            return newEnvData.setIn(['envSources', k], action.get('name'));
+        }, initialEnvData)
+        .get('env');
+};
+
+/**
  * Exported.
  * Create a runner function for the given `actions` and initial `model`.
  *
@@ -196,37 +236,9 @@ const buildActionPath = (actions, targetName) =>
 const Runner = (actions, model) => targetName => { // eslint-disable-line no-unused-vars
     let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
 
-    const envData = fromJS({ env: {}, envSources: {} });
-    const env = actionPath.reverse()
-        .reduce((envData, action) => {
-            return action
-                .getIn(['spec', 'env'], Map())
-                .entrySeq()
-                .reduce((envData, [k, v]) => {
-                    let keyPath = ['env', k];
-                    // v can be a function, in which case we use it update the env value — otherwise
-                    // we just use it as the value directly
-                    var newEnvData = envData.updateIn(
-                        keyPath,
-                        (utils.is('function', v) ? v : () => v)
-                    );
-                    // Throw if this is not new data and two actions require different data
-                    if (envData.getIn(keyPath) &&
-                        newEnvData.getIn(keyPath) !== envData.getIn(keyPath)) {
-                        throw new Error(
-                            `The required "${k}" context for action "${action.get('name')}"` +
-                            `conflicts with action "${envData.getIn('envSources', k)}"`
-                        );
-                    }
-                    // Remember that this action 'owns' this piece of the env
-                    return newEnvData.setIn(['envSources', k], action.get('name'));
-                }, envData);
-        }, envData)
-        .get('env');
-
     return walkActionsPath(
         actionPath,
-        Promise.resolve(RunnerData(targetName, model, env))
+        Promise.resolve(RunnerData(targetName, model, buildEnv(actionPath)))
     );
 };
 

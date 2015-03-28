@@ -198,4 +198,4 @@ let actions = Immutable.List([
 
 var run = Runner(actions, model);
 
-run('conflict with 2FA login').then(handleSuccess, handleFailure);
+run('2FA login').then(handleSuccess, handleFailure);
