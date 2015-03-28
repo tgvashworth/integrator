@@ -6,6 +6,7 @@
  * - [ ] How does data dependency work?
  * - [ ] Run back through minimal actions to move to a different phase
  * - [ ] "Warning: X requires a user, but has no default"
+ * - [ ] fallback(inherit, x) is unreadable
  */
 
 import Immutable from 'immutable';
@@ -95,7 +96,7 @@ var app = {
 
 const users = Immutable.fromJS({
     wally: { screenName: 'wally', password: '12345' },
-    tom: { screenName: 'tom', password: '12345' }
+    tom: { screenName: 'tom', password: '12345', twoFactor: true }
 });
 
 // ACTIONS
@@ -168,9 +169,26 @@ let actions = Immutable.List([
                 'Failed to login'
             );
         })
+    }),
+
+    Action('2FA login', ['fill in login form'], {
+        env: {
+            user: users.get('tom')
+        },
+
+        setup: effect(() => {
+            return app.clickLogin();
+        }),
+
+        assert: effect(() => {
+            assert.ok(
+                appState.loggedIn,
+                'Failed to login'
+            );
+        })
     })
 ]);
 
 var run = Runner(actions, model);
 
-run('login').then(handleSuccess, handleFailure);
+run('2FA login').then(handleSuccess, handleFailure);

@@ -198,8 +198,10 @@ const Runner = (actions, model) => targetName => { // eslint-disable-line no-unu
         return action
             .getIn(['spec', 'env'], Map())
             .entrySeq()
-            .reduce((env, [k, fn]) =>
-                (typeof fn === 'function' ? env.update(k, fn) : env),
+            .reduce((env, [k, v]) =>
+                // v can be a function, in which case we use it update the env value — otherwise we
+                // just use it as the value directly
+                (typeof v === 'function' ? env.update(k, v) : env.get(k, v)),
                 env
             );
     }, Map());
