@@ -60,7 +60,9 @@ const utils = {
      *
      * Return a matching element, or undefined.
      */
-    findByName: findByKey('name')
+    findByName: findByKey('name'),
+
+    is: (type, x) => (typeof x === type)
 };
 
 /**
@@ -194,17 +196,33 @@ const buildActionPath = (actions, targetName) =>
 const Runner = (actions, model) => targetName => { // eslint-disable-line no-unused-vars
     let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
 
-    const env = actionPath.reverse().reduce((env, action) => {
-        return action
-            .getIn(['spec', 'env'], Map())
-            .entrySeq()
-            .reduce((env, [k, v]) =>
-                // v can be a function, in which case we use it update the env value — otherwise we
-                // just use it as the value directly
-                (typeof v === 'function' ? env.update(k, v) : env.get(k, v)),
-                env
-            );
-    }, Map());
+    const envData = fromJS({ env: {}, envSources: {} });
+    const env = actionPath.reverse()
+        .reduce((envData, action) => {
+            return action
+                .getIn(['spec', 'env'], Map())
+                .entrySeq()
+                .reduce((envData, [k, v]) => {
+                    let keyPath = ['env', k];
+                    // v can be a function, in which case we use it update the env value — otherwise
+                    // we just use it as the value directly
+                    var newEnvData = envData.updateIn(
+                        keyPath,
+                        (utils.is('function', v) ? v : () => v)
+                    );
+                    // Throw if this is not new data and two actions require different data
+                    if (envData.getIn(keyPath) &&
+                        newEnvData.getIn(keyPath) !== envData.getIn(keyPath)) {
+                        throw new Error(
+                            `The required "${k}" context for action "${action.get('name')}"` +
+                            `conflicts with action "${envData.getIn('envSources', k)}"`
+                        );
+                    }
+                    // Remember that this action 'owns' this piece of the env
+                    return newEnvData.setIn(['envSources', k], action.get('name'));
+                }, envData);
+        }, envData)
+        .get('env');
 
     return walkActionsPath(
         actionPath,

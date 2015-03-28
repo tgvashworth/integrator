@@ -187,9 +187,15 @@ let actions = Immutable.List([
                 'Failed to login'
             );
         })
+    }),
+
+    Action('conflict with 2FA login', ['2FA login'], {
+        env: {
+            user: users.get('wally')
+        }
     })
 ]);
 
 var run = Runner(actions, model);
 
-run('2FA login').then(handleSuccess, handleFailure);
+run('conflict with 2FA login').then(handleSuccess, handleFailure);
