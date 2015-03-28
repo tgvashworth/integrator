@@ -4,10 +4,7 @@ SRC = $(wildcard src/*.js)
 SKETCHES = $(wildcard sketches/*.js)
 OUT = build/build.js
 
-.PHONY: all install lint watch
-
-all:
-	@$(BIN)jspm bundle-sfx $(ENTRY) $(OUT)
+.PHONY: install lint
 
 install:
 	@echo "Git hooks..."
@@ -19,6 +16,3 @@ install:
 
 lint:
 	@$(BIN)eslint $(SRC) $(SKETCHES) -c .eslintrc
-
-watch:
-	@$(BIN)nodemon -q -w $(dir $(ENTRY)) --exec make

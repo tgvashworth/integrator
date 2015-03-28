@@ -198,4 +198,4 @@ const runnersByName = actions.reduce(
     },
     Immutable.Map()
 );
-go(runnersByName.get('2FA login')).then(handleSuccess, handleFailure);
+go(runnersByName.get('login')).then(handleSuccess, handleFailure);

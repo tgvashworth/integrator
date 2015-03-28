@@ -217,11 +217,14 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
  *
  * Returns a Promise for the result of the actions.
  */
-const go = runner => // eslint-disable-line no-unused-vars
-    walkActionsPath(
+const go = runner => { // eslint-disable-line no-unused-vars
+    console.log('== GO ========================');
+    console.log(`Running "${runner.get('targetName')}"`);
+    return walkActionsPath(
         runner.get('actionPath'),
         Promise.resolve(runner)
     );
+};
 
 /**
  * Exported.

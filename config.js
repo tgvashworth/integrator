@@ -1,5 +1,5 @@
 System.config({
-  "baseURL": "build",
+  "baseURL": "",
   "transpiler": "babel",
   "paths": {
     "*": "*.js",
