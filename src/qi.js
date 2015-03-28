@@ -93,10 +93,11 @@ const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
  *
  * Returns an Immtuable.Map.
  */
-const RunnerData = (targetName, model, env) =>
+const RunnerData = ({ targetName, model, actionPath, env }) =>
     fromJS({
         targetName,
         model,
+        actionPath,
         env,
         ran: List()
     });
@@ -127,7 +128,7 @@ const wrapPhase = (action, phaseName) => data =>
         .then(model => data.set('model', model))
         .then(data =>
             data.update('ran', ran =>
-                ran.concat({ action, phaseName })
+                ran.concat({ action, phaseName, data })
             )
         ).catch(why => {
             let e = new Error(`${phaseName} "${ action.get('name') }": ${why.message}`);
@@ -238,7 +239,12 @@ const Runner = (actions, model) => targetName => { // eslint-disable-line no-unu
 
     return walkActionsPath(
         actionPath,
-        Promise.resolve(RunnerData(targetName, model, buildEnv(actionPath)))
+        Promise.resolve(RunnerData({
+            targetName,
+            model,
+            actionPath,
+            env: buildEnv(actionPath)
+        }))
     );
 };
 
