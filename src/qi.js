@@ -66,24 +66,6 @@ const utils = {
 };
 
 /**
- * Exported.
- * Create an action. Passedd `deps` are converted to an OrderedSet because you don't want
- * duplicate dependencies.
- *
- * Usage:
- *
- *     Action('login', ['open the app'], { ... })
- *
- * Returns an Map.
- */
-const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
-    fromJS({
-        name,
-        deps: OrderedSet(deps),
-        spec
-    });
-
-/**
  * Wrap an action's phase function to capture errors, save changes to the model and store that the
  * phase was run successfully.
  *
@@ -193,7 +175,7 @@ const buildEnv = actionPath => {
             if (envData.getIn(keyPath) &&
                 newEnvData.getIn(keyPath) !== envData.getIn(keyPath)) {
                 throw new Error(
-                    `The required "${k}" context for action "${action.get('name')}"` +
+                    `The required "${k}" env for action "${action.get('name')}"` +
                     `conflicts with action "${envData.getIn('envSources', k)}"`
                 );
             }
@@ -240,5 +222,21 @@ const go = runner => // eslint-disable-line no-unused-vars
         runner.get('actionPath'),
         Promise.resolve(runner)
     );
+
+/**
+ * Exported.
+ *
+ * Usage:
+ *
+ *     Action('login', ['open the app'], { ...phases })
+ *
+ * Returns an Map.
+ */
+const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
+    fromJS({
+        name,
+        deps: OrderedSet(deps),
+        spec
+    });
 
 export { Suite, Runner, Action, go };

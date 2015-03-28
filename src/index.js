@@ -187,15 +187,15 @@ let actions = Immutable.List([
                 'Failed to login'
             );
         })
-    }),
-
-    Action('conflict with 2FA login', ['2FA login'], {
-        env: {
-            user: users.get('wally')
-        }
     })
 ]);
 
 const suite = Suite(actions, model);
-const runner = Runner(suite, '2FA login');
-go(runner).then(handleSuccess, handleFailure);
+const runnersByName = actions.reduce(
+    (rBN, action) => {
+        console.log(`Building Runner for "${action.get('name')}"`);
+        return rBN.set(action.get('name'), Runner(suite, action.get('name')));
+    },
+    Immutable.Map()
+);
+go(runnersByName.get('2FA login')).then(handleSuccess, handleFailure);
