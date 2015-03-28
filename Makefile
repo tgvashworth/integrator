@@ -7,7 +7,7 @@ OUT = build/build.js
 .PHONY: all install lint watch
 
 all:
-	@$(BIN)/jspm bundle-sfx $(ENTRY) $(OUT)
+	@$(BIN)jspm bundle-sfx $(ENTRY) $(OUT)
 
 install:
 	@echo "Git hooks..."
