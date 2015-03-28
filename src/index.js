@@ -62,7 +62,7 @@ Promise.timeout = t =>
  *
  * Returns a function that calls the passed `fn` and returns its argument.
  */
-const effect = fn => x => { return Promise.resolve(fn(x)).then(() => x); };
+const effect = fn => x => Promise.resolve(fn(x)).then(() => x);
 
 // APP
 
