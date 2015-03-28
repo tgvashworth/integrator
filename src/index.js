@@ -10,7 +10,7 @@
  */
 
 import Immutable from 'immutable';
-import { Runner, Action } from './qi';
+import { Suite, Runner, Action, go } from './qi';
 import { pluck, findByKey } from './immutable-kit';
 
 // UTILS
@@ -196,6 +196,6 @@ let actions = Immutable.List([
     })
 ]);
 
-var run = Runner(actions, model);
-
-run('2FA login').then(handleSuccess, handleFailure);
+const suite = Suite(actions, model);
+const runner = Runner(suite, '2FA login');
+go(runner).then(handleSuccess, handleFailure);

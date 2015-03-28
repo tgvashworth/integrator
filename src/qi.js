@@ -84,26 +84,6 @@ const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
     });
 
 /**
- * Create data blob for storing test information. Takes a `targetName` to run, a `model` that
- * represents the test's reference state.
- *
- * Usage:
- *
- *      RunnerData('login', { user: {} })
- *
- * Returns an Immtuable.Map.
- */
-const RunnerData = ({ targetName, model, actionPath, env }) =>
-    fromJS({
-        targetName,
-        model,
-        actionPath,
-        env,
-        ran: List()
-    });
-
-
-/**
  * Wrap an action's phase function to capture errors, save changes to the model and store that the
  * phase was run successfully.
  *
@@ -224,28 +204,41 @@ const buildEnv = actionPath => {
 };
 
 /**
+ * Wrapper around a Suite representation for use in a Runner.
+ */
+const Suite = (actions, model) => fromJS({ actions, model }); // eslint-disable-line no-unused-vars
+
+/**
  * Exported.
- * Create a runner function for the given `actions` and initial `model`.
+ * Create a runner function for the given `suite` (of `actions` and initial `model`).
  *
- * The runner builds and walks the tree, creating a sequence of actions to be run and instantly
- * kicks things off.
+ * This build the 'environment' the tests will run in, and will detect data conflicts.
+ */
+const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
+    let [ actions, model ] = [ suite.get('actions'), suite.get('model') ];
+    let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
+
+    return fromJS({
+        targetName,
+        model,
+        actionPath,
+        env: buildEnv(actionPath),
+        ran: List()
+    });
+};
+
+/**
+ * Exported.
+ * Run the tests from the `runner`.
  *
- * TODO: this should actually hang the promise to allow execution later
+ * Builds and walks the tree, creating a sequence of actions to be run and kicks things off.
  *
  * Returns a Promise for the result of the actions.
  */
-const Runner = (actions, model) => targetName => { // eslint-disable-line no-unused-vars
-    let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
-
-    return walkActionsPath(
-        actionPath,
-        Promise.resolve(RunnerData({
-            targetName,
-            model,
-            actionPath,
-            env: buildEnv(actionPath)
-        }))
+const go = runner => // eslint-disable-line no-unused-vars
+    walkActionsPath(
+        runner.get('actionPath'),
+        Promise.resolve(runner)
     );
-};
 
-export { Runner, Action };
+export { Suite, Runner, Action, go };
