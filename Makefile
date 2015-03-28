@@ -1,14 +1,13 @@
-PATH := node_modules/.bin:$(PATH)
-
-ENTRY := src/index
+BIN = ./node_modules/.bin/
+ENTRY = src/index
 SRC = $(wildcard src/*.js)
 SKETCHES = $(wildcard sketches/*.js)
-OUT := build/build.js
+OUT = build/build.js
 
-.PHONY: all
+.PHONY: all install lint watch
 
 all:
-	@jspm bundle-sfx $(ENTRY) $(OUT)
+	@$(BIN)/jspm bundle-sfx $(ENTRY) $(OUT)
 
 install:
 	@echo "Git hooks..."
@@ -16,10 +15,10 @@ install:
 	@chmod +x .git/hooks/pre-commit
 	@echo "Dependencies..."
 	@npm install
-	@jspm install
+	@$(BIN)jspm install
 
 lint:
-	@eslint $(SRC) $(SKETCHES) -c .eslintrc
+	@$(BIN)eslint $(SRC) $(SKETCHES) -c .eslintrc
 
 watch:
-	@nodemon -q -w $(dir $(ENTRY)) --exec make
+	@$(BIN)nodemon -q -w $(dir $(ENTRY)) --exec make
