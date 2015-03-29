@@ -198,4 +198,13 @@ const runnersByName = actions.reduce(
     },
     Immutable.Map()
 );
+
 go(runnersByName.get('login')).then(handleSuccess, handleFailure);
+
+let A = runnersByName.get('login').get('actionPath').map(pluck('name')).toList();
+let B = runnersByName.get('2FA login').get('actionPath').map(pluck('name')).toList();
+
+console.log('login', A.toJS());
+console.log('2FA login', B.toJS());
+
+console.log('common prefix', A.zip(B).takeWhile(([left, right]) => left === right).map(([left]) => left).toJS());
