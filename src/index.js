@@ -3,7 +3,7 @@
  *
  * - [x] Add teardown phase
  * - [x] Can you return a promise from a phase fn?
- * - [ ] How does data dependency work?
+ * - [x] How does data dependency work?
  * - [ ] Run back through minimal actions to move to a different phase
  * - [ ] "Warning: X requires a user, but has no default"
  * - [ ] fallback(inherit, x) is unreadable

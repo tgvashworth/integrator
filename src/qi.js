@@ -186,6 +186,7 @@ const buildEnv = actionPath => {
 };
 
 /**
+ * Exported.
  * Wrapper around a Suite representation for use in a Runner.
  */
 const Suite = (actions, model) => fromJS({ actions, model }); // eslint-disable-line no-unused-vars
