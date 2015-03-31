@@ -112,20 +112,22 @@ const attachActions = orderedPhaseNames => (pPreviousData, action) =>
     );
 
 /**
- * Walk the `actionsPath` (any Immutable.Iterable) forward and backward, attaching actions to the
+ * Walk the `actionsPath` (any Immutable.Iterable) forward, attaching actions to the
  * `pInput` promise supplied.
- *
- * TODO: it's likely that this won't work long-term as we need to pause and rewind execution
  *
  * Returns a Promise for the result of these actions.
  */
-const walkActionsPath = (actionsPath, pInput) =>
-    // 2: After the forward actions have been added, add the actions that reverse back out
-    actionsPath.reverse().reduce(
-        attachActions(reversePhaseNames),
-        // 1: Attach the actions that play when walking forward through the tree
-        actionsPath.reduce(attachActions(forwardPhaseNames), pInput)
-    );
+const walkActionsPathForward = (actionsPath, pInput) =>
+    actionsPath.reduce(attachActions(forwardPhaseNames), pInput);
+
+/**
+ * Walk the `actionsPath` (any Immutable.Iterable) backward, attaching actions to the
+ * `pInput` promise supplied.
+ *
+ * Returns a Promise for the result of these actions.
+ */
+const walkActionsPathReverse = (actionsPath, pInput) =>
+    actionsPath.reverse().reduce(attachActions(reversePhaseNames), pInput);
 
 /**
  * Build an OrderedSet of action names should be run to execute and teardown the action
@@ -210,6 +212,9 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
     });
 };
 
+const commonPrefix = (A, B) =>
+    A.toList().zip(B.toList()).takeWhile(([left, right]) => left === right).map(([left]) => left);
+
 /**
  * Exported.
  * Run the tests from the `runner`.
@@ -218,12 +223,28 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
  *
  * Returns a Promise for the result of the actions.
  */
-const go = runner => { // eslint-disable-line no-unused-vars
+const go = (runner, { previousRunner }={}) => { // eslint-disable-line no-unused-vars
     console.log('== GO ========================');
     console.log(`Running "${runner.get('targetName')}"`);
-    return walkActionsPath(
-        runner.get('actionPath'),
-        Promise.resolve(runner)
+
+    let forwardActionPath = runner.get('actionPath');
+    let reverseActionPath = List();
+
+    // If there was a previous runner, figure out the minimal set of actions required to run the
+    // current target
+    if (previousRunner) {
+        // Find the actions common to both tests
+        let prefix = commonPrefix(forwardActionPath, previousRunner.get('actionPath'));
+        // Reverse out the actions not present in the new path
+        reverseActionPath = previousRunner.get('actionPath').subtract(prefix);
+        // And run forward to the current target
+        forwardActionPath = forwardActionPath.subtract(prefix);
+    }
+
+    let pInput = Promise.resolve(runner);
+    return walkActionsPathForward(
+        forwardActionPath,
+        walkActionsPathReverse(reverseActionPath, pInput)
     );
 };
 
