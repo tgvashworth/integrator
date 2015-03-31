@@ -188,6 +188,48 @@ const buildEnv = actionPath => {
 };
 
 /**
+ * Find and return the common prefix of two Iterables as a List.
+ *
+ *     A = List(1, 2, 3);
+ *     B = List(1, 2, 4);
+ *     commonPrefix(A, B) === List(1, 2);
+ *
+ * Takes two Interables, returns a List.
+ */
+const commonPrefix = (A, B) =>
+    A.toList().zip(B.toList()).takeWhile(([left, right]) => left === right).map(([left]) => left);
+
+/**
+ * Generate an array for actions to take to run target action of `runner`, in an optional context
+ * of `previousRunner`. If there is a previous runner, we find the minimal set of action required
+ * to get from one t'other.
+ *
+ * Takes some RunnerData that represents the target, and optionally a previous runner that
+ * identifies where we 'are' in the tree of actions.
+ *
+ * Retuns a tuple (ok, Array) containing two Iterable<Action> representing the reverse and forward
+ * actions.
+ */
+const minimalActionPaths = (runner, previousRunner) => {
+    // No previous runner so we can just run forward through the actions
+    if (!previousRunner) {
+        return [ List(), runner.get('actionPath') ];
+    }
+
+    // If there was a previous runner, figure out the minimal set of actions required to run the
+    // current runner
+
+    // Find the actions common to both tests
+    let prefix = commonPrefix(runner.get('actionPath'), previousRunner.get('actionPath'));
+    return [
+        // Reverse out the actions not present in the new path
+        previousRunner.get('actionPath').subtract(prefix),
+        // And run forward to the current target
+        runner.get('actionPath').subtract(prefix)
+    ];
+};
+
+/**
  * Exported.
  * Wrapper around a Suite representation for use in a Runner.
  */
@@ -212,9 +254,6 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
     });
 };
 
-const commonPrefix = (A, B) =>
-    A.toList().zip(B.toList()).takeWhile(([left, right]) => left === right).map(([left]) => left);
-
 /**
  * Exported.
  * Run the tests from the `runner`.
@@ -223,23 +262,12 @@ const commonPrefix = (A, B) =>
  *
  * Returns a Promise for the result of the actions.
  */
-const go = (runner, { previousRunner }={}) => { // eslint-disable-line no-unused-vars
+const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     console.log('== GO ========================');
     console.log(`Running "${runner.get('targetName')}"`);
 
-    let forwardActionPath = runner.get('actionPath');
-    let reverseActionPath = List();
-
-    // If there was a previous runner, figure out the minimal set of actions required to run the
-    // current target
-    if (previousRunner) {
-        // Find the actions common to both tests
-        let prefix = commonPrefix(forwardActionPath, previousRunner.get('actionPath'));
-        // Reverse out the actions not present in the new path
-        reverseActionPath = previousRunner.get('actionPath').subtract(prefix);
-        // And run forward to the current target
-        forwardActionPath = forwardActionPath.subtract(prefix);
-    }
+    // Find the minimal set of actions to take give the current context
+    let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
 
     let pInput = Promise.resolve(runner);
     return walkActionsPathForward(

@@ -201,7 +201,7 @@ const runnersByName = actions.reduce(
 
 go(runnersByName.get('fill in login form'))
     .then(effect(handleSuccess))
-    .then(data => go(runnersByName.get('2FA login'), { previousRunner: data }))
+    .then(previous => go(runnersByName.get('2FA login'), previous))
     .then(effect(handleSuccess))
-    .then(data => go(runnersByName.get('login'), { previousRunner: data }))
+    .then(previous => go(runnersByName.get('login'), previous))
     .then(handleSuccess, handleFailure);
