@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+'use strict';
+
+System = require('systemjs');
+global.System = System;
+
+require('./config.js');
+
+System.import('./examples/' + process.argv[2]);
