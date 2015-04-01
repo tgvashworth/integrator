@@ -1,40 +1,30 @@
-/**
- * TODO
- *
- * - [x] Add teardown phase
- * - [x] Can you return a promise from a phase fn?
- * - [x] How does data dependency work?
- * - [x] Run back through minimal actions to move to a different phase
- * - [ ] "Warning: X requires a user, but has no default"
- * - [ ] fallback(inherit, x) is unreadable
- */
 import Immutable from 'immutable';
 import { Suite, Runner, Action, go } from '../src/integrator';
 import Server from 'leadfoot/Server';
 
 // UTILS
 
-const logRan = (data) => {
-    console.log('== PASSED ========================');
-    // console.log('Data:', data.toJS());
-    console.log(
-        'Ran:',
-        data.get('ran')
-            .map(({action, phaseName}) => `${action.get('name')} (${phaseName})`)
-            .toJS()
-    );
-};
-
 const util = {
     inherit: x => x,
     fallback: (f, v) => x => f(x) || v,
     always: x => () => x,
     log: console.log.bind(console),
-    handleSuccess: data => logRan(data),
+    handleSuccess: data => util.logRan(data),
     handleFailure: why => {
         console.log('== FAILED ========================');
         console.error(why.stack);
-        logRan(why.data);
+        util.logRan(why.data);
+    },
+
+    logRan: (data) => {
+        console.log('== PASSED ========================');
+        // console.log('Data:', data.toJS());
+        console.log(
+            'Ran:',
+            data.get('ran')
+                .map(({action, phaseName}) => `${action.get('name')} (${phaseName})`)
+                .toJS()
+        );
     },
 
     /**
@@ -99,6 +89,8 @@ const runnersByName = actions.reduce(
     ),
     Immutable.Map()
 );
+
+// RUN
 
 var server = new Server('http://127.0.0.1:4444/wd/hub');
 server.createSession({ browserName: 'firefox' })
