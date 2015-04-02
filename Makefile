@@ -15,7 +15,7 @@ install:
 	@chmod +x .git/hooks/pre-commit
 	@echo "Dependencies..."
 	@echo "    Downloading selenium-server..."
-	@wget $(SELENIUM_URL) --quiet
+	@wget $(SELENIUM_URL) --quiet -O $(SELENIUM_JAR)
 	@echo "    Done"
 	@npm install
 	@$(BIN)jspm install
