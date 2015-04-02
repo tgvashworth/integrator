@@ -5,7 +5,15 @@ import Server from 'leadfoot/Server';
 // UTILS
 
 const util = {
-    handleSuccess: data => util.logRan(data),
+    inherit: x => x,
+    fallback: (f, v) => x => f(x) || v,
+    always: x => () => x,
+    log: console.log.bind(console),
+
+    handleSuccess: data => {
+        console.log('== PASSED ========================');
+        util.logRan(data);
+    },
     handleFailure: why => {
         console.log('== FAILED ========================');
         console.error(why.stack);
@@ -13,7 +21,6 @@ const util = {
     },
 
     logRan: (data) => {
-        console.log('== PASSED ========================');
         // console.log('Data:', data.toJS());
         console.log(
             'Ran:',
@@ -51,6 +58,8 @@ const assert = {
     }
 };
 
+Promise.timeout = t => new Promise(resolve => setTimeout(resolve, t));
+
 // ACTIONS
 
 let session; // YUK YUK YUK
@@ -59,7 +68,7 @@ const model = Immutable.fromJS({});
 
 let actions = Immutable.List([
     Action('open app', [], {
-        setup: util.effect(() => session.get('https://google.com')),
+        setup: util.effect(() => session.get('http://localhost:8080/examples/pages/list-app.html')),
 
         assert: util.effect(() => {
             return session
@@ -67,7 +76,7 @@ let actions = Immutable.List([
                 .then(title => {
                     console.log('title', title);
                     assert.ok(
-                        title.trim() === 'Google',
+                        title.trim() === 'List App',
                         'Title is wrong'
                     );
                 });

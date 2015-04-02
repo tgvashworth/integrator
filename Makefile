@@ -7,7 +7,7 @@ SKETCHES = $(wildcard sketches/*.js)
 EXAMPLES = $(wildcard examples/*.js)
 OUT = build/build.js
 
-.PHONY: install lint
+.PHONY: install lint server selenium-server
 
 install:
 	@echo "Git hooks..."
@@ -22,6 +22,9 @@ install:
 
 selenium-server:
 	@java -jar $(SELENIUM_JAR)
+
+server:
+	@python -m SimpleHTTPServer 8080
 
 lint:
 	@$(BIN)eslint $(SRC) $(SKETCHES) $(EXAMPLES) -c .eslintrc
