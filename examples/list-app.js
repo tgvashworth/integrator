@@ -64,7 +64,9 @@ Promise.timeout = t => new Promise(resolve => setTimeout(resolve, t));
 
 let session; // YUK YUK YUK
 
-const model = Immutable.fromJS({});
+const model = Immutable.fromJS({
+    createText: ''
+});
 
 let actions = Immutable.List([
     Action('open app', [], {
@@ -78,6 +80,31 @@ let actions = Immutable.List([
                     assert.ok(
                         title.trim() === 'List App',
                         'Title is wrong'
+                    );
+                });
+        })
+    }),
+
+    Action('write a new list item', ['open app'], {
+        env: {
+            text: 'Hello, world!'
+        },
+
+        setup: (model, env) => {
+            return session
+                .findByName('Create-text')
+                .then(elem => elem.type(env.get('text')))
+                .then(() => model.set('createText', env.get('text')));
+        },
+
+        assert: util.effect(model => {
+            return session
+                .findByName('Create-text')
+                .then(elem => elem.getProperty('value'))
+                .then(value => {
+                    assert.ok(
+                        value === model.get('createText'),
+                        'Create text is wrong'
                     );
                 });
         })
@@ -99,7 +126,7 @@ var server = new Server('http://127.0.0.1:4444/wd/hub');
 server.createSession({ browserName: 'firefox' })
     .then(function (_session) {
         session = _session;
-        go(runnersByName.get('open app'))
+        go(runnersByName.get('write a new list item'))
             .then(util.handleSuccess, util.handleFailure)
             .then(() => session.quit());
     });
