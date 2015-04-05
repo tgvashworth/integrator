@@ -65,7 +65,8 @@ Promise.timeout = t => new Promise(resolve => setTimeout(resolve, t));
 let session; // YUK YUK YUK
 
 const model = Immutable.fromJS({
-    createText: ''
+    createText: '',
+    list: []
 });
 
 let actions = Immutable.List([
@@ -108,6 +109,39 @@ let actions = Immutable.List([
                     );
                 });
         })
+    }),
+
+    Action('add new list item', ['write a new list item'], {
+        setup: model => {
+            return session
+                .findByCssSelector('.Create-submit')
+                .then(elem => elem.click())
+                .then(() =>
+                    model
+                        .update('list', list => list.concat(model.get('createText')))
+                        .set('createText', '')
+                );
+        },
+
+        assert: util.effect(model => {
+            return session
+                .findByCssSelector('.List-list')
+                .then(elem => elem.getVisibleText())
+                .then(text => {
+                    assert.ok(
+                        text === model.get('list').join(''),
+                        'Text was not added to the list'
+                    );
+                })
+                .then(() => session.findByName('Create-text'))
+                .then(elem => elem.getProperty('value'))
+                .then(value => {
+                    assert.ok(
+                        value === model.get('createText'),
+                        'Create text was not cleared wrong'
+                    );
+                });
+        })
     })
 ]);
 
@@ -126,7 +160,7 @@ var server = new Server('http://127.0.0.1:4444/wd/hub');
 server.createSession({ browserName: 'firefox' })
     .then(function (_session) {
         session = _session;
-        go(runnersByName.get('write a new list item'))
+        go(runnersByName.get('add new list item'))
             .then(util.handleSuccess, util.handleFailure)
             .then(() => session.quit());
     });
