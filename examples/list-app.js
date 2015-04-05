@@ -71,7 +71,7 @@ const model = Immutable.fromJS({
 
 let actions = Immutable.List([
     Action('open app', [], {
-        setup: util.effect(() => session.get('http://localhost:8080/examples/pages/list-app.html')),
+        setup: util.effect(() => session.get(process.argv[4] + '/examples/pages/list-app.html')),
 
         assert: util.effect(() => {
             return session
@@ -156,13 +156,15 @@ const runnersByName = actions.reduce(
 
 // RUN
 
-var server = new Server('http://127.0.0.1:4444/wd/hub');
+var server = new Server(process.argv[3]);
 server.createSession({ browserName: 'firefox' })
-    .then(function (_session) {
+    .then(_session => {
         session = _session;
         go(runnersByName.get('add new list item'))
             .then(util.handleSuccess, util.handleFailure)
             .then(() => session.quit());
+    }, why => {
+        console.error(why.stack);
     });
 
 
