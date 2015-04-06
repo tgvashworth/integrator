@@ -1,20 +1,25 @@
-seleniumhub:
-    image: selenium/hub
-    ports:
-        - "4444:4444"
-seleniumhubnginx:
-    volumes:
-        - .:/usr/share/nginx/html
-    image: nginx
-    ports:
-        - "4445:80"
-seleniumnodechrome:
-    links:
-        - seleniumhub:hub
-        - seleniumhubnginx:hubnginx
-    image: selenium/node-chrome
-seleniumnodefirefox:
-    links:
-        - seleniumhub:hub
-        - seleniumhubnginx:hubnginx
-    image: selenium/node-firefox
+tests:
+  build: .
+  command: ./run-example list-app http://hub:4444/wd/hub http://target
+  volumes:
+    - .:/tests
+  links:
+    - hub:hub
+hub:
+  image: selenium/hub
+  ports:
+    - "4444:4444"
+target:
+  volumes:
+    - .:/usr/share/nginx/html
+  image: nginx
+chrome:
+  links:
+    - hub:hub
+    - target:target
+  image: selenium/node-chrome
+firefox:
+  links:
+    - hub:hub
+    - target:target
+  image: selenium/node-firefox
