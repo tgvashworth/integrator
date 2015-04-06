@@ -7,9 +7,13 @@ SKETCHES = $(wildcard sketches/*.js)
 EXAMPLES = $(wildcard examples/*.js)
 OUT = build/build.js
 
-.PHONY: install lint server selenium-server
+.PHONY: docker-install install lint server selenium-server
 
-install:
+docker-install:
+	@npm install
+	@$(BIN)jspm install
+
+install: docker-install
 	@echo "Git hooks..."
 	@ln -s -f ../../hooks/pre-commit .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
@@ -17,8 +21,6 @@ install:
 	@echo "    Downloading selenium-server..."
 	@wget $(SELENIUM_URL) --quiet -O $(SELENIUM_JAR)
 	@echo "    Done"
-	@npm install
-	@$(BIN)jspm install
 
 selenium-server:
 	@java -jar $(SELENIUM_JAR)
