@@ -174,7 +174,7 @@ const buildEnv = actionPath => {
                 (utils.is('function', v) ? v : () => v)
             );
             // Throw if this is not new data and two actions require different data
-            if (envData.getIn(keyPath) &&
+            if (!utils.is('undefined', envData.getIn(keyPath)) &&
                 newEnvData.getIn(keyPath) !== envData.getIn(keyPath)) {
                 throw new Error(
                     `The required "${k}" env for action "${action.get('name')}"` +
