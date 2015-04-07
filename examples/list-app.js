@@ -4,20 +4,24 @@ import Server from 'leadfoot/Server';
 
 // UTILS
 
-const util = {
+const utils = {
     inherit: x => x,
-    fallback: (f, v) => x => f(x) || v,
+    fallback: (f, v) => x => {
+        let fv = f(x);
+        return (utils.is('undefined', fv) ? v : fv);
+    },
     always: x => () => x,
+    is: (type, x) => (typeof x === type),
     log: console.log.bind(console),
 
     handleSuccess: data => {
         console.log('== PASSED ========================');
-        util.logRan(data);
+        utils.logRan(data);
     },
     handleFailure: why => {
         console.log('== FAILED ========================');
         console.error(why.stack);
-        util.logRan(why.data);
+        utils.logRan(why.data);
     },
 
     logRan: (data) => {
@@ -71,9 +75,9 @@ const model = Immutable.fromJS({
 
 let actions = Immutable.List([
     Action('open app', [], {
-        setup: util.effect(() => session.get(process.argv[4] + '/examples/pages/list-app.html')),
+        setup: utils.effect(() => session.get(process.argv[4] + '/examples/pages/list-app.html')),
 
-        assert: util.effect(() => {
+        assert: utils.effect(() => {
             return session
                 .getPageTitle()
                 .then(title => {
@@ -87,7 +91,7 @@ let actions = Immutable.List([
 
     Action('write a new list item', ['open app'], {
         env: {
-            text: 'Hello, world!'
+            text: utils.fallback(utils.inherit, 'Hello, world!')
         },
 
         setup: (model, env) => {
@@ -97,7 +101,7 @@ let actions = Immutable.List([
                 .then(() => model.set('createText', env.get('text')));
         },
 
-        assert: util.effect(model => {
+        assert: utils.effect(model => {
             return session
                 .findByName('Create-text')
                 .then(elem => elem.getProperty('value'))
@@ -117,19 +121,25 @@ let actions = Immutable.List([
                 .then(elem => elem.click())
                 .then(() =>
                     model
-                        .update('list', list => list.concat(model.get('createText')))
+                        .update('list', list => {
+                            console.log('createText', model.get('createText'));
+                            if (!model.get('createText')) {
+                                return list;
+                            }
+                            return list.concat(model.get('createText'));
+                        })
                         .set('createText', '')
                 );
         },
 
-        assert: util.effect(model => {
+        assert: utils.effect(model => {
             return session
                 .findByCssSelector('.List-list')
                 .then(elem => elem.getVisibleText())
                 .then(text => {
                     assert.ok(
                         text === model.get('list').join(''),
-                        'Text was not added to the list'
+                        'Model list does not match reality'
                     );
                 })
                 .then(() => session.findByName('Create-text'))
@@ -137,7 +147,27 @@ let actions = Immutable.List([
                 .then(value => {
                     assert.ok(
                         value === model.get('createText'),
-                        'Create text was not cleared wrong'
+                        'Create text was not cleared'
+                    );
+                });
+        })
+    }),
+
+    Action('prevent adding empty item', ['add new list item'], {
+        env: {
+            text: ''
+        },
+
+        assert: utils.effect(model => {
+            return session
+                .findByCssSelector('.List-list')
+                .then(elem => elem.findAllByCssSelector('li'))
+                .then(items => {
+                    console.log('items.length', items.length);
+                    console.log('list', model.get('list').toJS());
+                    assert.ok(
+                        items.length === model.get('list').count(),
+                        'Rendered list items does not match model'
                     );
                 });
         })
@@ -156,11 +186,13 @@ const runnersByName = actions.reduce(
 // RUN
 
 var server = new Server(process.argv[3]);
-server.createSession({ browserName: 'firefox' })
+server.createSession({ browserName: 'chrome' })
     .then(_session => {
         session = _session;
         go(runnersByName.get('add new list item'))
-            .then(util.handleSuccess, util.handleFailure)
+            .then(utils.effect(utils.handleSuccess), utils.handleFailure)
+            .then(data => go(runnersByName.get('prevent adding empty item'), data))
+            .then(utils.effect(utils.handleSuccess), utils.handleFailure)
             .then(() => session.quit());
     }, why => {
         console.error(why.stack);

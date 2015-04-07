@@ -21,6 +21,7 @@ var App = {
     },
 
     new: function () {
+        if (!Create.el.text.value) { return; }
         var item = document.createElement('li');
         item.textContent = Create.el.text.value;
         List.el.list.appendChild(item);

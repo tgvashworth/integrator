@@ -16,10 +16,3 @@ firefox:
     - hub:hub
     - target:target
   image: selenium/node-firefox
-# tests:
-#   build: .
-#   command: ./run-example list-app http://hub:4444/wd/hub http://target
-#   volumes:
-#     - .:/tests
-#   links:
-#     - hub:hub

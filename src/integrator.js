@@ -230,6 +230,17 @@ const minimalActionPaths = (runner, previousRunner) => {
 };
 
 /**
+ * Merges two runners by copying the previous runner's final model over
+ */
+const mergeRunners = (runner, previousRunner) => {
+    if (!previousRunner) {
+        return runner;
+    }
+
+    return runner.set('model', previousRunner.get('model'));
+};
+
+/**
  * Exported.
  * Wrapper around a Suite representation for use in a Runner.
  */
@@ -269,7 +280,7 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     // Find the minimal set of actions to take give the current context
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
 
-    let pInput = Promise.resolve(runner);
+    let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
     return walkActionsPathForward(
         forwardActionPath,
         walkActionsPathReverse(reverseActionPath, pInput)
