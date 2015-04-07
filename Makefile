@@ -7,7 +7,7 @@ SKETCHES = $(wildcard sketches/*.js)
 EXAMPLES = $(wildcard examples/*.js)
 OUT = build/build.js
 
-.PHONY: docker-install install lint server selenium-server
+.PHONY: docker-install install lint server selenium-server grid
 
 docker-install:
 	@npm install
@@ -27,6 +27,9 @@ selenium-server:
 
 server:
 	@python -m SimpleHTTPServer 8080
+
+grid:
+	@docker-compose up
 
 lint:
 	@$(BIN)eslint $(SRC) $(SKETCHES) $(EXAMPLES) -c .eslintrc
