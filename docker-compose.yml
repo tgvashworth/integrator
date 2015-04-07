@@ -6,6 +6,8 @@ target:
   volumes:
     - .:/usr/share/nginx/html
   image: nginx
+  ports:
+    - "8080:80"
 chrome:
   links:
     - hub:hub
