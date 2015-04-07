@@ -77,7 +77,6 @@ let actions = Immutable.List([
             return session
                 .getPageTitle()
                 .then(title => {
-                    console.log('title', title);
                     assert.ok(
                         title.trim() === 'List App',
                         'Title is wrong'
