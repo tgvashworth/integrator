@@ -25,13 +25,18 @@ const utils = {
     },
 
     logRan: (data) => {
-        // console.log('Data:', data.toJS());
-        console.log(
-            'Ran:',
-            data.get('ran')
-                .map(({action, phaseName}) => `${action.get('name')} (${phaseName})`)
-                .toJS()
-        );
+        data.get('ran')
+            .map(({action, phaseName, data, updatedData}) => {
+                console.log();
+                console.log(`=== ${action.get('name')} (${phaseName}) ===`);
+                console.log('before:', data.get('model'));
+                console.log('after :', updatedData.get('model'));
+                console.log('env', data.get('env'));
+            });
+        console.log();
+        console.log('=== Finally');
+        console.log('Model:', data.get('model').toJS());
+        console.log('Env:', data.get('env').toJS());
     },
 
     /**
@@ -45,7 +50,9 @@ const utils = {
      *
      * Returns a function that calls the passed `fn` and returns its argument.
      */
-    effect: fn => x => Promise.resolve(fn(x)).then(() => x)
+    effect: fn => x => Promise.resolve(fn(x)).then(() => x),
+
+    randBetween: (min, max) => ~~(min + Math.random() * max)
 };
 
 /**
@@ -70,7 +77,7 @@ let session; // YUK YUK YUK
 
 const model = Immutable.fromJS({
     createText: '',
-    list: []
+    list: Immutable.List()
 });
 
 let actions = Immutable.List([
@@ -122,7 +129,6 @@ let actions = Immutable.List([
                 .then(() =>
                     model
                         .update('list', list => {
-                            console.log('createText', model.get('createText'));
                             if (!model.get('createText')) {
                                 return list;
                             }
@@ -138,7 +144,7 @@ let actions = Immutable.List([
                 .then(elem => elem.getVisibleText())
                 .then(text => {
                     assert.ok(
-                        text === model.get('list').join(''),
+                        text === model.get('list').join('\n'),
                         'Model list does not match reality'
                     );
                 })
@@ -163,8 +169,6 @@ let actions = Immutable.List([
                 .findByCssSelector('.List-list')
                 .then(elem => elem.findAllByCssSelector('li'))
                 .then(items => {
-                    console.log('items.length', items.length);
-                    console.log('list', model.get('list').toJS());
                     assert.ok(
                         items.length === model.get('list').count(),
                         'Rendered list items does not match model'
@@ -174,28 +178,39 @@ let actions = Immutable.List([
     })
 ]);
 
+const randomFrom = iterable => iterable.get(utils.randBetween(0, iterable.size));
+
+const randomWalk = (runners, previousRunner) => {
+    let runner = randomFrom(
+        runners.filter(runner => {
+            if (!runner.getIn(['target', 'deps']).size) {
+                return false;
+            }
+            if (!previousRunner) {
+                return true;
+            }
+            return runner.get('targetName') !== previousRunner.get('targetName');
+        })
+    );
+    return go(runner, previousRunner)
+        .then(finishedRunner => randomWalk(runners, finishedRunner));
+};
+
 const suite = Suite(actions, model);
-const runnersByName = actions.reduce(
-    (rBN, action) => rBN.set(
-        action.get('name'),
-        Runner(suite, action.get('name'))
-    ),
-    Immutable.Map()
-);
+const runners = actions.map(action => Runner(suite, action.get('name')));
 
 // RUN
 
 var server = new Server(process.argv[3]);
-server.createSession({ browserName: 'chrome' })
+server.createSession({ browserName: 'firefox' })
     .then(_session => {
         session = _session;
-        go(runnersByName.get('add new list item'))
-            .then(utils.effect(utils.handleSuccess), utils.handleFailure)
-            .then(data => go(runnersByName.get('prevent adding empty item'), data))
-            .then(utils.effect(utils.handleSuccess), utils.handleFailure)
-            .then(() => session.quit());
-    }, why => {
+        return randomWalk(runners)
+            .then(utils.effect(utils.handleSuccess), utils.handleFailure);
+    })
+    .catch(why => {
         console.error(why.stack);
-    });
+    })
+    .then(() => session.quit());
 
 

@@ -87,13 +87,11 @@ const wrapPhase = (action, phaseName) => data =>
             let fn = action.getIn(['spec', phaseName], _.identity);
             return fn(model, data.get('env'));
         })
-        .then(model => data.set('model', model))
-        .then(data =>
-            data.update('ran', ran =>
-                ran.concat({ action, phaseName, data })
-            )
+        .then(updatedModel => data.set('model', updatedModel))
+        .then(updatedData =>
+            updatedData.update('ran', ran => ran.concat({ action, phaseName, data, updatedData }))
         ).catch(why => {
-            let e = new Error(`${phaseName} "${ action.get('name') }": ${why.message}`);
+            let e = new Error(`${ action.get('name') } (${phaseName}): ${why.message}`);
             e.data = data;
             e.stack = utils.fakeStack(e, why);
             throw e;
@@ -237,7 +235,9 @@ const mergeRunners = (runner, previousRunner) => {
         return runner;
     }
 
-    return runner.set('model', previousRunner.get('model'));
+    return runner
+        .set('model', previousRunner.get('model'))
+        .set('ran', previousRunner.get('ran'));
 };
 
 /**
@@ -258,6 +258,7 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
 
     return fromJS({
         targetName,
+        target: utils.findByName(actions)(targetName),
         model,
         actionPath,
         env: buildEnv(actionPath),
