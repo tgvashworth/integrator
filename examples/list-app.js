@@ -75,6 +75,20 @@ Promise.timeout = t => new Promise(resolve => setTimeout(resolve, t));
 
 let session; // YUK YUK YUK
 
+const testUtils = {
+    compareListLength: utils.effect(model => {
+        return session
+            .findByCssSelector('.List-list')
+            .then(elem => elem.findAllByCssSelector('li'))
+            .then(items => {
+                assert.ok(
+                    items.length === model.get('list').count(),
+                    'Rendered list items does not match model'
+                );
+            });
+    })
+};
+
 const model = Immutable.fromJS({
     createText: '',
     list: Immutable.List()
@@ -164,17 +178,22 @@ let actions = Immutable.List([
             text: ''
         },
 
-        assert: utils.effect(model => {
+        assert: testUtils.compareListLength
+    }),
+
+    Action('remove the last list item', ['add new list item'], {
+        env: {
+            text: 'Will be removed!'
+        },
+
+        setup: model => {
             return session
-                .findByCssSelector('.List-list')
-                .then(elem => elem.findAllByCssSelector('li'))
-                .then(items => {
-                    assert.ok(
-                        items.length === model.get('list').count(),
-                        'Rendered list items does not match model'
-                    );
-                });
-        })
+                .findByCssSelector('.List-list .List-item-remove')
+                .then(elem => elem.click())
+                .then(() => model.update('list', list => list.pop()));
+        },
+
+        assert: testUtils.compareListLength
     })
 ]);
 

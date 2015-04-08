@@ -205,6 +205,8 @@ const commonPrefix = (A, B) =>
  * Takes some RunnerData that represents the target, and optionally a previous runner that
  * identifies where we 'are' in the tree of actions.
  *
+ * TODO needs to take into account the env.
+ *
  * Retuns a tuple (ok, Array) containing two Iterable<Action> representing the reverse and forward
  * actions.
  */
