@@ -76,7 +76,7 @@ Promise.timeout = t => new Promise(resolve => setTimeout(resolve, t));
 let session; // YUK YUK YUK
 
 const testUtils = {
-    compareListLength: utils.effect(model => {
+    compareList: utils.effect(model => {
         return session
             .findByCssSelector('.List-list')
             .then(elem => elem.findAllByCssSelector('li span'))
@@ -85,6 +85,18 @@ const testUtils = {
                 assert.ok(
                     items.length === model.get('list').count(),
                     'Rendered list items does not match model'
+                );
+            });
+    }),
+
+    compareCreateText: utils.effect(model => {
+        return session
+            .findByName('Create-text')
+            .then(elem => elem.getProperty('value'))
+            .then(value => {
+                assert.ok(
+                    value === model.get('createText'),
+                    'Create text is wrong'
                 );
             });
     })
@@ -123,17 +135,16 @@ let actions = Immutable.List([
                 .then(() => model.set('createText', env.get('text')));
         },
 
-        assert: utils.effect(model => {
+        assert: testUtils.compareCreateText,
+
+        teardown: model => {
             return session
                 .findByName('Create-text')
-                .then(elem => elem.getProperty('value'))
-                .then(value => {
-                    assert.ok(
-                        value === model.get('createText'),
-                        'Create text is wrong'
-                    );
-                });
-        })
+                .then(elem => elem.clearValue())
+                .then(() => model.set('createText', ''));
+        },
+
+        finally: testUtils.compareCreateText
     }),
 
     Action('add new list item', ['write a new list item'], {
@@ -153,17 +164,7 @@ let actions = Immutable.List([
                 );
         },
 
-        assert: utils.effect(model => {
-            return testUtils.compareListLength(model)
-                .then(() => session.findByName('Create-text'))
-                .then(elem => elem.getProperty('value'))
-                .then(value => {
-                    assert.ok(
-                        value === model.get('createText'),
-                        'Create text was not cleared'
-                    );
-                });
-        })
+        assert: testUtils.compareCreateText
     }),
 
     Action('try adding empty item', ['add new list item'], {
@@ -171,7 +172,7 @@ let actions = Immutable.List([
             text: ''
         },
 
-        assert: testUtils.compareListLength
+        assert: testUtils.compareList
     }),
 
     Action('remove the last list item', ['add new list item'], {
@@ -187,7 +188,7 @@ let actions = Immutable.List([
                 .then(() => model.update('list', list => list.pop()));
         },
 
-        assert: testUtils.compareListLength
+        assert: testUtils.compareList
     })
 ]);
 

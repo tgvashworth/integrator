@@ -199,12 +199,17 @@ const commonPrefix = (A, B) =>
         .takeWhile(([left, right]) => left.equals(right))
         .map(([left]) => left);
 
-const actionsWithRelevantEnv = runner =>
+/**
+ * Extracts actions with env data that is relevant to them from a runner.
+ *
+ * Returns a List of Maps in the form Map { action: action, env: filteredEnv }
+ */
+const actionPathWithRelevantEnv = runner =>
     runner.get('actionPath')
         .map(action => {
             let relevantEnvKeys = action.getIn(['spec', 'env'], Map()).keySeq();
             let filteredEnv = runner.get('env').filter((v, k) => relevantEnvKeys.contains(k));
-            return fromJS({ action, filteredEnv });
+            return fromJS({ action, env: filteredEnv });
         });
 
 /**
@@ -214,8 +219,6 @@ const actionsWithRelevantEnv = runner =>
  *
  * Takes some RunnerData that represents the target, and optionally a previous runner that
  * identifies where we 'are' in the tree of actions.
- *
- * TODO needs to take into account the env.
  *
  * Retuns a tuple (ok, Array) containing two Iterable<Action> representing the reverse and forward
  * actions.
@@ -231,8 +234,10 @@ const minimalActionPaths = (runner, previousRunner) => {
 
     // Find the actions common to both tests
     let prefix = commonPrefix(
-        actionsWithRelevantEnv(runner),
-        actionsWithRelevantEnv(previousRunner)
+        // The env of each action is relevant to whether or not it needs to be torn-down,
+        // so we have to tease out the env data relevant to the action for comparison
+        actionPathWithRelevantEnv(runner),
+        actionPathWithRelevantEnv(previousRunner)
     );
 
     return [
@@ -298,10 +303,10 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
 
     console.log(
-        '  ' + reverseActionPath.reverse().map(pluck('name')).join(' ~> ')
+        '  Teardown: ' + reverseActionPath.reverse().map(pluck('name')).join(' -> ')
     );
     console.log(
-        '  ' + forwardActionPath.map(pluck('name')).join(' -> ')
+        '  Setup   : ' + forwardActionPath.map(pluck('name')).join(' -> ')
     );
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
