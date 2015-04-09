@@ -14,14 +14,12 @@ const utils = {
     is: (type, x) => (typeof x === type),
     log: console.log.bind(console),
 
-    handleSuccess: data => {
+    handleSuccess: () => {
         console.log('== PASSED ========================');
-        utils.logRan(data);
     },
     handleFailure: why => {
         console.log('== FAILED ========================');
         console.error(why.stack);
-        utils.logRan(why.data);
     },
 
     logRan: (data) => {
@@ -228,4 +226,6 @@ server.createSession({ browserName: 'firefox' })
     })
     .then(() => session.quit());
 
-
+process.on('SIGINT', function() {
+    session.quit();
+});
