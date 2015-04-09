@@ -195,7 +195,17 @@ const buildEnv = actionPath => {
  * Takes two Interables, returns a List.
  */
 const commonPrefix = (A, B) =>
-    A.toList().zip(B.toList()).takeWhile(([left, right]) => left === right).map(([left]) => left);
+    A.toList().zip(B.toList())
+        .takeWhile(([left, right]) => left.equals(right))
+        .map(([left]) => left);
+
+const actionsWithRelevantEnv = runner =>
+    runner.get('actionPath')
+        .map(action => {
+            let relevantEnvKeys = action.getIn(['spec', 'env'], Map()).keySeq();
+            let filteredEnv = runner.get('env').filter((v, k) => relevantEnvKeys.contains(k));
+            return fromJS({ action, filteredEnv });
+        });
 
 /**
  * Generate an array for actions to take to run target action of `runner`, in an optional context
@@ -221,14 +231,15 @@ const minimalActionPaths = (runner, previousRunner) => {
 
     // Find the actions common to both tests
     let prefix = commonPrefix(
-        List([ runner.get('actionPath'), runner.get('env') ]),
-        List([ previousRunner.get('actionPath'), previousRunner.get('env') ])
+        actionsWithRelevantEnv(runner),
+        actionsWithRelevantEnv(previousRunner)
     );
+
     return [
         // Reverse out the actions not present in the new path
-        previousRunner.get('actionPath').subtract(prefix),
+        previousRunner.get('actionPath').subtract(prefix.map(pluck('action'))),
         // And run forward to the current target
-        runner.get('actionPath').subtract(prefix)
+        runner.get('actionPath').subtract(prefix.map(pluck('action')))
     ];
 };
 
