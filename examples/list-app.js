@@ -79,7 +79,8 @@ const testUtils = {
     compareListLength: utils.effect(model => {
         return session
             .findByCssSelector('.List-list')
-            .then(elem => elem.findAllByCssSelector('li'))
+            .then(elem => elem.findAllByCssSelector('li span'))
+            .then(elems => Promise.all(elems.map(elem => elem.getVisibleText())))
             .then(items => {
                 assert.ok(
                     items.length === model.get('list').count(),
@@ -153,15 +154,7 @@ let actions = Immutable.List([
         },
 
         assert: utils.effect(model => {
-            return session
-                .findByCssSelector('.List-list')
-                .then(elem => elem.getVisibleText())
-                .then(text => {
-                    assert.ok(
-                        text === model.get('list').join('\n'),
-                        'Model list does not match reality'
-                    );
-                })
+            return testUtils.compareListLength(model)
                 .then(() => session.findByName('Create-text'))
                 .then(elem => elem.getProperty('value'))
                 .then(value => {
@@ -173,7 +166,7 @@ let actions = Immutable.List([
         })
     }),
 
-    Action('prevent adding empty item', ['add new list item'], {
+    Action('try adding empty item', ['add new list item'], {
         env: {
             text: ''
         },
@@ -188,7 +181,8 @@ let actions = Immutable.List([
 
         setup: model => {
             return session
-                .findByCssSelector('.List-list .List-item-remove')
+                .findAllByCssSelector('.List-list .List-item-remove')
+                .then(elems => Immutable.List(elems).last())
                 .then(elem => elem.click())
                 .then(() => model.update('list', list => list.pop()));
         },
@@ -212,6 +206,7 @@ const randomWalk = (runners, previousRunner) => {
         })
     );
     return go(runner, previousRunner)
+        .then(utils.effect(() => console.log()))
         .then(finishedRunner => randomWalk(runners, finishedRunner));
 };
 

@@ -220,7 +220,10 @@ const minimalActionPaths = (runner, previousRunner) => {
     // current runner
 
     // Find the actions common to both tests
-    let prefix = commonPrefix(runner.get('actionPath'), previousRunner.get('actionPath'));
+    let prefix = commonPrefix(
+        List([ runner.get('actionPath'), runner.get('env') ]),
+        List([ previousRunner.get('actionPath'), previousRunner.get('env') ])
+    );
     return [
         // Reverse out the actions not present in the new path
         previousRunner.get('actionPath').subtract(prefix),
@@ -282,6 +285,13 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
 
     // Find the minimal set of actions to take give the current context
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
+
+    console.log(
+        '  ' + reverseActionPath.reverse().map(pluck('name')).join(' ~> ')
+    );
+    console.log(
+        '  ' + forwardActionPath.map(pluck('name')).join(' -> ')
+    );
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
     return walkActionsPathForward(

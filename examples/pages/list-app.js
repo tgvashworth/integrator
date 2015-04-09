@@ -29,7 +29,7 @@ dom.attr.class = function (spec) {
       return spec[k];
     }).reduce(function (memo, k) {
       memo.v = memo.v + ' ' + k;
-      return memo.trim();
+      return memo;
     }, { k: 'class', v: '' });
   };
 };
@@ -55,27 +55,46 @@ var App = {
 
         Create.el.submit.addEventListener('click', App.new);
         Create.el.text.addEventListener('keypress', App.keypress);
+        List.el.list.addEventListener('click', App.remove);
+
+        App.reset();
     },
 
     new: function () {
         if (!Create.el.text.value) { return; }
 
         var item = dom.make('li', [], [
-            dom.text(Create.el.text.value),
+            dom.make('span', [], [ dom.text(Create.el.text.value) ]),
             dom.make('button', [ dom.attr.class({ 'List-item-remove': true }) ], [
                 dom.text('x')
             ])
         ]);
 
         List.el.list.appendChild(item);
-        Create.el.text.value = '';
-        Create.el.text.focus();
+        App.reset();
+    },
+
+    remove: function (e) {
+        if (!e.target.classList.contains('List-item-remove')) {
+            return;
+        }
+
+        var item = e.target.parentNode;
+        item.parentNode.removeChild(item);
+
+        App.reset();
     },
 
     keypress: function (e) {
         if (e.keyCode === 13) {
+            e.preventDefault();
             App.new();
         }
+    },
+
+    reset: function () {
+        Create.el.text.value = '';
+        Create.el.text.focus();
     }
 };
 
