@@ -130,6 +130,11 @@ const runners = utils.makeRunners(suite);
 
 // RUN
 
+if (process.argv[3] === 'graph') {
+    utils.actionGraph(suite);
+    process.exit(); // eslint-disable-line no-process-exit
+}
+
 var server = new Server(process.argv[3]);
 server.createSession({ browserName: process.argv[5] })
     .then(_session => {

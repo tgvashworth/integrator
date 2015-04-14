@@ -67,7 +67,36 @@ const utils = {
             .then(finishedRunner => utils.randomWalk(runners, finishedRunner));
     },
 
-    makeRunners: suite => suite.get('actions').map(action => Runner(suite, action.get('name')))
+    makeRunners: suite => suite.get('actions').map(action => Runner(suite, action.get('name'))),
+
+    actionGraph: suite => {
+        const nodeNodeNames = suite.get('actions').map(action => ({
+            action,
+            name: action.get('name'),
+            nodeName: action.get('name').replace(/\s/g, '_'),
+            deps: action.get('deps').map(dep => dep.replace(/\s/g, '_'))
+        }));
+
+        console.log('digraph G {');
+
+        nodeNodeNames
+            .map(({name, nodeName}) => {
+                console.log('  node [] ', nodeName, ' {');
+                console.log('    label = "' + name + '"');
+                console.log('  }');
+            });
+
+        console.log();
+
+        nodeNodeNames
+            .map(({nodeName, deps}) => {
+                deps.map(dep => {
+                    console.log('  ', dep, '->', nodeName, '[];');
+                });
+            });
+
+        console.log('}');
+    }
 };
 
 export default utils;
