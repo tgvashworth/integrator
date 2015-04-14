@@ -40,9 +40,9 @@ const utils = {
      * Usage:
      *
      *      fn = effect(() => mutateAllTheThings())
-     *      fn(a) // -> a (mutateAllTheThings will have been called)
+     *      fn(a) // -> Promise(a) (mutateAllTheThings will have been called)
      *
-     * Returns a function that calls the passed `fn` and returns its argument.
+     * Returns a function that calls the passed `fn` and returns a Promise for its argument.
      */
     effect: fn => x => Promise.resolve(fn(x)).then(() => x),
 
