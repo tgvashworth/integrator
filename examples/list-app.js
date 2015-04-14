@@ -1,73 +1,8 @@
 import Immutable from 'immutable';
 import { Suite, Runner, Action, go } from '../src/integrator';
+import utils from './example-utils';
+import assert from './example-assert';
 import Server from 'leadfoot/Server';
-
-// UTILS
-
-const utils = {
-    inherit: x => x,
-    fallback: (f, v) => x => {
-        let fv = f(x);
-        return (utils.is('undefined', fv) ? v : fv);
-    },
-    always: x => () => x,
-    is: (type, x) => (typeof x === type),
-    log: console.log.bind(console),
-
-    handleSuccess: () => {
-        console.log('== PASSED ========================');
-    },
-    handleFailure: why => {
-        console.log('== FAILED ========================');
-        console.error(why.stack);
-    },
-
-    logRan: (data) => {
-        data.get('ran')
-            .map(({action, phaseName, data, updatedData}) => {
-                console.log();
-                console.log(`=== ${action.get('name')} (${phaseName}) ===`);
-                console.log('before:', data.get('model'));
-                console.log('after :', updatedData.get('model'));
-                console.log('env', data.get('env'));
-            });
-        console.log();
-        console.log('=== Finally');
-        console.log('Model:', data.get('model').toJS());
-        console.log('Env:', data.get('env').toJS());
-    },
-
-    /**
-     * Create side-effect function that acts as identity of its argument, unless the argument is
-     * mutable.
-     *
-     * Usage:
-     *
-     *      fn = effect(() => mutateAllTheThings())
-     *      fn(a) // -> a (mutateAllTheThings will have been called)
-     *
-     * Returns a function that calls the passed `fn` and returns its argument.
-     */
-    effect: fn => x => Promise.resolve(fn(x)).then(() => x),
-
-    randBetween: (min, max) => ~~(min + Math.random() * max)
-};
-
-/**
- * Temporary and stupid assertion lib.
- *
- * TODO: remove
- */
-const assert = {
-    // Throw with `msg` if `v` isn't truthy
-    ok: (v, msg) => {
-        if (!v) {
-            throw new Error(msg);
-        }
-    }
-};
-
-Promise.timeout = t => new Promise(resolve => setTimeout(resolve, t));
 
 // ACTIONS
 
@@ -190,35 +125,16 @@ let actions = Immutable.List([
     })
 ]);
 
-const randomFrom = iterable => iterable.get(utils.randBetween(0, iterable.size));
-
-const randomWalk = (runners, previousRunner) => {
-    let runner = randomFrom(
-        runners.filter(runner => {
-            if (!runner.getIn(['target', 'deps']).size) {
-                return false;
-            }
-            if (!previousRunner) {
-                return true;
-            }
-            return runner.get('targetName') !== previousRunner.get('targetName');
-        })
-    );
-    return go(runner, previousRunner)
-        .then(utils.effect(() => console.log()))
-        .then(finishedRunner => randomWalk(runners, finishedRunner));
-};
-
 const suite = Suite(actions, model);
-const runners = actions.map(action => Runner(suite, action.get('name')));
+const runners = utils.makeRunners(suite);
 
 // RUN
 
 var server = new Server(process.argv[3]);
-server.createSession({ browserName: 'firefox' })
+server.createSession({ browserName: process.argv[5] })
     .then(_session => {
         session = _session;
-        return randomWalk(runners)
+        return utils.randomWalk(runners)
             .then(utils.effect(utils.handleSuccess), utils.handleFailure);
     })
     .catch(why => {

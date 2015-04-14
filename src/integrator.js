@@ -306,6 +306,9 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
         '  Teardown: ' + reverseActionPath.reverse().map(pluck('name')).join(' -> ')
     );
     console.log(
+        '  Env     :', runner.get('env').toJS()
+    );
+    console.log(
         '  Setup   : ' + forwardActionPath.map(pluck('name')).join(' -> ')
     );
 
