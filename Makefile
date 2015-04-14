@@ -26,7 +26,7 @@ selenium-server:
 	@java -jar $(SELENIUM_JAR)
 
 server:
-	@python -m SimpleHTTPServer 8080
+	@python -m SimpleHTTPServer 9876
 
 grid:
 	@docker-compose up
