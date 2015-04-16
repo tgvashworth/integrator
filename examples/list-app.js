@@ -88,12 +88,14 @@ let actions = Immutable.List([
                 .then(() =>
                     model
                         .update('list', list => {
-                            if (!model.get('createText')) {
+                            if (!model.get('createText') || model.get('createText').length > 40) {
                                 return list;
                             }
                             return list.concat(model.get('createText'));
                         })
-                        .set('createText', '')
+                        .update('createText', createText => {
+                            return (createText.length > 40 ? createText : '');
+                        })
                 );
         },
 
@@ -103,6 +105,14 @@ let actions = Immutable.List([
     Action('try adding empty item', ['add new list item'], {
         env: {
             text: ''
+        },
+
+        assert: testUtils.compareList
+    }),
+
+    Action('try adding too-long item', ['add new list item'], {
+        env: {
+            text: 'This item is too long and will not be accepted'
         },
 
         assert: testUtils.compareList

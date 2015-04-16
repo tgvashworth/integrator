@@ -62,6 +62,7 @@ var App = {
 
     new: function () {
         if (!Create.el.text.value) { return; }
+        if (Create.el.text.value.length > 40) { return; }
 
         var item = dom.make('li', [], [
             dom.make('span', [], [ dom.text(Create.el.text.value) ]),
