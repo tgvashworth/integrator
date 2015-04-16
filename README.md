@@ -16,7 +16,7 @@ An experiment in fixing integration testing.
 ```
 $ make install
 $ make grid
-$ ./run-example list-app http://$(docker-machine ip):4444/wd/hub http://target
+$ ./run --hub http://$(docker-machine ip):4444/wd/hub --browser chrome --suite examples/list-app --base http://target
 ```
 
 ### License

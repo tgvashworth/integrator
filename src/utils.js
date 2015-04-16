@@ -73,7 +73,7 @@ const utils = {
         const nodeNodeNames = suite.get('actions').map(action => ({
             action,
             name: action.get('name'),
-            nodeName: action.get('name').replace(/\s/g, '_'),
+            nodeName: action.get('name').replace(/[\s-]/g, '_'),
             deps: action.get('deps').map(dep => dep.replace(/\s/g, '_'))
         }));
 

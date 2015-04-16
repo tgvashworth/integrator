@@ -1,12 +1,12 @@
 import Immutable from 'immutable';
 import { Suite, Runner, Action, go } from '../src/integrator';
-import utils from './example-utils';
+import utils from '../src/utils';
 import assert from './example-assert';
-import Server from 'leadfoot/Server';
 
 // ACTIONS
 
 let session; // YUK YUK YUK
+let config; // YUK YUK YUK
 
 const testUtils = {
     compareList: utils.effect(model => {
@@ -42,7 +42,7 @@ const model = Immutable.fromJS({
 
 let actions = Immutable.List([
     Action('open app', [], {
-        setup: utils.effect(() => session.get(process.argv[4] + '/examples/pages/list-app.html')),
+        setup: utils.effect(() => session.get(config.base + '/examples/pages/list-app.html')),
 
         assert: utils.effect(() => {
             return session
@@ -135,28 +135,12 @@ let actions = Immutable.List([
     })
 ]);
 
-const suite = Suite(actions, model);
-const runners = utils.makeRunners(suite);
-
 // RUN
 
-if (process.argv[3] === 'graph') {
-    utils.actionGraph(suite);
-    process.exit(); // eslint-disable-line no-process-exit
-}
+const initSuite = (_session, _config) => {
+    session = _session;
+    config = _config;
+    return Suite(actions, model);
+};
 
-var server = new Server(process.argv[3]);
-server.createSession({ browserName: process.argv[5] })
-    .then(_session => {
-        session = _session;
-        return utils.randomWalk(runners)
-            .then(utils.effect(utils.handleSuccess), utils.handleFailure);
-    })
-    .catch(why => {
-        console.error(why.stack);
-    })
-    .then(() => session.quit());
-
-process.on('SIGINT', function() {
-    session.quit();
-});
+export default initSuite;

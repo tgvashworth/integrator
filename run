@@ -7,4 +7,4 @@ global.System = System;
 
 require('./config.js');
 
-System.import('./examples/' + process.argv[2]);
+System.import('./src/runner');

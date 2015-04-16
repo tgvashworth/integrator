@@ -20,6 +20,7 @@ System.config({
     "fnkit": "npm:fnkit@1.0.1",
     "immutable": "npm:immutable@3.7.1",
     "leadfoot": "npm:leadfoot@1.2.1",
+    "minimist": "npm:minimist@1.1.1",
     "github:jspm/nodelibs-assert@0.1.0": {
       "assert": "npm:assert@1.3.0"
     },
