@@ -42,9 +42,7 @@ The model should reflect the state of the application being tested in a simple d
 - Actions that depend on each other *form a graph* that Integrator uses determine what to run when
 - It can randomly choose actions from the graph, and moves from action-to-action in way that optimises for the *least amount of work*
 
-Actions have four phases: *setup*, *assert*, *teardown* and *finally*.
-
-> "finally" will be renamed to "done"
+Actions have four phases: *setup*, *assert*, *teardown* and *done*.
 
 Every phase function takes the current model (and more, to be documented) and must return a Promise for the (possibly updated) model.
 
@@ -80,7 +78,7 @@ Action(
 
 As mentioned above, a test suite is the combination of an action graph and a model. The model should be modified by the actions phases to track their expected changes to the application state, but in a simplified way.
 
-For example, in a todo application the model would contain a list of todo items that contain the text of the todo. In the assertion phases (`assert` and `finally`), the model list would be checked against the list in real page, as the user sees it. The [list-app example][examples/list-app.js] does this this.
+For example, in a todo application the model would contain a list of todo items that contain the text of the todo. In the assertion phases (`assert` and `done`), the model list would be checked against the list in real page, as the user sees it. The [list-app example][examples/list-app.js] does this this.
 
 Since the model will change and grow over time, the assertions should be generic and flexible. This means, for example, that the todo list tests should compare the length and text of the complete list every time, rather than checking that a specific item has been added in a specific place. This also aids the reusability of the assertions.
 

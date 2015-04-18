@@ -15,7 +15,7 @@ import { pluck, findByKey } from './immutable-kit';
  *
  * Reverse phases:
  *     `teardown` : perform actions to undo `setup`, and reflect this in the model.
- *     `finally`  : run tests to check that the subject tore down correctly.
+ *     `done`     : run tests to check that the subject tore down correctly.
  *
  * All phases are optional, but it's recommended that you at least supply setup and teardown phase
  * functions.
@@ -25,7 +25,7 @@ import { pluck, findByKey } from './immutable-kit';
  * file, but the returned value will be ignored.
  */
 const forwardPhaseNames = ['setup', 'assert'];
-const reversePhaseNames = ['teardown', 'finally'];
+const reversePhaseNames = ['teardown', 'done'];
 
 const utils = {
     /**

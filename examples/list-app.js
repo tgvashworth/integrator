@@ -77,7 +77,7 @@ let actions = Immutable.List([
                 .then(() => model.set('createText', ''));
         },
 
-        finally: testUtils.compareCreateText
+        done: testUtils.compareCreateText
     }),
 
     Action('add new list item', ['write a new list item'], {
