@@ -29,7 +29,7 @@ server:
 	@python -m SimpleHTTPServer 9876
 
 grid:
-	@docker-compose up
+	@docker-compose --file config/docker-compose.yml up
 
 lint:
 	@$(BIN)eslint $(SRC) $(SKETCHES) $(EXAMPLES) -c .eslintrc

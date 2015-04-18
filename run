@@ -2,9 +2,9 @@
 
 'use strict';
 
-System = require('systemjs');
+var System = require('systemjs');
 global.System = System;
 
-require('./config.js');
+require('./config/config.js');
 
 System.import('./src/runner');

@@ -18,7 +18,7 @@ System.config({
     "babel": "npm:babel@4.7.16",
     "babel-runtime": "npm:babel-runtime@4.7.16",
     "fnkit": "npm:fnkit@1.0.1",
-    "immutable": "npm:immutable@3.7.1",
+    "immutable": "npm:immutable@3.7.2",
     "leadfoot": "npm:leadfoot@1.2.1",
     "minimist": "npm:minimist@1.1.1",
     "github:jspm/nodelibs-assert@0.1.0": {
