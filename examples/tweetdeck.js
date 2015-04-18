@@ -1,3 +1,6 @@
+
+/* WARNING: THIS WON'T WORK — it hasn't been updated for recent changes*/
+
 import Immutable from 'immutable';
 import { Suite, Runner, Action, go } from '../src/integrator';
 import utils from './example-utils';
@@ -34,7 +37,7 @@ let actions = Immutable.List([
     // }),
 
     Action('enter Twitter username and password', ['open TweetDeck'], {
-        env: {
+        fixtures: {
             username: utils.fallback(utils.inherit, 'total'),
             password: utils.fallback(utils.inherit, 'numpty')
         },

@@ -25,12 +25,12 @@ const utils = {
                 console.log(`=== ${action.get('name')} (${phaseName}) ===`);
                 console.log('before:', data.get('model'));
                 console.log('after :', updatedData.get('model'));
-                console.log('env', data.get('env'));
+                console.log('fixtures', data.get('fixtures'));
             });
         console.log();
         console.log('=== Finally');
         console.log('Model:', data.get('model').toJS());
-        console.log('Env:', data.get('env').toJS());
+        console.log('Env:', data.get('fixtures').toJS());
     },
 
     /**

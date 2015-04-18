@@ -57,15 +57,15 @@ let actions = Immutable.List([
     }),
 
     Action('write a new list item', ['open app'], {
-        env: {
+        fixtures: {
             text: utils.fallback(utils.inherit, 'Hello, world!')
         },
 
-        setup: (model, env) => {
+        setup: (model, fixtures) => {
             return session
                 .findByName('Create-text')
-                .then(elem => elem.type(env.get('text')))
-                .then(() => model.set('createText', env.get('text')));
+                .then(elem => elem.type(fixtures.get('text')))
+                .then(() => model.set('createText', fixtures.get('text')));
         },
 
         assert: testUtils.compareCreateText,
@@ -103,7 +103,7 @@ let actions = Immutable.List([
     }),
 
     Action('try adding empty item', ['add new list item'], {
-        env: {
+        fixtures: {
             text: ''
         },
 
@@ -111,7 +111,7 @@ let actions = Immutable.List([
     }),
 
     Action('try adding too-long item', ['add new list item'], {
-        env: {
+        fixtures: {
             text: 'This item is too long and will not be accepted'
         },
 
@@ -119,7 +119,7 @@ let actions = Immutable.List([
     }),
 
     Action('remove the last list item', ['add new list item'], {
-        env: {
+        fixtures: {
             text: 'Will be removed!'
         },
 

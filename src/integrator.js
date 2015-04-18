@@ -85,7 +85,7 @@ const wrapPhase = (action, phaseName) => data =>
     Promise.resolve(data.get('model'))
         .then(model => {
             let fn = action.getIn(['spec', phaseName], _.identity);
-            return fn(model, data.get('env'));
+            return fn(model, data.get('fixtures'));
         })
         .then(updatedModel => data.set('model', updatedModel))
         .then(updatedData =>
@@ -146,43 +146,43 @@ const buildActionPath = (actions, targetName) =>
         .add(targetName);
 
 /**
- * Build an 'environment' for the tests to run in. Walks the action path backwards to build up a
+ * Build the fixtures for the tests to run with. Walks the action path backwards to build up a
  * Map that will stay constant for the duration of the test running, and throws if it finds any
  * conflicts on the way.
  *
  * Takes a List of Actions, returns a Map.
  */
-const buildEnv = actionPath => {
-    const initialEnvData = fromJS({ env: {}, envSources: {} });
+const buildFixtures = actionPath => {
+    const initialFixtureData = fromJS({ fixtures: {}, fixturesSources: {} });
     return actionPath.reverse()
-        // Creates [action, k, v] triples for every k/v pair in the action's env spec
+        // Creates [action, k, v] triples for every k/v pair in the action's fixtures spec
         .flatMap(action =>
             action
-                .getIn(['spec', 'env'], Map())
+                .getIn(['spec', 'fixtures'], Map())
                 .entrySeq()
                 .map(([k, v]) => [action, k, v]))
-        // Builds up envData from initialEnvData, growing the env object and remembering the source
-        // of the env's data so that helpful error messages can be generated.
-        .reduce((envData, [action, k, v]) => {
-            let keyPath = ['env', k];
-            // v can be a function, in which case we use it update the env value — otherwise
+        // Builds up fixturesData from initialFixtureData, growing the fixtures object and remembering the source
+        // of the fixtures's data so that helpful error messages can be generated.
+        .reduce((fixturesData, [action, k, v]) => {
+            let keyPath = ['fixtures', k];
+            // v can be a function, in which case we use it update the fixtures value — otherwise
             // we just use it as the value directly
-            var newEnvData = envData.updateIn(
+            var newEnvData = fixturesData.updateIn(
                 keyPath,
                 (utils.is('function', v) ? v : () => v)
             );
             // Throw if this is not new data and two actions require different data
-            if (!utils.is('undefined', envData.getIn(keyPath)) &&
-                newEnvData.getIn(keyPath) !== envData.getIn(keyPath)) {
+            if (!utils.is('undefined', fixturesData.getIn(keyPath)) &&
+                newEnvData.getIn(keyPath) !== fixturesData.getIn(keyPath)) {
                 throw new Error(
-                    `The required "${k}" env for action "${action.get('name')}"` +
-                    `conflicts with action "${envData.getIn('envSources', k)}"`
+                    `The required "${k}" fixtures for action "${action.get('name')}"` +
+                    `conflicts with action "${fixturesData.getIn('fixturesSources', k)}"`
                 );
             }
-            // Remember that this action 'owns' this piece of the env
-            return newEnvData.setIn(['envSources', k], action.get('name'));
-        }, initialEnvData)
-        .get('env');
+            // Remember that this action 'owns' this piece of the fixtures
+            return newEnvData.setIn(['fixturesSources', k], action.get('name'));
+        }, initialFixtureData)
+        .get('fixtures');
 };
 
 /**
@@ -200,16 +200,16 @@ const commonPrefix = (A, B) =>
         .map(([left]) => left);
 
 /**
- * Extracts actions with env data that is relevant to them from a runner.
+ * Extracts actions with fixtures data that is relevant to them from a runner.
  *
- * Returns a List of Maps in the form Map { action: action, env: filteredEnv }
+ * Returns a List of Maps in the form Map { action: action, fixtures: filteredFixtures }
  */
 const actionPathWithRelevantEnv = runner =>
     runner.get('actionPath')
         .map(action => {
-            let relevantEnvKeys = action.getIn(['spec', 'env'], Map()).keySeq();
-            let filteredEnv = runner.get('env').filter((v, k) => relevantEnvKeys.contains(k));
-            return fromJS({ action, env: filteredEnv });
+            let relevantEnvKeys = action.getIn(['spec', 'fixtures'], Map()).keySeq();
+            let filteredFixtures = runner.get('fixtures').filter((v, k) => relevantEnvKeys.contains(k));
+            return fromJS({ action, fixtures: filteredFixtures });
         });
 
 /**
@@ -234,8 +234,8 @@ const minimalActionPaths = (runner, previousRunner) => {
 
     // Find the actions common to both tests
     let prefix = commonPrefix(
-        // The env of each action is relevant to whether or not it needs to be torn-down,
-        // so we have to tease out the env data relevant to the action for comparison
+        // The fixtures of each action is relevant to whether or not it needs to be torn-down,
+        // so we have to tease out the fixtures data relevant to the action for comparison
         actionPathWithRelevantEnv(runner),
         actionPathWithRelevantEnv(previousRunner)
     );
@@ -271,7 +271,7 @@ const Suite = (actions, model) => fromJS({ actions, model }); // eslint-disable-
  * Exported.
  * Create a runner function for the given `suite` (of `actions` and initial `model`).
  *
- * This build the 'environment' the tests will run in, and will detect data conflicts.
+ * This build the 'fixtures' the tests will run in, and will detect data conflicts.
  */
 const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
     let [ actions, model ] = [ suite.get('actions'), suite.get('model') ];
@@ -282,7 +282,7 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
         target: utils.findByName(actions)(targetName),
         model,
         actionPath,
-        env: buildEnv(actionPath),
+        fixtures: buildFixtures(actionPath),
         ran: List()
     });
 };
@@ -303,13 +303,13 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
 
     console.log(
-        '  Teardown: ' + reverseActionPath.reverse().map(pluck('name')).join(' -> ')
+        '  Teardown : ' + reverseActionPath.reverse().map(pluck('name')).join(' -> ')
     );
     console.log(
-        '  Env     :', runner.get('env').toJS()
+        '  Fixtures :', runner.get('fixtures').toJS()
     );
     console.log(
-        '  Setup   : ' + forwardActionPath.map(pluck('name')).join(' -> ')
+        '  Setup    : ' + forwardActionPath.map(pluck('name')).join(' -> ')
     );
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
