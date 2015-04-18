@@ -6,16 +6,19 @@ const args = parseArgs(process.argv);
 
 const runner = initSuite => {
     (new Server(args.hub))
-        .createSession({ browserName: args.browser })
+        .createSession({ browserName: args.browser || 'chrome' })
         .then(session => {
             // set up the suite, then go
             return Promise.all([ session, initSuite(session, args) ]);
         })
         .then(([session, suite]) => {
-            // if (process.argv[3] === 'graph') {
-            //     utils.actionGraph(suite);
-            //     process.exit(); // eslint-disable-line no-process-exit
-            // }
+            if (args.graph) {
+                utils.actionGraph(suite);
+                return session.quit()
+                    .then(() => {
+                        process.exit(); // eslint-disable-line no-process-exit
+                    });
+            }
 
             process.on('SIGINT', function() {
                 session.quit();
