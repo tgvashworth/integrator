@@ -1,5 +1,5 @@
 BIN = ./node_modules/.bin/
-SELENIUM_JAR = selenium-server-standalone-2.45.0.jar
+SELENIUM_JAR = bin/selenium-server-standalone-2.45.0.jar
 SELENIUM_URL = http://selenium-release.storage.googleapis.com/2.45/$(SELENIUM_JAR)
 ENTRY = src/index
 SRC = $(wildcard src/*.js)

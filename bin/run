@@ -5,6 +5,6 @@
 var System = require('systemjs');
 global.System = System;
 
-require('./config/config.js');
+require('../config/config.js');
 
-System.import('./src/runner');
+System.import('../src/runner');
