@@ -4,7 +4,7 @@ hub:
     - "4444:4444"
 target:
   volumes:
-    - .:/usr/local/apache2/htdocs/:ro
+    - ..:/usr/local/apache2/htdocs/:ro
   image: httpd:2.4
   ports:
     - "8080:80"
