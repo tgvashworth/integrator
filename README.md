@@ -56,14 +56,16 @@ Action(
     [],
     // Phases
     {
-        setup: utils.effect(() => session.get('https://google.com')),
+        setup: model =>
+            session.get('https://google.com')
+                .then(() => model.set('title', 'Google')),
 
-        assert: utils.effect(() => {
+        assert: utils.effect(model => {
             return session
                 .getPageTitle()
                 .then(title => {
                     assert.ok(
-                        title.trim() === 'Google',
+                        title.trim() === model.get('title'),
                         'Title is wrong'
                     );
                 });
@@ -72,7 +74,7 @@ Action(
 );
 ```
 
-> The `utils.effect` call that wraps each phase function means that the phase function does not modify the model — the model is just passed back in a Promise.
+> The `utils.effect` call that wraps the `assert` phase function means that the phase function has side-effects only, and does not modify the model. `effect` just passes the model back in a Promise.
 
 ## Requirements
 
