@@ -60,16 +60,14 @@ Action(
             session.get('https://google.com')
                 .then(() => model.set('title', 'Google')),
 
-        assert: utils.effect(model => {
-            return session
-                .getPageTitle()
+        assert: utils.effect(model =>
+            session.getPageTitle()
                 .then(title => {
                     assert.ok(
                         title.trim() === model.get('title'),
                         'Title is wrong'
                     );
-                });
-        })
+                }))
     }
 );
 ```
