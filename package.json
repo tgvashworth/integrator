@@ -1,5 +1,5 @@
 {
-  "name": "quick-integrate",
+  "name": "integrator",
   "version": "1.0.0",
   "description": "```shell $ make $ make watch ```",
   "main": "src.js",
@@ -8,14 +8,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/phuu/quick-integrate.git"
+    "url": "https://github.com/phuu/integrator.git"
   },
   "author": "",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/phuu/quick-integrate/issues"
+    "url": "https://github.com/phuu/integrator/issues"
   },
-  "homepage": "https://github.com/phuu/quick-integrate",
+  "homepage": "https://github.com/phuu/integrator",
   "devDependencies": {
     "babel-eslint": "^2.0.2",
     "eslint": "^0.17.1",
