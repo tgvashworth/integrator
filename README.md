@@ -29,7 +29,9 @@ What does that mean specifically?
 
 This project is a test runner and authoring framework tries to do the repeated, error-prone work (setup and teardown) for you. It's very much a *prototype*.
 
-## Actions
+## Concepts
+
+### Actions
 
 Integrator is based around a *suite* of named *actions*. The suite is associated with a *model* that allows the tests to track the work they've done.
 
@@ -73,6 +75,16 @@ Action(
 ```
 
 > The `utils.effect` call that wraps the `assert` phase function means that the phase function has side-effects only, and does not modify the model. `effect` just passes the model back in a Promise.
+
+### Model
+
+As mentioned above, a test suite is the combination of an action graph and a model. The model should be modified by the actions phases to track their expected changes to the application state, but in a simplified way.
+
+For example, in a todo application the model would contain a list of todo items that contain the text of the todo. In the assertion phases (`assert` and `finally`), the model list would be checked against the list in real page, as the user sees it. The [list-app example][examples/list-app.js] does this this.
+
+Since the model will change and grow over time, the assertions should be generic and flexible. This means, for example, that the todo list tests should compare the length and text of the complete list every time, rather than checking that a specific item has been added in a specific place. This also aids the reusability of the assertions.
+
+The model can be any `immutable-js` data structure.
 
 ## Requirements
 
