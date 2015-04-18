@@ -33,18 +33,31 @@ This project is a test runner and authoring framework tries to do the repeated, 
 
 ### Actions
 
-Integrator is based around a *suite* of named *actions*. The suite is associated with a *model* that allows the tests to track the work they've done.
+Integrator is based around a **suite** of named **actions**. The suite is associated with a **model** that allows the tests to track the work they've done.
 
-The model should reflect the state of the application being tested in a simple data structure, and tests should *compare the expected state from the model against the UI of the appliction*.
+#### Phases
 
-- Actions can specify that they are *dependent on other actions*
-- Integrator runs actions in order, such that a particular action's *dependencies are always run first*
-- Actions that depend on each other *form a graph* that Integrator uses determine what to run when
-- It can randomly choose actions from the graph, and moves from action-to-action in way that optimises for the *least amount of work*
+Actions have four **phases**: *setup*, *assert*, *teardown* and *done*.
 
-Actions have four phases: *setup*, *assert*, *teardown* and *done*.
+Each action should make some changes to the application (click buttons, type stuff, etc) and then assert that the changes were made successfully. They should be as *atomic as possible*.
+
+#### Dependencies
+
+Actions can specify that they are *dependent on other actions*.
+
+Integrator automatically figures out what actions it needs to run by looking at each action's dependecies, running actions in order such that a particular action's *dependencies are always run first*.
+
+Actions that depend on each other *form a graph* that Integrator uses determine what to run when.
+
+It can randomly choose actions from the graph, and moves from action-to-action in way that optimises for the *least amount of work*
+
+#### Model
+
+The model should reflect the state of the application being tested in a simple data structure. Actions should run assertions that *compare the expected state from the model against the UI of the application*.
 
 Every phase function takes the current model (and more, to be documented) and must return a Promise for the (possibly updated) model.
+
+#### Example action
 
 A simple action that opens a page and check that the title is correct might look like this:
 
@@ -74,7 +87,7 @@ Action(
 
 > The `utils.effect` call that wraps the `assert` phase function means that the phase function has side-effects only, and does not modify the model. `effect` just passes the model back in a Promise.
 
-#### Dependencies
+#### Dependency graph
 
 The dependencies of the actions that make up your test suite form a graph. When a particular action is run, integrator:
 
@@ -97,7 +110,7 @@ For example, imagine this graph:
            G
 ```
 
-If we wanted to run `G`, the dependencies in order are `A, B, E, C, and F`. `F` would have dependencies `E and F`, so the `E` dependency path is more important.
+If we wanted to run `G`, the dependencies in order are `A, B, E, C, and F`. Action `F` would have dependencies `E` and `F`, so the `E` dependency path is more important, and therefore comes first when running `G`.
 
 ### Model
 
