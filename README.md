@@ -74,6 +74,31 @@ Action(
 
 > The `utils.effect` call that wraps the `assert` phase function means that the phase function has side-effects only, and does not modify the model. `effect` just passes the model back in a Promise.
 
+#### Dependencies
+
+The dependencies of the actions that make up your test suite form a graph. When a particular action is run, integrator:
+
+- walks the graph to find all the dependencies up to the root(s) of the graph
+- deduplicates the list to figure what actions it must run in what order
+- resolves the actions' [fixtures][#Fixtures]
+- runs forward from the first dependency to the target action
+
+In the dependency list, *order is important*. Dependencies should be listed left-to-right in order of priority.
+
+For example, imagine this graph:
+
+```
+     A
+    / \
+   B   C
+  / \   \
+ D   E - F
+          \
+           G
+```
+
+If we wanted to run `G`, the dependencies in order are `A, B, E, C, and F`. `F` would have dependencies `E and F`, so the `E` dependency path is more important.
+
 ### Model
 
 As mentioned above, a test suite is the combination of an action graph and a model. The model should be modified by the actions phases to track their expected changes to the application state, but in a simplified way.
