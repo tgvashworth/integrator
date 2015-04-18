@@ -3,7 +3,7 @@ import _ from 'fnkit';
 
 const { Map, fromJS, OrderedSet, List } = Immutable;
 
-import { pluck, findByKey } from './immutable-kit';
+import utils from './utils';
 
 /**
  * Phases are run in order, with the 'forward' phases run on the way to the target actions, and the
@@ -26,44 +26,6 @@ import { pluck, findByKey } from './immutable-kit';
  */
 const forwardPhaseNames = ['setup', 'assert'];
 const reversePhaseNames = ['teardown', 'done'];
-
-const utils = {
-    /**
-     * Combine the stacks from Error objects `e` and `f` to produce a stack with the message from
-     * `e` but the trace from `f`. Useful if you want to rewrite an error message.
-     *
-     * Usage:
-     *
-     *      fakeStack(
-     *          Error('Hello'),
-     *          Error('World')
-     *      ) -> "Error: Hello\n...stack from World..."
-     *
-     * Returns a string.
-     */
-    fakeStack: (e, f) =>
-        e.stack
-            // Just the first line
-            .split('\n').slice(0, 1)
-            .concat(
-                // All but the first line
-                f.stack.split('\n').slice(1)
-            )
-            .join('\n'),
-
-    /**
-     * Find keyed value in Immutable iterable by key 'name'.
-     *
-     * Usage:
-     *
-     *     findByName(users)('tom')
-     *
-     * Return a matching element, or undefined.
-     */
-    findByName: findByKey('name'),
-
-    is: (type, x) => (typeof x === type)
-};
 
 /**
  * Wrap an action's phase function to capture errors, save changes to the model and store that the
@@ -242,9 +204,9 @@ const minimalActionPaths = (runner, previousRunner) => {
 
     return [
         // Reverse out the actions not present in the new path
-        previousRunner.get('actionPath').subtract(prefix.map(pluck('action'))),
+        previousRunner.get('actionPath').subtract(prefix.map(utils.pluck('action'))),
         // And run forward to the current target
-        runner.get('actionPath').subtract(prefix.map(pluck('action')))
+        runner.get('actionPath').subtract(prefix.map(utils.pluck('action')))
     ];
 };
 
@@ -303,13 +265,13 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
 
     console.log(
-        '  Teardown : ' + reverseActionPath.reverse().map(pluck('name')).join(' -> ')
+        '  Teardown : ' + reverseActionPath.reverse().map(utils.pluck('name')).join(' -> ')
     );
     console.log(
         '  Fixtures :', runner.get('fixtures').toJS()
     );
     console.log(
-        '  Setup    : ' + forwardActionPath.map(pluck('name')).join(' -> ')
+        '  Setup    : ' + forwardActionPath.map(utils.pluck('name')).join(' -> ')
     );
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));

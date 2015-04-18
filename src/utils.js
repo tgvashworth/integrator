@@ -96,7 +96,69 @@ const utils = {
             });
 
         console.log('}');
+    },
+
+    /**
+     * Combine the stacks from Error objects `e` and `f` to produce a stack with the message from
+     * `e` but the trace from `f`. Useful if you want to rewrite an error message.
+     *
+     * Usage:
+     *
+     *      fakeStack(
+     *          Error('Hello'),
+     *          Error('World')
+     *      ) -> "Error: Hello\n...stack from World..."
+     *
+     * Returns a string.
+     */
+    fakeStack: (e, f) =>
+        e.stack
+            // Just the first line
+            .split('\n').slice(0, 1)
+            .concat(
+                // All but the first line
+                f.stack.split('\n').slice(1)
+            )
+            .join('\n'),
+
+    /**
+     * Pull value from key of object.
+     *
+     * Usage:
+     *
+     *      pluck('name')(Immutable.fromJS({ name: 'Tom' }))
+     *
+     * Returns value at key.
+     */
+    pluck: k => o => o.get(k),
+
+    /**
+     * Find keyed value in Immutable.List by key.
+     *
+     * Usage:
+     *
+     *     findByKey('name')(users)('tom')
+     *
+     * Return a matching element, or undefined.
+     */
+    findByKey: k => xs => v => xs.find(x => x.get(k) === v),
+
+    quit: session => () => {
+        try {
+            session.quit();
+        } catch (e) {}
     }
 };
+
+/**
+ * Find keyed value in Immutable iterable by key 'name'.
+ *
+ * Usage:
+ *
+ *     findByName(users)('tom')
+ *
+ * Return a matching element, or undefined.
+ */
+utils.findByName = utils.findByKey('name');
 
 export default utils;

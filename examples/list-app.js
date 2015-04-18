@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import { Suite, Runner, Action, go } from '../src/integrator';
+import { Suite, Action, go } from '../src/integrator';
 import utils from '../src/utils';
 import assert from './example-assert';
 
