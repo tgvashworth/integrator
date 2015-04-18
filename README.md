@@ -84,6 +84,93 @@ Since the model will change and grow over time, the assertions should be generic
 
 The model can be any `immutable-js` data structure.
 
+### Fixtures
+
+Actions can specify *fixtures* — that is, a named piece of data that the action depends on in order to run. For example, this could be the user that a 'login' action will use.
+
+Here's an example, where we specify a search query for Google.
+
+```js
+Action('fill in the search box', ['open Google'], {
+    fixtures: {
+        query: 'integrator'
+    },
+
+    setup: (model, fixtures) =>
+        session.findByName('q')
+            // Type the query into the search box
+            .then(elem => elem.type(fixtures.get('query')))
+            // Remember what we expect the the entered query to be
+            .then(() => model.set('query', fixtures.get('query')));
+});
+```
+
+Fixtures can be values or functions that generate values.
+
+```js
+fixtures: {
+    query: () => 'integrator'
+}
+```
+
+When an action is run, its fixtures and all the fixtures of its dependencies are bundled first — starting with the action to be run, and working back through its chain of dependencies. The actions are then run in the reverse of this order (top of the dependency tree to the bottom) with every test getting the same set of fixtures.
+
+For example, two actions that specify different fixtures:
+
+```js
+Action('first', [], {
+    fixtures: {
+        a: 10
+    }
+})
+
+Action('second', ['first'], {
+    fixtures: {
+        b: 20
+    }
+})
+```
+
+When the `second` action runs, the fixtures will be an `immutable-js` Map containing `{ a: 10, b: 20 }`.
+
+#### Pass-through fixtures
+
+If the fixture value is a function, the function will be passed the existing fixture value, or undefined if there isn't a pre-existing value.
+
+```
+Action('third', ['second'], {
+    fixtures: {
+        a: existingA => existingA
+    }
+})
+```
+
+This means that, since actions can specify the same fixtures, it's possible to have an action that doesn't care what value it gets, so long as it gets one, and falls back to a default value if there's nothing present.
+
+```js
+Action('fill in the search box', ['open Google'], {
+    fixtures: {
+        query: query => (typeof query === 'undefined' ? 'integrator' : query)
+    }
+});
+```
+
+This pattern allows variations of a given action by *simply changing the fixtures*.
+
+```js
+Action('type nothing into the search box', ['fill in the search box'], {
+    fixtures: {
+        query: ''
+    }
+});
+
+Action('type a really long query into the search box', ['fill in the search box'], {
+    fixtures: {
+        query: 'some really long string here!'
+    }
+});
+```
+
 ## Requirements
 
 - [node](https://nodejs.org/) (or [io.js](https://iojs.org), probably)
