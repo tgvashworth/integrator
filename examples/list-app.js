@@ -2,11 +2,13 @@ import Immutable from 'immutable';
 import { Suite, Action, go } from '../src/integrator';
 import utils from '../src/utils';
 import assert from './example-assert';
+import ElementMatcher from 'integrator-match';
 
 // ACTIONS
 
 let session; // YUK YUK YUK
 let config; // YUK YUK YUK
+let matcher = new ElementMatcher({ path: 'matcher-specs' });
 
 const testUtils = {
     compareList: utils.effect(model => {
@@ -82,8 +84,7 @@ let actions = Immutable.List([
 
     Action('add new list item', ['write a new list item'], {
         setup: model => {
-            return session
-                .findByCssSelector('.Create-submit')
+            return matcher.get(session, 'Create-submit')
                 .then(elem => elem.click())
                 .then(() =>
                     model
