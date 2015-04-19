@@ -39,7 +39,19 @@ Integrator is based around a **suite** of named **actions**. The suite is associ
 
 Actions have four **phases**: *setup*, *assert*, *teardown* and *done*.
 
-Each action should make some changes to the application (click buttons, type stuff, etc) and then assert that the changes were made successfully. They should be as *atomic as possible*.
+Each action should make some changes to the application (click buttons, type stuff, etc) and then assert that the changes were made successfully. They should be as *atomic as possible*, and are all optional.
+
+While the phases can be used for anything, it will be better to use them consistently:
+
+- *setup* should do the work of the action, changing the application and updating the model
+- *assert* should check that *setup* work was carried out successfully, and throw if it wasn't. Assertions should generally be made with comparisons to the *model*
+- *teardown* should undo any work done in setup that would otherwise prevent a user from carrying on their work (for example, closing a modal or logging-out)
+- *done* should check that *teardown* was carried out successfully, and throw if it wasn't
+
+It's going to take some time to figure out the correct usage of teardown, but currently the view is that you should:
+
+- use teardown to undo anything that significantly changes the user's view of the application
+- don't undo changes to the application's data (instead, update the model and compare)
 
 #### Dependencies
 
@@ -49,7 +61,7 @@ Integrator automatically figures out what actions it needs to run by looking at 
 
 Actions that depend on each other *form a graph* that Integrator uses determine what to run when.
 
-It can randomly choose actions from the graph, and moves from action-to-action in way that optimises for the *least amount of work*
+It can randomly choose actions from the graph, and moves from action-to-action in way that optimises for the *least amount of work*. It will not teardown anything that it doesn't need to.
 
 #### Model
 
@@ -208,6 +220,20 @@ Action('type a really long query into the search box', ['fill in the search box'
     }
 });
 ```
+
+#### Fixtures and teardown
+
+Fixtures represent the data an action needs to carry out its work. Since the fixtures an action may recieve can change (probably due to 'pass-through' usage), integrator considers the same action with different fixtures to effectively be a different action, and will run its teardown and done phases (and then setup and assert) to make sure that actions run with the correct fixtures.
+
+For example, imagine actions `A`, `B` and `C`:
+
+- `A` doesn't have any fixtures
+- `B` relies on fixture `x` with any value, defaulting to 1
+- `C` relies on fixture `x` with value 2
+
+When integrator runs `B`, it will run `A` then `B` with fixtures `{ x: 1 }`.
+
+When it then runs `C`, having just run `B`, it will reverse-out (teardown) `B` and run forward (setup) with fixtures `{ x: 2 }`.
 
 ## Requirements
 
