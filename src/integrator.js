@@ -297,4 +297,4 @@ const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
         spec
     });
 
-export { Suite, Runner, Action, go };
+export { Action, Suite, Runner, go };
