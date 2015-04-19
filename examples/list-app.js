@@ -8,7 +8,7 @@ import ElementMatcher from 'integrator-match';
 
 let session; // YUK YUK YUK
 let config; // YUK YUK YUK
-let matcher = new ElementMatcher({ path: 'matcher-specs' });
+let matcher = new ElementMatcher({ path: 'examples/matcher-specs' });
 
 const testUtils = {
     compareList: utils.effect(model => {
