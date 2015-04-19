@@ -1,0 +1,10 @@
+#!/usr/bin/env node
+
+'use strict';
+
+var System = require('systemjs');
+global.System = System;
+
+require('../config/config.js');
+
+System.import('../src/test-runner');
