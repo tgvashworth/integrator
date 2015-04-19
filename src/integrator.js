@@ -49,6 +49,12 @@ const wrapPhase = (action, phaseName) => data =>
             let fn = action.getIn(['spec', phaseName], _.identity);
             return fn(model, data.get('fixtures'));
         })
+        .then(utils.effect(result => {
+            if (!result) {
+                throw new Error(`Phase "${phaseName}" did not return anything. ` +
+                                `Perhaps you need to wrap it in 'utils.effect'?`);
+            }
+        }))
         .then(updatedModel => data.set('model', updatedModel))
         .then(updatedData =>
             updatedData.update('ran', ran => ran.concat({ action, phaseName, data, updatedData }))
