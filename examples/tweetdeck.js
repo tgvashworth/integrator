@@ -1,24 +1,22 @@
-
-/* WARNING: THIS WON'T WORK — it hasn't been updated for recent changes*/
-
 import Immutable from 'immutable';
-import { Suite, Runner, Action, go } from '../src/integrator';
-import utils from './example-utils';
+import { Suite, Action, go } from '../src/integrator';
+import utils from '../src/utils';
 import assert from './example-assert';
-import Server from 'leadfoot/Server';
 
 // ACTIONS
 
 let session; // YUK YUK YUK
-process.on('SIGINT', function() {
-    session.quit();
-});
+let config; // YUK YUK YUK
 
 const model = Immutable.fromJS({});
 
 let actions = Immutable.List([
     Action('open TweetDeck', [], {
-        setup: utils.effect(() => session.get(process.argv[4])),
+        setup: utils.effect(() => {
+            return session
+                .get(config.base)
+                .then(utils.findWithTimeout(session, () => session.findByName('username'), 1000));
+        }),
 
         assert: utils.effect(() => {
             return session
@@ -53,20 +51,10 @@ let actions = Immutable.List([
     })
 ]);
 
-const suite = Suite(actions, model);
-const runners = utils.makeRunners(suite);
+const initSuite = (_session, _config) => {
+    session = _session;
+    config = _config;
+    return Suite(actions, model);
+};
 
-// RUNs
-
-var server = new Server(process.argv[3]);
-server.createSession({ browserName: process.argv[5] })
-    .then(_session => {
-        session = _session;
-        // return utils.randomWalk(runners)
-        return go(runners.get(1))
-            .then(utils.effect(utils.handleSuccess), utils.handleFailure);
-    })
-    .catch(why => {
-        console.error(why.stack);
-    })
-    .then(() => session.quit());
+export default initSuite;

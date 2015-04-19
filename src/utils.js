@@ -147,6 +147,17 @@ const utils = {
         try {
             session.quit();
         } catch (e) {}
+    },
+
+    findWithTimeout: (session, fn, newTimeout) => () => {
+        var originalTimeout = 0;
+        return session.getFindTimeout()
+            .then(utils.effect(t => {
+                originalTimeout = t;
+            }))
+            .then(utils.effect(() => session.setFindTimeout(newTimeout)))
+            .then(fn)
+            .then(utils.effect(() => session.setFindTimeout(originalTimeout)));
     }
 };
 
