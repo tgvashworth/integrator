@@ -58,7 +58,7 @@ let actions = Immutable.List([
 
     Action('write a new list item', ['open app'], {
         fixtures: {
-            text: utils.fallback(utils.inherit, 'Hello, world!')
+            text: utils.defaultTo('Hello, world!')
         },
 
         setup: (model, fixtures) => {

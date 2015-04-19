@@ -26,36 +26,25 @@ const dispatch = (args, { suite }) => {
 
 const dispatcher = args => executor => {
     if (utils.is('boolean', args.graph) && args.graph) {
-        utils.actionGraph(executor.suite);
-        return Promise.resolve(executor);
+        return utils.actionGraph(executor.suite);
     }
 
     return dispatch(args, executor)
-        .then(utils.effect(utils.handleSuccess), utils.handleFailure)
-        .then(utils.always(executor));
+        .then(utils.effect(utils.handleSuccess(args)), utils.handleFailure(args));
 };
 
 const start = args => initSuite => {
     (new Server(args.hub))
         .createSession({ browserName: args.browser || 'chrome' })
         .then(session => {
+            // Quit the session when the process is killed
+            process.on('SIGINT', utils.quit(session));
             // set up the suite, then go
             return Promise.resolve(initSuite(session, args))
                 .then(suite => ({ session, suite }));
         })
-        .then(utils.effect(({ session }) => {
-            // Quit the session when the process is killed
-            process.on('SIGINT', utils.quit(session));
-        }))
         .then(utils.effect(dispatcher(args)))
-        .catch(why => {
-            console.error(why.stack);
-        })
-        .then(executor => {
-            if (!args.pause) {
-                return utils.quit(executor.session)();
-            }
-        });
+        .then(executor => utils.quit(executor.session)());
 };
 
 System.import(args.suite)

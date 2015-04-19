@@ -10,13 +10,13 @@ const utils = {
     is: (type, x) => (typeof x === type),
     log: console.log.bind(console),
 
-    handleSuccess: () => {
+    handleSuccess: (/* args */) => () => {
         console.log('== PASSED ========================');
     },
-    handleFailure: why => {
+    handleFailure: args => why => {
         console.log('== FAILED ========================');
         console.error(why.stack);
-        if (why.data) {
+        if (args.verbose && why.data) {
             utils.logRan(why.data);
         }
     },
