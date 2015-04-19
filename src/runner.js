@@ -2,7 +2,7 @@ import Server from 'leadfoot/Server';
 import parseArgs from 'minimist';
 import { fromJS } from 'immutable';
 import utils from './utils';
-import { Executor, go } from './integrator';
+import { go } from './integrator';
 
 const args = parseArgs(process.argv);
 
@@ -66,7 +66,10 @@ const start = args => initSuite => {
                 .then(suite => ({ args, session, suite }));
         })
         .then(utils.effect(dispatch))
-        .then(({ session }) => utils.quit(session)());
+        .then(({ session }) => utils.quit(session)())
+        .catch(why => {
+            console.error(why.stack);
+        });
 };
 
 System.import(args.suite)
