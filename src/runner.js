@@ -10,9 +10,11 @@ if (typeof args.suite !== 'string') {
     throw new Error('No suite supplied');
 }
 
-const dispatch = (args, { suite }) => {
+const dispatchActions = ({ args, suite }) => {
     const runners = utils.makeRunners(suite);
 
+    // --action
+    // Run a specific action
     if (utils.is('string', args.action)) {
         let runner = utils.findByKey('targetName')(runners)(args.action);
         if (utils.is('undefined', runner)) {
@@ -21,18 +23,38 @@ const dispatch = (args, { suite }) => {
         return go(runner);
     }
 
+    // Otherwise, random walk
     return utils.randomWalk(runners);
 };
 
-const dispatcher = args => executor => {
+/**
+ * Create a function that, when called, figures out what to do with the command line input and the
+ * suite.
+ *
+ * Functionality that does not include running any actions should go here — otherwise hand off to
+ * the dispatchActions function.
+ */
+const dispatch = params => {
+    let { args, suite } = params;
+
+    // --graph
+    // Output graphviz that can be used to graph the dependency tree
     if (utils.is('boolean', args.graph) && args.graph) {
-        return utils.actionGraph(executor.suite);
+        return utils.actionGraph(args, suite);
     }
 
-    return dispatch(args, executor)
+    // Run actions and respond to the result
+    return dispatchActions(params)
         .then(utils.effect(utils.handleSuccess(args)), utils.handleFailure(args));
 };
 
+/**
+ * Initialise the Selenium WebDriver session using Leadfoot, then setup the user's test suite and
+ * start running it.
+ *
+ * The URL of the Selenium server to connect to will have been passed on the command line with the
+ * --hub flag.
+ */
 const start = args => initSuite => {
     (new Server(args.hub))
         .createSession({ browserName: args.browser || 'chrome' })
@@ -41,10 +63,10 @@ const start = args => initSuite => {
             process.on('SIGINT', utils.quit(session));
             // set up the suite, then go
             return Promise.resolve(initSuite(session, args))
-                .then(suite => ({ session, suite }));
+                .then(suite => ({ args, session, suite }));
         })
-        .then(utils.effect(dispatcher(args)))
-        .then(executor => utils.quit(executor.session)());
+        .then(utils.effect(dispatch))
+        .then(({ session }) => utils.quit(session)());
 };
 
 System.import(args.suite)

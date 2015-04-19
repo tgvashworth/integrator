@@ -79,7 +79,7 @@ const utils = {
 
     makeRunners: suite => suite.get('actions').map(action => Runner(suite, action.get('name'))),
 
-    actionGraph: suite => {
+    actionGraph: (args, suite) => {
         const nodeNodeNames = suite.get('actions').map(action => ({
             action,
             name: action.get('name'),
