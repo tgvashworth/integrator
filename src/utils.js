@@ -16,6 +16,7 @@ const utils = {
     handleFailure: why => {
         console.log('== FAILED ========================');
         console.error(why.stack);
+        utils.logRan(why.data);
     },
 
     logRan: (data) => {
@@ -32,6 +33,8 @@ const utils = {
         console.log('Model:', data.get('model').toJS());
         console.log('Env:', data.get('fixtures').toJS());
     },
+
+    timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
 
     /**
      * Create side-effect function that acts as identity of its argument, unless the argument is
@@ -63,7 +66,7 @@ const utils = {
             })
         );
         return go(runner, previousRunner)
-            .then(utils.effect(() => utils.log()))
+            .then(utils.effect(utils.timeoutPromise(500))) // Wait just a moment before going on
             .then(finishedRunner => utils.randomWalk(runners, finishedRunner));
     },
 

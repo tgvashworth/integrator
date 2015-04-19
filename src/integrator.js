@@ -129,20 +129,20 @@ const buildFixtures = actionPath => {
             let keyPath = ['fixtures', k];
             // v can be a function, in which case we use it update the fixtures value — otherwise
             // we just use it as the value directly
-            var newEnvData = fixturesData.updateIn(
+            var newFixturesData = fixturesData.updateIn(
                 keyPath,
                 (utils.is('function', v) ? v : () => v)
             );
             // Throw if this is not new data and two actions require different data
             if (!utils.is('undefined', fixturesData.getIn(keyPath)) &&
-                newEnvData.getIn(keyPath) !== fixturesData.getIn(keyPath)) {
+                newFixturesData.getIn(keyPath) !== fixturesData.getIn(keyPath)) {
                 throw new Error(
                     `The required "${k}" fixtures for action "${action.get('name')}"` +
                     `conflicts with action "${fixturesData.getIn('fixturesSources', k)}"`
                 );
             }
             // Remember that this action 'owns' this piece of the fixtures
-            return newEnvData.setIn(['fixturesSources', k], action.get('name'));
+            return newFixturesData.setIn(['fixturesSources', k], action.get('name'));
         }, initialFixtureData)
         .get('fixtures');
 };
@@ -166,11 +166,12 @@ const commonPrefix = (A, B) =>
  *
  * Returns a List of Maps in the form Map { action: action, fixtures: filteredFixtures }
  */
-const actionPathWithRelevantEnv = runner =>
+const actionPathWithRelevantFixtures = runner =>
     runner.get('actionPath')
         .map(action => {
-            let relevantEnvKeys = action.getIn(['spec', 'fixtures'], Map()).keySeq();
-            let filteredFixtures = runner.get('fixtures').filter((v, k) => relevantEnvKeys.contains(k));
+            let relevantFixturesKeys = action.getIn(['spec', 'fixtures'], Map()).keySeq();
+            let filteredFixtures = runner.get('fixtures')
+                .filter((v, k) => relevantFixturesKeys.contains(k));
             return fromJS({ action, fixtures: filteredFixtures });
         });
 
@@ -198,8 +199,8 @@ const minimalActionPaths = (runner, previousRunner) => {
     let prefix = commonPrefix(
         // The fixtures of each action is relevant to whether or not it needs to be torn-down,
         // so we have to tease out the fixtures data relevant to the action for comparison
-        actionPathWithRelevantEnv(runner),
-        actionPathWithRelevantEnv(previousRunner)
+        actionPathWithRelevantFixtures(runner),
+        actionPathWithRelevantFixtures(previousRunner)
     );
 
     return [
