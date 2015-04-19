@@ -55,7 +55,7 @@ It can randomly choose actions from the graph, and moves from action-to-action i
 
 The model should reflect the state of the application being tested in a simple data structure. Actions should run assertions that *compare the expected state from the model against the UI of the application*.
 
-Every phase function takes the current model (and more, to be documented) and must return a Promise for the (possibly updated) model.
+Every phase function is passed current model and must return a Promise for the (possibly updated) model.
 
 #### Example action
 
@@ -93,7 +93,7 @@ The dependencies of the actions that make up your test suite form a graph. When 
 
 - walks the graph to find all the dependencies up to the root(s) of the graph
 - deduplicates the list to figure what actions it must run in what order
-- resolves the actions' [fixtures][#Fixtures]
+- resolves the actions' [fixtures](#fixtures)
 - runs forward from the first dependency to the target action
 
 In the dependency list, *order is important*. Dependencies should be listed left-to-right in order of priority.
@@ -139,7 +139,7 @@ Action('fill in the search box', ['open Google'], {
             // Type the query into the search box
             .then(elem => elem.type(fixtures.get('query')))
             // Remember what we expect the the entered query to be
-            .then(() => model.set('query', fixtures.get('query')));
+            .then(() => model.set('query', fixtures.get('query')))
 });
 ```
 
