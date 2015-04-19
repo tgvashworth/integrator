@@ -65,6 +65,11 @@ const utils = {
                 return runner.get('targetName') !== previousRunner.get('targetName');
             })
         );
+
+        if (!runner) {
+            return Promise.resolve(previousRunner);
+        }
+
         return go(runner, previousRunner)
             .then(utils.effect(utils.timeoutPromise(500))) // Wait just a moment before going on
             .then(finishedRunner => utils.randomWalk(runners, finishedRunner));
