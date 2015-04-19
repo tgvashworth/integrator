@@ -51,7 +51,11 @@ const start = args => initSuite => {
         .catch(why => {
             console.error(why.stack);
         })
-        .then(executor => utils.quit(executor.session)());
+        .then(executor => {
+            if (!args.pause) {
+                return utils.quit(executor.session)();
+            }
+        });
 };
 
 System.import(args.suite)
