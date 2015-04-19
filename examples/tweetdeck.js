@@ -3,18 +3,32 @@ import { Suite, Action, go } from '../src/integrator';
 import utils from '../src/utils';
 import assert from './example-assert';
 
+const { fromJS } = Immutable;
+
 // ACTIONS
 
 let session; // YUK YUK YUK
 let config; // YUK YUK YUK
 
-const model = Immutable.fromJS({});
+const fixtures = fromJS({
+    badUser: {
+        username: 'nope',
+        password: 'nope'
+    },
+    goodUser: {
+        username: 'insert_good_user_here',
+        password: 'insert_good_password_here'
+    }
+});
 
-let actions = Immutable.List([
+const model = fromJS({
+    user: {}
+});
+
+let actions = fromJS([
     Action('open TweetDeck', [], {
         setup: utils.effect(() => {
-            return session
-                .get(config.base)
+            return session.get(config.base)
                 .then(utils.findWithTimeout(session, () => session.findByName('username'), 1000));
         }),
 
@@ -36,17 +50,58 @@ let actions = Immutable.List([
 
     Action('enter Twitter username and password', ['open TweetDeck'], {
         fixtures: {
-            username: utils.fallback(utils.inherit, 'total'),
-            password: utils.fallback(utils.inherit, 'numpty')
+            user: utils.defaultTo(fixtures.get('badUser'))
         },
 
-        setup: (model, env) => {
+        setup: (model, fixtures) => {
             return session
                 .findByName('username')
-                .then(elem => elem.type(env.get('username')))
+                .then(elem => elem.type(fixtures.getIn(['user', 'username'])))
                 .then(() => session.findByName('password'))
-                .then(elem => elem.type(env.get('password')))
-                .then(() => model.set('loginUsername', env.get('username')));
+                .then(elem => elem.type(fixtures.getIn(['user', 'password'])))
+                .then(() => model.set('user', fixtures.get('user')));
+        },
+
+        assert: utils.effect(model => {
+            return session.findByName('username')
+                .then(elem => elem.getProperty('value'))
+                .then(value => {
+                    assert.ok(
+                        value === model.getIn(['user', 'username']),
+                        'Typed username is wrong'
+                    );
+                })
+                .then(() => session.findByName('password'))
+                .then(elem => elem.getProperty('value'))
+                .then(value => {
+                    assert.ok(
+                        value === model.getIn(['user', 'password']),
+                        'Typed password is wrong'
+                    );
+                });
+        })
+    }),
+
+    Action('click login', ['enter Twitter username and password'], {
+        fixtures: {
+            user: utils.defaultTo(fixtures.get('badUser'))
+        },
+
+        setup: utils.effect(() => {
+            return session.findByClassName('btn-login')
+                .then(elem => elem.click());
+        })
+    }),
+
+    Action('successful login', ['click login'], {
+        fixtures: {
+            user: utils.defaultTo(fixtures.get('goodUser'))
+        },
+
+        setup: model => {
+            return Promise.resolve()
+                .then(utils.findWithTimeout(session, () => session.findByClassName('js-column'), 10000))
+                .then(() => model.set('loggedIn', true));
         }
     })
 ]);

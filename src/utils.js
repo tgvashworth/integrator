@@ -16,7 +16,9 @@ const utils = {
     handleFailure: why => {
         console.log('== FAILED ========================');
         console.error(why.stack);
-        utils.logRan(why.data);
+        if (why.data) {
+            utils.logRan(why.data);
+        }
     },
 
     logRan: (data) => {
@@ -168,6 +170,8 @@ const utils = {
             .then(utils.effect(() => session.setFindTimeout(originalTimeout)));
     }
 };
+
+utils.defaultTo = utils.fallback.bind(null, utils.inherit);
 
 /**
  * Find keyed value in Immutable iterable by key 'name'.
