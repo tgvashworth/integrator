@@ -242,6 +242,10 @@ When it then runs `C`, having just run `B`, it will reverse-out (teardown) `B` a
 - [docker-compose](https://docs.docker.com/compose/)
 - I've been using [docker-machine](https://docs.docker.com/machine/)
 
+## "Plugins"
+
+- [integrator-match](https://github.com/phuu/integrator-match)
+
 ## Try it out
 
 **Warning**: this is super experimental and basically not tested for anyone but me. It's probably broken.
