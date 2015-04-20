@@ -242,9 +242,9 @@ When it then runs `C`, having just run `B`, it will reverse-out (teardown) `B` a
 - [docker-compose](https://docs.docker.com/compose/)
 - I've been using [docker-machine](https://docs.docker.com/machine/)
 
-## "Plugins"
+## Related Tools
 
-- [integrator-match](https://github.com/phuu/integrator-match)
+- [integrator-match](https://github.com/phuu/integrator-match) — no more CSS selectors in integration tests
 
 ## Try it out
 
