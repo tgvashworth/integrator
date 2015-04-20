@@ -1,8 +1,9 @@
 {
   "name": "Create-submit",
-  "el": "<button class=\"Create-submit btn\">+</button>",
+  "el": "<button class=\"Create-submit\">Add</button>",
   "1429477214147": "<button class=\"Create-submit\">+</button>",
   "1429477305426": "<button class=\"Create-submit\">Add</button>",
   "1429477394488": "<a class=\"Create-submit\">Add</a>",
-  "1429477535387": "<button class=\"Create-submit\">+</button>"
+  "1429477535387": "<button class=\"Create-submit\">+</button>",
+  "1429525956018": "<button class=\"Create-submit btn\">+</button>"
 }
