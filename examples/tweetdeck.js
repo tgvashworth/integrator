@@ -1,7 +1,7 @@
 import Immutable from 'immutable';
 import { Suite, Action, go } from '../src/integrator';
 import utils from '../src/utils';
-import assert from './example-assert';
+import assert from '../src/assert';
 
 const { fromJS } = Immutable;
 

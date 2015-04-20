@@ -1,13 +1,11 @@
 BIN = ./node_modules/.bin/
 SELENIUM_JAR = bin/selenium-server-standalone-2.45.0.jar
 SELENIUM_URL = http://selenium-release.storage.googleapis.com/2.45/$(SELENIUM_JAR)
-ENTRY = src/index
 SRC = $(wildcard src/*.js)
 SKETCHES = $(wildcard sketches/*.js)
 EXAMPLES = $(wildcard examples/*.js)
-OUT = build/build.js
 
-.PHONY: docker-install install lint server selenium-server grid
+.PHONY: docker-install install lint server selenium-server grid test
 
 docker-install:
 	@npm install
@@ -33,3 +31,6 @@ grid:
 
 lint:
 	@$(BIN)eslint $(SRC) $(SKETCHES) $(EXAMPLES) -c .eslintrc
+
+test:
+	@./bin/test --suite test/test-integrator-actions

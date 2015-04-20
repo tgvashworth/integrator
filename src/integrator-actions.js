@@ -162,7 +162,7 @@ const buildFixtures = actionPath => { // eslint-disable-line no-unused-vars
  */
 const commonPrefix = (A, B) =>
     A.toList().zip(B.toList())
-        .takeWhile(([left, right]) => left.equals(right))
+        .takeWhile(([left, right]) => Immutable.is(left, right))
         .map(([left]) => left);
 
 /**
