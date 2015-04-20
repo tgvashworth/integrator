@@ -32,8 +32,8 @@ const utils = {
             });
         console.log();
         console.log('=== Finally');
-        console.log('Model:', data.get('model').toJS());
-        console.log('Env:', data.get('fixtures').toJS());
+        console.log('Model    :', data.get('model').toJS());
+        console.log('Fixtures :', data.get('fixtures').toJS());
     },
 
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
