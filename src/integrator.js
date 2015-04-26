@@ -15,7 +15,8 @@ import {
  * Exported.
  * Wrapper around a Suite representation for use in a Runner.
  */
-const Suite = (actions, model) => fromJS({ actions, model }); // eslint-disable-line no-unused-vars
+const Suite = (actions, model, opts={}) => // eslint-disable-line no-unused-vars
+    fromJS({ actions, model, opts});
 
 /**
  * Exported.

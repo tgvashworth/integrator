@@ -13,6 +13,22 @@ if (typeof args.suite !== 'string') {
 const dispatchActions = ({ args, suite }) => {
     const runners = utils.makeRunners(suite);
 
+    // --critical-paths
+    // Run the suite's set of critical paths
+    if (utils.is('boolean', args['critical-paths']) && args['critical-paths']) {
+        if (!suite.getIn(['opts', 'criticalPaths'])) {
+            throw new Error('Suite has no critical paths defined');
+        }
+
+        return suite.getIn(['opts', 'criticalPaths']).reduce((pPrev, actionName) => {
+            let runner = utils.findByKey('targetName')(runners)(actionName);
+            if (utils.is('undefined', runner)) {
+                throw new Error(`No such action "${actionName}"`);
+            }
+            return pPrev.then(utils.effect(() => go(runner)));
+        }, Promise.resolve());
+    }
+
     // --action
     // Run a specific action
     if (utils.is('string', args.action)) {

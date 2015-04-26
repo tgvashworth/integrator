@@ -138,7 +138,14 @@ let actions = Immutable.List([
 const initSuite = (_session, _config) => {
     session = _session;
     config = _config;
-    return Suite(actions, model);
+    return Suite(actions, model, {
+        criticalPaths: [
+            'add new list item',
+            'try adding empty item',
+            'try adding too-long item',
+            'remove the last list item'
+        ]
+    });
 };
 
 export default initSuite;
