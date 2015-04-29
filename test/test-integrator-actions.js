@@ -7,7 +7,9 @@ import { commonPrefix } from '../src/integrator-actions';
 
 let commonPrefixData = [
     [ [1, 2, 3], [1, 2, 4], [1, 2] ],
-    [ [2, 2, 3], [1, 2, 4], [] ]
+    [ [2, 2, 3], [1, 2, 4], [] ],
+    [ [], [], [] ],
+    [ [ fromJS({ a: 10 }) ], [ fromJS({ a: 10 }) ], [ fromJS({ a: 10 }) ] ]
 ];
 let commonPrefixTests = commonPrefixData
     .map(data => {
