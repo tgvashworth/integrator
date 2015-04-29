@@ -9,16 +9,16 @@ if (!args.suite) {
 
 const start = args => suite => {
     return suite(args)
-        .reduce(
-            (pPrev, {name, test}) => {
-                return pPrev
-                    .then(test)
-                    .catch(why => {
-                        why.name = name;
-                        why.test = test;
-                        throw why;
-                    });
-            },
+        .reduce((pPrev, {name, test}) => pPrev.then((x) =>
+            // Double nested so that the catch only catches for the promise it's
+            // directly attached to.
+            Promise.resolve(x)
+                .then(test)
+                .catch(why => {
+                    why.name = name;
+                    why.test = test;
+                    throw why;
+                })),
             Promise.resolve(args)
         );
 };
