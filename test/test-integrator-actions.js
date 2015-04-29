@@ -4,7 +4,9 @@ import utils from '../src/utils';
 import assert from '../src/assert';
 
 import { buildActionPath, commonPrefix } from '../src/integrator-actions';
-import { arbitraryComplexTree } from './fixtures/fixtures-actions';
+import { arbitraryComplexGraph } from './fixtures/fixtures-actions';
+
+/** ============================================================================= */
 
 let commonPrefixData = [
     [ [1, 2, 3], [1, 2, 4], [1, 2] ],
@@ -27,17 +29,40 @@ let commonPrefixTests = commonPrefixData
         };
     });
 
+/** ============================================================================= */
+
 let buildActionPathData = [
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'A', OrderedSet([ 'A' ])                          ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'B', OrderedSet([ 'A', 'B' ])                     ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'C', OrderedSet([ 'A', 'C' ])                     ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'D', OrderedSet([ 'A', 'B', 'D' ])                ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'E', OrderedSet([ 'A', 'B', 'E' ])                ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'F', OrderedSet([ 'A', 'B', 'E', 'C', 'F' ])      ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'G', OrderedSet([ 'A', 'B', 'E', 'C', 'F', 'G' ]) ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'H', OrderedSet([ 'A', 'B', 'E', 'H' ])           ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'I', OrderedSet([ 'A', 'B', 'D', 'E', 'H', 'I' ]) ],
-    [ 'arbitraryComplexTree', arbitraryComplexTree, 'J', OrderedSet([ 'A', 'B', 'E', 'H', 'J' ])      ]
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'A', OrderedSet([ 'A' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'B', OrderedSet([ 'A', 'B' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'C', OrderedSet([ 'A', 'C' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'D', OrderedSet([ 'A', 'B', 'D' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'E', OrderedSet([ 'A', 'B', 'E' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'F', OrderedSet([ 'A', 'B', 'E', 'C', 'F' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'G', OrderedSet([ 'A', 'B', 'E', 'C', 'F', 'G' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'H', OrderedSet([ 'A', 'B', 'E', 'H' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'I', OrderedSet([ 'A', 'B', 'D', 'E', 'H', 'I' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'J', OrderedSet([ 'A', 'B', 'E', 'H', 'J' ]) ],
+
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'K', OrderedSet([ 'K' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'L', OrderedSet([ 'K', 'L' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'M', OrderedSet([ 'K', 'M' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'N', OrderedSet([ 'K', 'L', 'M', 'N' ]) ],
+    [ 'arbitraryComplexGraph', arbitraryComplexGraph,
+        'O', OrderedSet([ 'A', 'B', 'E', 'H', 'J', 'C', 'F', 'G', 'K', 'L', 'M', 'N', 'O' ]) ],
 ];
 let buildActionPathTests = buildActionPathData
     .map(data => {
@@ -53,5 +78,7 @@ let buildActionPathTests = buildActionPathData
             }
         };
     });
+
+/** ============================================================================= */
 
 export default () => commonPrefixTests.concat(buildActionPathTests);
