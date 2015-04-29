@@ -15,6 +15,8 @@ install: docker-install
 	@echo "Git hooks..."
 	@ln -s -f ../../hooks/pre-commit .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
+	@ln -s -f ../../hooks/pre-push .git/hooks/pre-push
+	@chmod +x .git/hooks/pre-push
 	@echo "Dependencies..."
 	@echo "    Downloading selenium-server..."
 	@wget $(SELENIUM_URL) --quiet -O $(SELENIUM_JAR)
