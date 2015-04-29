@@ -1,5 +1,5 @@
 BIN = ./node_modules/.bin/
-SELENIUM_JAR = bin/selenium-server-standalone-2.45.0.jar
+SELENIUM_JAR = selenium-server-standalone-2.45.0.jar
 SELENIUM_URL = http://selenium-release.storage.googleapis.com/2.45/$(SELENIUM_JAR)
 SRC = $(wildcard src/*.js)
 SKETCHES = $(wildcard sketches/*.js)
@@ -19,7 +19,7 @@ install: docker-install
 	@chmod +x .git/hooks/pre-push
 	@echo "Dependencies..."
 	@echo "    Downloading selenium-server..."
-	@wget $(SELENIUM_URL) --quiet -O $(SELENIUM_JAR)
+	wget $(SELENIUM_URL) --quiet -O bin/$(SELENIUM_JAR)
 	@echo "    Done"
 
 selenium-server:
