@@ -4,28 +4,6 @@ const { Map, fromJS, List } = Immutable;
 import utils from './utils';
 
 /**
- * Phases are run in order, with the 'forward' phases run on the way to the target actions, and the
- * 'reverse' phases run as the runner moves back to reset itself.
- *
- * Forward phases:
- *     `setup`    : perform actions on the test subject, and to mirror these changes in the model.
- *     `assert`   : run tests against the subject, throwing if anything is wrong.
- *
- * Reverse phases:
- *     `teardown` : perform actions to undo `setup`, and reflect this in the model.
- *     `done`     : run tests to check that the subject tore down correctly.
- *
- * All phases are optional, but it's recommended that you at least supply setup and teardown phase
- * functions.
- *
- * Phase functions are passed the model (an Map) and should return it with any changes. If
- * your phase function does not need to return any data you can wrap it in `utils.effect` from this
- * file, but the returned value will be ignored.
- */
-const forwardPhaseNames = ['setup', 'assert'];
-const reversePhaseNames = ['teardown', 'done'];
-
-/**
  * Wrap an action's phase function to capture errors, save changes to the model and store that the
  * phase was run successfully.
  *
@@ -81,17 +59,8 @@ const attachActions = orderedPhaseNames => (pPreviousData, action) =>
  *
  * Returns a Promise for the result of these actions.
  */
-const walkActionsPathForward = (actionsPath, pInput) => // eslint-disable-line no-unused-vars
-    actionsPath.reduce(attachActions(forwardPhaseNames), pInput);
-
-/**
- * Walk the `actionsPath` (any Immutable.Iterable) backward, attaching actions to the
- * `pInput` promise supplied.
- *
- * Returns a Promise for the result of these actions.
- */
-const walkActionsPathReverse = (actionsPath, pInput) => // eslint-disable-line no-unused-vars
-    actionsPath.reverse().reduce(attachActions(reversePhaseNames), pInput);
+const walkActionsPath = (phaseNames, actionsPath, pInput) => // eslint-disable-line no-unused-vars
+    actionsPath.reduce(attachActions(phaseNames), pInput);
 
 /**
  * Build an OrderedSet of action names should be run to execute and teardown the action
@@ -209,7 +178,7 @@ const minimalActionPaths = (runner, previousRunner) => { // eslint-disable-line 
 
     return [
         // Reverse out the actions not present in the new path
-        previousRunner.get('actionPath').subtract(prefix.map(utils.pluck('action'))),
+        previousRunner.get('actionPath').subtract(prefix.map(utils.pluck('action'))).reverse(),
         // And run forward to the current target
         runner.get('actionPath').subtract(prefix.map(utils.pluck('action')))
     ];
@@ -231,8 +200,7 @@ const mergeRunners = (runner, previousRunner) => { // eslint-disable-line no-unu
 export {
     wrapPhase,
     attachActions,
-    walkActionsPathForward,
-    walkActionsPathReverse,
+    walkActionsPath,
     buildActionPath,
     buildFixtures,
     commonPrefix,

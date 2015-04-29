@@ -3,13 +3,34 @@ const { fromJS, OrderedSet, List } = Immutable;
 
 import utils from './utils';
 import {
-    walkActionsPathForward,
-    walkActionsPathReverse,
+    walkActionsPath,
     buildFixtures,
     buildActionPath,
     minimalActionPaths,
     mergeRunners
 } from './integrator-actions';
+
+/**
+ * Phases are run in order, with the 'forward' phases run on the way to the target actions, and the
+ * 'reverse' phases run as the runner moves back to reset itself.
+ *
+ * Forward phases:
+ *     `setup`    : perform actions on the test subject, and to mirror these changes in the model.
+ *     `assert`   : run tests against the subject, throwing if anything is wrong.
+ *
+ * Reverse phases:
+ *     `teardown` : perform actions to undo `setup`, and reflect this in the model.
+ *     `done`     : run tests to check that the subject tore down correctly.
+ *
+ * All phases are optional, but it's recommended that you at least supply setup and teardown phase
+ * functions.
+ *
+ * Phase functions are passed the model (an Map) and should return it with any changes. If
+ * your phase function does not need to return any data you can wrap it in `utils.effect` from this
+ * file, but the returned value will be ignored.
+ */
+const forwardPhaseNames = ['setup', 'assert'];
+const reversePhaseNames = ['teardown', 'done'];
 
 /**
  * Exported.
@@ -54,7 +75,7 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
 
     console.log(
-        '  Teardown : ' + reverseActionPath.reverse().map(utils.pluck('name')).join(' -> ')
+        '  Teardown : ' + reverseActionPath.map(utils.pluck('name')).join(' -> ')
     );
     console.log(
         '  Fixtures :', runner.get('fixtures').toJS()
@@ -64,9 +85,14 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     );
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
-    return walkActionsPathForward(
+    return walkActionsPath(
+        forwardPhaseNames,
         forwardActionPath,
-        walkActionsPathReverse(reverseActionPath, pInput)
+        walkActionsPath(
+            reversePhaseNames,
+            reverseActionPath,
+            pInput
+        )
     );
 };
 
