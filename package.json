@@ -1,6 +1,6 @@
 {
   "name": "integrator",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "```shell $ make $ make watch ```",
   "main": "out/integrator.js",
   "scripts": {
