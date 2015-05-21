@@ -21,7 +21,7 @@ install: base-install
 	wget $(SELENIUM_URL) --quiet -O bin/$(SELENIUM_JAR)
 	@echo "    Done"
 
-build:
+build: base-install
 	@babel src --out-dir out >> /dev/null
 
 selenium-server:
@@ -30,7 +30,7 @@ selenium-server:
 server:
 	@python -m SimpleHTTPServer 9876
 
-grid:
+grid: build
 	@docker-compose --file config/docker-compose.yml up
 
 lint:

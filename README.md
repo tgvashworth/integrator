@@ -251,9 +251,9 @@ When it then runs `C`, having just run `B`, it will reverse-out (teardown) `B` a
 **Warning**: this is super experimental and basically not tested for anyone but me. It's probably broken.
 
 ```
-$ make install
+$ make build
 $ make grid
-$ ./run --hub http://$(docker-machine ip):4444/wd/hub --browser chrome --suite examples/list-app --base http://target
+$ ./bin/run --hub http://$(docker-machine ip):4444/wd/hub --browser chrome --suite examples/list-app --base http://target
 ```
 
 ### License
