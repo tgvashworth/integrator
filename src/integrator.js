@@ -2,6 +2,7 @@ import Immutable from 'immutable';
 const { fromJS, OrderedSet, List } = Immutable;
 
 import utils from './utils';
+import assert from './assert';
 import {
     walkActionsPath,
     buildFixtures,
@@ -138,4 +139,4 @@ const makeRunners = suite => // eslint-disable-line no-unused-vars
     suite.get('actions')
         .map(action => Runner(suite, action.get('name')));
 
-export { Action, Suite, Runner, go, randomWalk, makeRunners, utils };
+export { Action, Suite, Runner, go, randomWalk, makeRunners, utils, assert };
