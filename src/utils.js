@@ -1,5 +1,3 @@
-import { Runner, go } from '../src/integrator';
-
 const utils = {
     inherit: x => x,
     fallback: (f, v) => x => {
@@ -54,30 +52,6 @@ const utils = {
     randomBetween: (min, max) => ~~(min + Math.random() * max),
 
     randomFrom: iterable => iterable.get(utils.randomBetween(0, iterable.size)),
-
-    randomWalk: (runners, previousRunner) => {
-        let runner = utils.randomFrom(
-            runners.filter(runner => {
-                if (!runner.getIn(['target', 'deps']).size) {
-                    return false;
-                }
-                if (!previousRunner) {
-                    return true;
-                }
-                return runner.get('targetName') !== previousRunner.get('targetName');
-            })
-        );
-
-        if (!runner) {
-            return Promise.resolve(previousRunner);
-        }
-
-        return go(runner, previousRunner)
-            .then(utils.effect(utils.timeoutPromise(500))) // Wait just a moment before going on
-            .then(finishedRunner => utils.randomWalk(runners, finishedRunner));
-    },
-
-    makeRunners: suite => suite.get('actions').map(action => Runner(suite, action.get('name'))),
 
     actionGraph: (args, suite) => {
         const nodeNodeNames = suite.get('actions').map(action => ({

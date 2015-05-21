@@ -2,9 +2,5 @@
 
 'use strict';
 
-var System = require('systemjs');
-global.System = System;
-
-require('../config/config.js');
-
-System.import('../src/test-runner');
+require('babel/polyfill');
+require('../out/test-runner');

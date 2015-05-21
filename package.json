@@ -2,8 +2,9 @@
   "name": "integrator",
   "version": "1.0.0",
   "description": "```shell $ make $ make watch ```",
-  "main": "src.js",
+  "main": "out/integrator.js",
   "scripts": {
+    "post-install": "make base-install && make build",
     "test": "make test"
   },
   "repository": {
@@ -17,24 +18,16 @@
   },
   "homepage": "https://github.com/phuu/integrator",
   "devDependencies": {
+    "babel": "^5.4.5",
     "babel-eslint": "^2.0.2",
     "eslint": "^0.17.1",
-    "jspm": "^0.15.1",
-    "systemjs": "^0.16.6",
     "nodemon": "^1.3.7"
   },
-  "jspm": {
-    "configFile": "config/config.js",
-    "dependencies": {
-      "fnkit": "npm:fnkit@^1.0.1",
-      "immutable": "npm:immutable@^3.7.1",
-      "integrator-match": "npm:integrator-match@^1.0.1",
-      "leadfoot": "npm:leadfoot@^1.2.1",
-      "minimist": "npm:minimist@^1.1.1"
-    },
-    "devDependencies": {
-      "babel": "npm:babel@^4.7.16",
-      "babel-runtime": "npm:babel-runtime@^4.7.16"
-    }
+  "dependencies": {
+    "fnkit": "^1.0.1",
+    "immutable": "^3.7.3",
+    "integrator-match": "^1.1.0",
+    "leadfoot": "^1.4.1",
+    "minimist": "^1.1.1"
   }
 }

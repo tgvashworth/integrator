@@ -1,6 +1,6 @@
 import Immutable from 'immutable';
 const { fromJS } = Immutable;
-import { Action } from '../../src/integrator';
+import { Action } from '../../integrator';
 
 const arbitraryComplexGraph = fromJS([
     Action('A'),

@@ -1,10 +1,10 @@
 import Immutable from 'immutable';
 const { fromJS, OrderedSet } = Immutable;
-import utils from '../src/utils';
-import assert from '../src/assert';
+import utils from '../utils';
+import assert from '../assert';
 
-import { Suite } from '../src/integrator';
-import { buildActionPath, commonPrefix, minimalActionPaths } from '../src/integrator-actions';
+import { Suite, makeRunners } from '../integrator';
+import { buildActionPath, commonPrefix, minimalActionPaths } from '../integrator-actions';
 import { arbitraryComplexGraph } from './fixtures/fixtures-actions';
 
 /** ============================================================================= */
@@ -83,7 +83,7 @@ let buildActionPathTests = buildActionPathData
 /** ============================================================================= */
 
 let minimalActionPathsSuite = Suite(arbitraryComplexGraph, fromJS({}));
-let minimalActionPathsRunners = utils.makeRunners(minimalActionPathsSuite);
+let minimalActionPathsRunners = makeRunners(minimalActionPathsSuite);
 let minimalActionPathsData = [
     [ minimalActionPathsRunners, 'A', /* from */ '',
         [ [], ['A'] ] ],

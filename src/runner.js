@@ -1,8 +1,8 @@
 import Server from 'leadfoot/Server';
 import parseArgs from 'minimist';
 import { fromJS } from 'immutable';
-import utils from './utils';
-import { go } from './integrator';
+import { go, utils, randomWalk, makeRunners } from './integrator';
+import path from 'path';
 
 const args = parseArgs(process.argv);
 
@@ -11,7 +11,7 @@ if (typeof args.suite !== 'string') {
 }
 
 const dispatchActions = ({ args, suite }) => {
-    const runners = utils.makeRunners(suite);
+    const runners = makeRunners(suite);
 
     // --critical-paths
     // Run the suite's set of critical paths
@@ -40,7 +40,7 @@ const dispatchActions = ({ args, suite }) => {
     }
 
     // Otherwise, random walk
-    return utils.randomWalk(runners);
+    return randomWalk(runners);
 };
 
 /**
@@ -71,7 +71,7 @@ const dispatch = params => {
  * The URL of the Selenium server to connect to will have been passed on the command line with the
  * --hub flag.
  */
-const start = args => initSuite => {
+const start = (args, initSuite) => {
     (new Server(args.hub))
         .createSession({ browserName: args.browser || 'chrome' })
         .then(session => {
@@ -88,6 +88,4 @@ const start = args => initSuite => {
         });
 };
 
-System.import(args.suite)
-    .then(res => res.default)
-    .then(start(args));
+start(args, require(path.resolve(process.cwd(), args.suite)));

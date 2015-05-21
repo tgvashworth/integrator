@@ -1,14 +1,13 @@
 import Immutable from 'immutable';
-import { Suite, Action, go } from '../src/integrator';
-import utils from '../src/utils';
-import assert from '../src/assert';
+import { Suite, Action, go, utils } from '../integrator';
+import assert from '../assert';
 import ElementMatcher from 'integrator-match';
 
 // ACTIONS
 
 let session; // YUK YUK YUK
 let config; // YUK YUK YUK
-let matcher = new ElementMatcher({ path: 'examples/matcher-specs' });
+let matcher = new ElementMatcher({ path: 'src/examples/matcher-specs' });
 
 const testUtils = {
     compareList: utils.effect(model => {
@@ -43,7 +42,7 @@ const model = Immutable.fromJS({
 
 let actions = Immutable.List([
     Action('open app', [], {
-        setup: utils.effect(() => session.get(config.base + '/examples/pages/list-app.html')),
+        setup: utils.effect(() => session.get(config.base + '/src/examples/pages/list-app.html')),
 
         assert: utils.effect(() => {
             return session

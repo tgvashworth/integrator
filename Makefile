@@ -3,15 +3,14 @@ SELENIUM_JAR = selenium-server-standalone-2.45.0.jar
 SELENIUM_URL = http://selenium-release.storage.googleapis.com/2.45/$(SELENIUM_JAR)
 SRC = $(wildcard src/*.js)
 SKETCHES = $(wildcard sketches/*.js)
-EXAMPLES = $(wildcard examples/*.js)
+EXAMPLES = $(wildcard src/examples/*.js)
 
-.PHONY: docker-install install lint server selenium-server grid test
+.PHONY: base-install install lint server selenium-server grid test
 
-docker-install:
+base-install:
 	@npm install
-	@$(BIN)jspm install
 
-install: docker-install
+install: base-install
 	@echo "Git hooks..."
 	@ln -s -f ../../hooks/pre-commit .git/hooks/pre-commit
 	@chmod +x .git/hooks/pre-commit
@@ -21,6 +20,9 @@ install: docker-install
 	@echo "    Downloading selenium-server..."
 	wget $(SELENIUM_URL) --quiet -O bin/$(SELENIUM_JAR)
 	@echo "    Done"
+
+build:
+	@babel src --out-dir out >> /dev/null
 
 selenium-server:
 	@java -jar $(SELENIUM_JAR)
@@ -34,5 +36,5 @@ grid:
 lint:
 	@$(BIN)eslint $(SRC) $(SKETCHES) $(EXAMPLES) -c .eslintrc
 
-test:
-	@./bin/test --suite test/test-integrator-actions
+test: build
+	@./bin/test --suite out/test/test-integrator-actions
