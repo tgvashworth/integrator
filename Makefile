@@ -25,7 +25,7 @@ build: base-install
 	@babel src --out-dir out >> /dev/null
 
 selenium-server:
-	@java -jar $(SELENIUM_JAR)
+	@java -jar bin/$(SELENIUM_JAR)
 
 server:
 	@python -m SimpleHTTPServer 9876
