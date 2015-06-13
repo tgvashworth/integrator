@@ -14,11 +14,11 @@ chrome:
     - target:target
   image: selenium/node-chrome-debug
   ports:
-    - "55901:5900"
+    - "5900"
 firefox:
   links:
     - hub:hub
     - target:target
   image: selenium/node-firefox-debug
   ports:
-    - "55902:5900"
+    - "5900"
