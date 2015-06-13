@@ -44,7 +44,7 @@ const utils = {
                 .then(utils.call(session, 'getPageTitle'))
                 .then(() => {
                     if (t - time > 0) {
-                        throw new Error();
+                        throw new Error(); // Use an error to cause recursion
                     }
                 })
                 .catch(utils.pause(session, t - time)));
