@@ -6,15 +6,14 @@ An experiment in fixing integration testing.
 
 There are numerous problems with integration testing today:
 
-- Repeated, manual setup & teardown
+- They don't simulate users
     - Only thought-of paths are tested
-- Not simulating a user
-    - Brittle CSS selectors
-    - Linear flow – reset, setup, test, teardown
+    - Elements are found with brittle CSS selectors
 - Implicit dependency
     - Test order *might be* important
+- Repeated, manual setup & teardown
 
-This leads to flaky tests, false negatives or, worse, false positives.
+This leads to flaky tests, false negatives or (worse) false positives, and untested but critical user flows.
 
 Fixing it requires taking some of the manual work out of creating and maintaining these tests, providing a framework that helps the test author to avoid writing bad tests.
 
