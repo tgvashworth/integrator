@@ -1,5 +1,6 @@
 BIN = ./node_modules/.bin/
 SELENIUM_JAR = selenium-server-standalone-2.45.0.jar
+SELENIUM_PATH = bin/$(SELENIUM_JAR)
 SELENIUM_URL = http://selenium-release.storage.googleapis.com/2.45/$(SELENIUM_JAR)
 SRC = $(wildcard src/*.js)
 SKETCHES = $(wildcard sketches/*.js)
@@ -18,14 +19,15 @@ install: base-install
 	@chmod +x .git/hooks/pre-push
 	@echo "Dependencies..."
 	@echo "    Downloading selenium-server..."
-	wget $(SELENIUM_URL) --quiet -O bin/$(SELENIUM_JAR)
+	@rm $(SELENIUM_PATH)
+	wget $(SELENIUM_URL) --quiet -O $(SELENIUM_PATH)
 	@echo "    Done"
 
 build: base-install
 	@babel src --out-dir out >> /dev/null
 
 selenium-server:
-	@java -jar bin/$(SELENIUM_JAR)
+	@java -jar $(SELENIUM_PATH)
 
 server:
 	@python -m SimpleHTTPServer 9876
