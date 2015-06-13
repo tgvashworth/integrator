@@ -110,7 +110,7 @@ const buildFixtures = actionPath => { // eslint-disable-line no-unused-vars
             if (!utils.is('undefined', fixturesData.getIn(keyPath)) &&
                 newFixturesData.getIn(keyPath) !== fixturesData.getIn(keyPath)) {
                 throw new Error(
-                    `The required "${k}" fixtures for action "${action.get('name')}"` +
+                    `The required "${k}" fixtures for action "${action.get('name')}" ` +
                     `conflicts with action "${fixturesData.getIn('fixturesSources', k)}"`
                 );
             }
