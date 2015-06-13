@@ -79,12 +79,12 @@ const start = (args, initSuite) => {
             process.on('SIGINT', utils.quit(session));
             // set up the suite, then go
             return Promise.resolve(initSuite(session, args))
-                .then(suite => ({ args, session, suite }));
-        })
-        .then(utils.effect(dispatch))
-        .then(({ session }) => utils.quit(session)())
-        .catch(why => {
-            console.error(why.stack);
+                .then(suite => ({ args, session, suite }))
+                .then(utils.effect(dispatch))
+                .catch(why => {
+                    console.error(why.stack);
+                })
+                .then(utils.quit(session));
         });
 };
 
