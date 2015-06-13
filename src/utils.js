@@ -36,6 +36,20 @@ const utils = {
 
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
 
+    pause: (session, t) => {
+        const time = Math.min(1000, t);
+        return utils.effect(() =>
+            Promise.resolve()
+                .then(utils.timeoutPromise(time))
+                .then(utils.call(session, 'getPageTitle'))
+                .then(() => {
+                    if (t - time > 0) {
+                        throw new Error();
+                    }
+                })
+                .catch(utils.pause(session, t - time)));
+    },
+
     /**
      * Create side-effect function that acts as identity of its argument, unless the argument is
      * mutable.
