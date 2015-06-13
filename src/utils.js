@@ -156,7 +156,25 @@ const utils = {
             .then(utils.effect(() => session.setFindTimeout(newTimeout)))
             .then(fn)
             .then(utils.effect(() => session.setFindTimeout(originalTimeout)));
-    }
+    },
+
+    retryable: (n, fn) => () => {
+        var ctx = this;
+        var args = [].slice.call(arguments);
+        return fn.apply(ctx, args)
+            .catch(why => {
+                if (n > 0) {
+                    return utils.retryable(n - 1, fn).apply(ctx, args);
+                }
+                throw why;
+            });
+    },
+
+    call: (o, method, ...args) => () =>
+        o[method].apply(o, args.concat([].slice.call(arguments))),
+
+    callOnArg: (method, ...args) => o =>
+        o[method].apply(o, args.concat([].slice.call(arguments)))
 };
 
 utils.defaultTo = utils.fallback.bind(null, utils.inherit);
