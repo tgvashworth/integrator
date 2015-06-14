@@ -84,7 +84,7 @@ const start = (args, initSuite) => {
                 .catch(why => {
                     console.error(why.stack);
                 })
-                .then(utils.quit(session));
+                .then(args['stay-open'] ? () => {} : utils.quit(session));
         });
 };
 
