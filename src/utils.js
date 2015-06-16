@@ -37,6 +37,9 @@ const utils = {
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
 
     pause: (session, t) => {
+        if (typeof t !== 'number') {
+            throw new Error('pause utility takes a session and a timeout in milliseconds');
+        }
         const time = Math.min(1000, t);
         return utils.effect(() =>
             Promise.resolve()
