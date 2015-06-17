@@ -131,7 +131,7 @@ const utils = {
      *
      * Returns value at key.
      */
-    pluck: k => o => o.get(k),
+    pluck: (k, d) => o => o.get(k, d),
 
     /**
      * Find keyed value in Immutable.List by key.
