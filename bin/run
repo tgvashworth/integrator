@@ -3,4 +3,4 @@
 'use strict';
 
 require('babel/polyfill');
-require('../out/runner');
+require(require('path').resolve(__dirname, '../out/runner'));
