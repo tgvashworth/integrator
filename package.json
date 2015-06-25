@@ -24,6 +24,7 @@
     "nodemon": "^1.3.7"
   },
   "dependencies": {
+    "chalk": "^1.0.0",
     "fnkit": "^1.0.1",
     "immutable": "^3.7.3",
     "integrator-match": "^1.1.0",

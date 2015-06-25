@@ -2,12 +2,31 @@ import Server from 'leadfoot/Server';
 import parseArgs from 'minimist';
 import { fromJS } from 'immutable';
 import { go, utils, randomWalk, makeRunners } from './integrator';
+import runnerUtils from './runner-utils'
 import path from 'path';
 
 const args = parseArgs(process.argv);
 
 if (typeof args.suite !== 'string') {
-    throw new Error('No suite supplied');
+    runnerUtils.gameOver('No suite supplied.', '\nUse --suite path/to/suite.js');
+}
+
+if (typeof args.hub !== 'string') {
+    runnerUtils.warning(
+        'No hub supplied.',
+        '\n  Use --hub http://url.of.hub:4444/wd/hub',
+        '\n  Defaulting to http://localhost:4444/wd/hub'
+    );
+    args.hub = 'http://localhost:4444/wd/hub';
+}
+
+if (typeof args.browser !== 'string') {
+    runnerUtils.warning(
+        'No browser supplied.',
+        '\n  Use --browser chrome|firefox|...',
+        '\n  Defaulting to chrome'
+    );
+    args.browser = 'chrome';
 }
 
 const dispatchActions = ({ args, suite }) => {
@@ -17,13 +36,16 @@ const dispatchActions = ({ args, suite }) => {
     // Run the suite's set of critical paths
     if (utils.is('boolean', args['critical-paths']) && args['critical-paths']) {
         if (!suite.getIn(['opts', 'criticalPaths'])) {
-            throw new Error('Suite has no critical paths defined');
+            runnerUtils.gameOver(
+                'Suite has no critical paths defined.',
+                '\n  You can supply these with the `criticalPaths` key of your suite\'s options'
+            );
         }
 
         return suite.getIn(['opts', 'criticalPaths']).reduce((pPrev, actionName) => {
             let runner = utils.findByKey('targetName')(runners)(actionName);
             if (utils.is('undefined', runner)) {
-                throw new Error(`No such action "${actionName}"`);
+                runnerUtils.gameOver(`No such action "${actionName}"`);
             }
             return pPrev.then(utils.effect(() => go(runner)));
         }, Promise.resolve());
@@ -34,7 +56,7 @@ const dispatchActions = ({ args, suite }) => {
     if (utils.is('string', args.action)) {
         let runner = utils.findByKey('targetName')(runners)(args.action);
         if (utils.is('undefined', runner)) {
-            throw new Error(`No such action "${args.action}"`);
+            runnerUtils.gameOver(`No such action "${args.action}"`);
         }
         return go(runner);
     }
@@ -72,8 +94,13 @@ const dispatch = params => {
  * --hub flag.
  */
 const start = (args, initSuite) => {
-    (new Server(args.hub))
-        .createSession({ browserName: args.browser || 'chrome' })
+    runnerUtils.info(
+        '\nSetting up server and session.',
+        '\n  Hub     : ', args.hub,
+        '\n  Browser : ', args.browser
+    );
+    new Server(args.hub)
+        .createSession({ browserName: args.browser })
         .then(session => {
             // Quit the session when the process is killed
             process.on('SIGINT', utils.quit(session));
@@ -82,10 +109,27 @@ const start = (args, initSuite) => {
                 .then(suite => ({ args, session, suite }))
                 .then(utils.effect(dispatch))
                 .catch(why => {
-                    console.error(why.stack);
+                    if (!(why instanceof runnerUtils.TestsFailedError)) {
+                        runnerUtils.error('There was an error.\n', why.stack);
+                    }
                 })
                 .then(args['stay-open'] ? () => {} : utils.quit(session));
+        })
+        .catch(why => {
+            runnerUtils.gameOver(
+                'Creating server and session failed.',
+                '\n',
+                why.stack
+            );
         });
 };
 
-start(args, require(path.resolve(process.cwd(), args.suite)));
+try {
+    start(args, require(path.resolve(process.cwd(), args.suite)));
+} catch (e) {
+    runnerUtils.gameOver(
+        'Failed to start integrator',
+        '\n',
+        e.stack
+    );
+}

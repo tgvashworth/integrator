@@ -20,7 +20,8 @@
         "no-console": 0,
         "new-cap": 0,
         "comma-spacing": 1,
-        "no-process-exit": 0
+        "no-process-exit": 0,
+        "no-multi-spaces": 0
     },
     "globals": {
         "console": true

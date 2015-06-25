@@ -1,3 +1,6 @@
+import { inspect } from 'util';
+import runnerUtils from './runner-utils';
+
 const utils = {
     inherit: x => x,
     fallback: (f, v) => x => {
@@ -6,32 +9,35 @@ const utils = {
     },
     always: x => () => x,
     is: (type, x) => (typeof x === type),
-    log: console.log.bind(console),
+    log: runnerUtils.info,
 
     handleSuccess: (/* args */) => () => {
-        console.log('== PASSED ========================');
+        runnerUtils.success('\nPassed.');
     },
     handleFailure: args => why => {
-        console.log('== FAILED ========================');
-        console.error(why.stack);
+        runnerUtils.warning('\nFailed.\n', why.stack);
         if (args.verbose && why.data) {
-            utils.logRan(why.data);
+            utils.logRan(why.data, args);
         }
+        throw new runnerUtils.TestsFailedError(why.message);
     },
 
-    logRan: (data) => {
+    logRan: data => {
+        runnerUtils.info('\nRan:');
         data.get('ran')
             .map(({action, phaseName, data, updatedData}) => {
-                console.log();
-                console.log(`=== ${action.get('name')} (${phaseName}) ===`);
-                console.log('before:', data.get('model'));
-                console.log('after :', updatedData.get('model'));
-                console.log('fixtures', data.get('fixtures'));
+                runnerUtils.info(`  ${action.get('name')} (${phaseName})`);
+                runnerUtils.info('    | model    :', data.get('model'));
+                runnerUtils.info('    |   before :', data.get('model'));
+                runnerUtils.info('    |   after  :', updatedData.get('model'));
+                runnerUtils.info('    | fixtures :', data.get('fixtures'));
             });
-        console.log();
-        console.log('=== Finally');
-        console.log('Model    :', data.get('model').toJS());
-        console.log('Fixtures :', data.get('fixtures').toJS());
+        // TODO: allow depth to be supplied in args
+        runnerUtils.info('\nFinally:');
+        runnerUtils.info('  Model:');
+        runnerUtils.info(inspect(data.get('model').toJS(), { depth: 10, colors: true }));
+        runnerUtils.info('  Fixtures:');
+        runnerUtils.info(inspect(data.get('fixtures').toJS(), { depth: 10, colors: true }));
     },
 
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
@@ -64,7 +70,7 @@ const utils = {
      *
      * Returns a function that calls the passed `fn` and returns a Promise for its argument.
      */
-    effect: fn => x => Promise.resolve(fn(x)).then(() => x),
+    effect: fn => (x, ...args) => Promise.resolve(fn(x, ...args)).then(() => x),
 
     randomBetween: (min, max) => ~~(min + Math.random() * max),
 
@@ -150,7 +156,7 @@ const utils = {
         } catch (e) {}
     },
 
-    findWithTimeout: (session, fn, newTimeout) => () => {
+    makeFindWithTimeout: (session, fn, newTimeout) => () => {
         var originalTimeout = 0;
         return session.getFindTimeout()
             .then(utils.effect(t => {
@@ -161,13 +167,13 @@ const utils = {
             .then(utils.effect(() => session.setFindTimeout(originalTimeout)));
     },
 
-    retryable: (n, fn) => () => {
+    makeRetryable: (n, fn) => () => {
         var ctx = this;
         var args = [].slice.call(arguments);
         return fn.apply(ctx, args)
             .catch(why => {
                 if (n > 0) {
-                    return utils.retryable(n - 1, fn).apply(ctx, args);
+                    return utils.makeRetryable(n - 1, fn).apply(ctx, args);
                 }
                 throw why;
             });
@@ -181,6 +187,7 @@ const utils = {
 };
 
 utils.defaultTo = utils.fallback.bind(null, utils.inherit);
+utils.noDefault = utils.inherit;
 
 /**
  * Find keyed value in Immutable iterable by key 'name'.

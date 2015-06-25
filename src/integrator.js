@@ -2,6 +2,7 @@ import Immutable from 'immutable';
 const { fromJS, OrderedSet, List } = Immutable;
 
 import utils from './utils';
+import runnerUtils from './runner-utils';
 import assert from './assert';
 import {
     walkActionsPath,
@@ -69,21 +70,21 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
  * Returns a Promise for the result of the actions.
  */
 const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
-    console.log('== GO ========================');
-    console.log(`Running "${runner.get('targetName')}"`);
+    runnerUtils.info(`\nRunning "${runner.get('targetName')}"`);
 
     // Find the minimal set of actions to take give the current context
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
 
-    console.log(
-        '  Teardown : ' + reverseActionPath.map(utils.pluck('name')).join(' -> ')
-    );
-    console.log(
-        '  Fixtures :', runner.get('fixtures').toJS()
-    );
-    console.log(
-        '  Setup    : ' + forwardActionPath.map(utils.pluck('name')).join(' -> ')
-    );
+    let teardownPhases = reverseActionPath.map(utils.pluck('name')).join(' -> ');
+    let setupPhases = forwardActionPath.map(utils.pluck('name')).join(' -> ');
+
+    if (teardownPhases) {
+        runnerUtils.info('  (teardown) -> ', teardownPhases);
+    }
+    // runnerUtils.info('  Fixtures :\n  ', runner.get('fixtures').toJS());
+    if (setupPhases) {
+        runnerUtils.info('  (setup) -> ', setupPhases);
+    }
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
     return walkActionsPath(
