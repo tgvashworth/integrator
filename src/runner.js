@@ -42,6 +42,8 @@ const dispatchActions = ({ args, suite }) => {
             );
         }
 
+        runnerUtils.info('\nCritical paths.');
+
         return suite.getIn(['opts', 'criticalPaths']).reduce((pPrev, actionName) => {
             let runner = utils.findByKey('targetName')(runners)(actionName);
             if (utils.is('undefined', runner)) {
@@ -58,8 +60,11 @@ const dispatchActions = ({ args, suite }) => {
         if (utils.is('undefined', runner)) {
             runnerUtils.gameOver(`No such action "${args.action}"`);
         }
+        runnerUtils.info('\nAction: %s', args.action);
         return go(runner);
     }
+
+    runnerUtils.info('\nMode: random walk.');
 
     // Otherwise, random walk
     return randomWalk(runners);

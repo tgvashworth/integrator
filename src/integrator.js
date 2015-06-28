@@ -83,7 +83,7 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
     }
     // runnerUtils.info('  Fixtures :\n  ', runner.get('fixtures').toJS());
     if (setupPhases) {
-        runnerUtils.info('  (setup) -> ', setupPhases);
+        runnerUtils.info('  (setup)    -> ', setupPhases);
     }
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
