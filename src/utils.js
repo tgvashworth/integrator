@@ -1,3 +1,4 @@
+import Immutable from 'immutable';
 import { inspect } from 'util';
 import runnerUtils from './runner-utils';
 
@@ -10,6 +11,7 @@ const utils = {
     always: x => () => x,
     is: (type, x) => (typeof x === type),
     log: runnerUtils.info,
+    not: f => (...args) => !f.call(this, ...args),
 
     handleSuccess: (/* args */) => () => {
         runnerUtils.success('\nPassed.');
@@ -152,7 +154,10 @@ const utils = {
 
     quit: session => () => {
         try {
-            session.quit();
+            return session.quit()
+                .then(function () {
+                    process.exit();
+                });
         } catch (e) {}
     },
 
@@ -183,7 +188,21 @@ const utils = {
         o[method].apply(o, args.concat([].slice.call(arguments))),
 
     callOnArg: (method, ...args) => o =>
-        o[method].apply(o, args.concat([].slice.call(arguments)))
+        o[method].apply(o, args.concat([].slice.call(arguments))),
+
+    /**
+     * Find and return the common prefix of two Iterables as a List.
+     *
+     *     A = List(1, 2, 3);
+     *     B = List(1, 2, 4);
+     *     commonPrefix(A, B) === List(1, 2);
+     *
+     * Takes two Interables, returns a List.
+     */
+    commonPrefix: (A, B) =>
+        A.toList().zip(B.toList())
+            .takeWhile(([left, right]) => Immutable.is(left, right))
+            .map(([left]) => left)
 };
 
 utils.defaultTo = utils.fallback.bind(null, utils.inherit);

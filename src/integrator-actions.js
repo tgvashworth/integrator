@@ -121,20 +121,6 @@ const buildFixtures = actionPath => { // eslint-disable-line no-unused-vars
 };
 
 /**
- * Find and return the common prefix of two Iterables as a List.
- *
- *     A = List(1, 2, 3);
- *     B = List(1, 2, 4);
- *     commonPrefix(A, B) === List(1, 2);
- *
- * Takes two Interables, returns a List.
- */
-const commonPrefix = (A, B) =>
-    A.toList().zip(B.toList())
-        .takeWhile(([left, right]) => Immutable.is(left, right))
-        .map(([left]) => left);
-
-/**
  * Extracts actions with fixtures data that is relevant to them from a runner.
  *
  * Returns a List of Maps in the form Map { action: action, fixtures: filteredFixtures }
@@ -169,7 +155,7 @@ const minimalActionPaths = (runner, previousRunner) => { // eslint-disable-line 
     // current runner
 
     // Find the actions common to both tests
-    let prefix = commonPrefix(
+    let prefix = utils.commonPrefix(
         // The fixtures of each action is relevant to whether or not it needs to be torn-down,
         // so we have to tease out the fixtures data relevant to the action for comparison
         actionPathWithRelevantFixtures(runner),
@@ -197,14 +183,16 @@ const mergeRunners = (runner, previousRunner) => { // eslint-disable-line no-unu
         .set('ran', previousRunner.get('ran'));
 };
 
-export {
+var exports = {
     wrapPhase,
     attachActions,
     walkActionsPath,
     buildActionPath,
     buildFixtures,
-    commonPrefix,
+    commonPrefix: utils.commonPrefix,
     actionPathWithRelevantFixtures,
     minimalActionPaths,
     mergeRunners
 };
+
+export default exports;
