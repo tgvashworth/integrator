@@ -1,5 +1,5 @@
 import Immutable from 'immutable';
-import { inspect } from 'util';
+
 import runnerUtils from './runner-utils';
 
 const utils = {
@@ -12,35 +12,6 @@ const utils = {
     is: (type, x) => (typeof x === type),
     log: runnerUtils.info,
     not: f => (...args) => !f.call(this, ...args),
-
-    handleSuccess: (/* args */) => () => {
-        runnerUtils.success('\nPassed.');
-    },
-    handleFailure: args => why => {
-        runnerUtils.warning('\nFailed.\n', why.stack);
-        if (args.verbose && why.data) {
-            utils.logRan(why.data, args);
-        }
-        throw new runnerUtils.TestsFailedError(why.message);
-    },
-
-    logRan: data => {
-        runnerUtils.info('\nRan:');
-        data.get('ran')
-            .map(({action, phaseName, data, updatedData}) => {
-                runnerUtils.info(`  ${action.get('name')} (${phaseName})`);
-                runnerUtils.info('    | model    :', data.get('model'));
-                runnerUtils.info('    |   before :', data.get('model'));
-                runnerUtils.info('    |   after  :', updatedData.get('model'));
-                runnerUtils.info('    | fixtures :', data.get('fixtures'));
-            });
-        // TODO: allow depth to be supplied in args
-        runnerUtils.info('\nFinally:');
-        runnerUtils.info('  Model:');
-        runnerUtils.info(inspect(data.get('model').toJS(), { depth: 10, colors: true }));
-        runnerUtils.info('  Fixtures:');
-        runnerUtils.info(inspect(data.get('fixtures').toJS(), { depth: 10, colors: true }));
-    },
 
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
 
@@ -77,35 +48,6 @@ const utils = {
     randomBetween: (min, max) => ~~(min + Math.random() * max),
 
     randomFrom: iterable => iterable.get(utils.randomBetween(0, iterable.size)),
-
-    actionGraph: (args, suite) => {
-        const nodeNodeNames = suite.get('actions').map(action => ({
-            action,
-            name: action.get('name'),
-            nodeName: action.get('name').replace(/[\s-]/g, '_'),
-            deps: action.get('deps').map(dep => dep.replace(/\s/g, '_'))
-        }));
-
-        console.log('digraph G {');
-
-        nodeNodeNames
-            .map(({name, nodeName}) => {
-                console.log('  node [] ', nodeName, ' {');
-                console.log('    label = "' + name + '"');
-                console.log('  }');
-            });
-
-        console.log();
-
-        nodeNodeNames
-            .map(({nodeName, deps}) => {
-                deps.map(dep => {
-                    console.log('  ', dep, '->', nodeName, '[];');
-                });
-            });
-
-        console.log('}');
-    },
 
     /**
      * Combine the stacks from Error objects `e` and `f` to produce a stack with the message from
@@ -151,15 +93,6 @@ const utils = {
      * Return a matching element, or undefined.
      */
     findByKey: k => xs => v => xs.find(x => x.get(k) === v),
-
-    quit: session => () => {
-        try {
-            return session.quit()
-                .then(function () {
-                    process.exit();
-                });
-        } catch (e) {}
-    },
 
     makeFindWithTimeout: (session, fn, newTimeout) => () => {
         var originalTimeout = 0;

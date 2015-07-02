@@ -1,9 +1,11 @@
+import path from 'path';
+
 import Server from 'leadfoot/Server';
 import parseArgs from 'minimist';
 import { fromJS } from 'immutable';
+
 import { go, utils, randomWalk, makeRunners } from './integrator';
 import runnerUtils from './runner-utils'
-import path from 'path';
 
 const args = parseArgs(process.argv);
 
@@ -14,7 +16,7 @@ if (typeof args.suite !== 'string') {
 if (typeof args.hub !== 'string') {
     runnerUtils.warning(
         'No hub supplied.',
-        '\n  Use --hub http://url.of.hub:4444/wd/hub',
+        '\n  Use --hub <url>',
         '\n  Defaulting to http://localhost:4444/wd/hub'
     );
     args.hub = 'http://localhost:4444/wd/hub';
@@ -83,12 +85,12 @@ const dispatch = params => {
     // --graph
     // Output graphviz that can be used to graph the dependency tree
     if (utils.is('boolean', args.graph) && args.graph) {
-        return utils.actionGraph(args, suite);
+        return runnerUtils.actionGraph(args, suite);
     }
 
     // Run actions and respond to the result
     return dispatchActions(params)
-        .then(utils.effect(utils.handleSuccess(args)), utils.handleFailure(args));
+        .then(utils.effect(runnerUtils.handleSuccess(args)), runnerUtils.handleFailure(args));
 };
 
 /**
@@ -108,7 +110,7 @@ const start = (args, initSuite) => {
         .createSession({ browserName: args.browser })
         .then(session => {
             // Quit the session when the process is killed
-            process.on('SIGINT', utils.quit(session));
+            process.on('SIGINT', runnerUtils.quit(session, 'Process killed with SIGINT.'));
             // set up the suite, then go
             return Promise.resolve(initSuite(session, args))
                 .then(suite => ({ args, session, suite }))
@@ -118,13 +120,14 @@ const start = (args, initSuite) => {
                         runnerUtils.error('There was an error.\n', why.stack);
                     }
                 })
-                .then(args['stay-open'] ? () => {} : utils.quit(session));
+                .then(args['stay-open'] ? () => {} : runnerUtils.quit(session, 'All done.'));
         })
         .catch(why => {
             runnerUtils.gameOver(
                 'Creating server and session failed.',
                 '\n',
-                why.stack
+                why.stack,
+                runnerUtils.suggestFix(args, why)
             );
         });
 };
