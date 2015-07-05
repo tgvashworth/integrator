@@ -31,7 +31,10 @@ const runnerUtils = {
         const nodeNodeNames = suite.get('actions').map(action => ({
             action,
             name: action.get('name'),
-            nodeName: action.get('name').replace(/[\s-]/g, '_'),
+            nodeName: action.get('name')
+                .replace(/[^a-z0-9]/ig, '_')
+                .replace(/\_{2,}/g, '_')
+                .replace(/\_$/g, ''),
             deps: action.get('deps').map(dep => dep.replace(/\s/g, '_'))
         }));
 
