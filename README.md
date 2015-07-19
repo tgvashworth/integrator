@@ -17,6 +17,10 @@ There are some big questions in my head:
 - can the task runner component of integrator be broken out into its own thing? (build tooling, anyone?)
 - is this insane? does it scale? does it work?
 
+## Try it out?
+
+Don't. You could check out the TodoMVC integrator branch, but it's likely broken and has 0 docs. However, [please tell me what you think of this idea][new-issue].
+
 ## Rationale
 
 There are numerous problems with integration tests today:
@@ -262,16 +266,6 @@ Optionally, you might use the dockerised Selenium grid. Whatever happens, you ne
 
 - [integrator-match](https://github.com/phuu/integrator-match) — no more CSS selectors in integration tests. Also not ready yet.
 
-## Try it out
-
-**Warning**: this is super experimental and basically not tested for anyone but me. It's probably broken.
-
-```
-$ make build
-$ make grid
-$ ./bin/run --hub http://$(docker-machine ip):4444/wd/hub --browser chrome --suite examples/list-app --base http://target
-```
-
 ### License
 
 MIT
@@ -279,3 +273,4 @@ MIT
 [change-detector]: http://googletesting.blogspot.co.uk/2015/01/testing-on-toilet-change-detector-tests.html
 [npm]: https://www.npmjs.com/
 [todomvc-actions]: https://github.com/phuu/todomvc/blob/integrator/tests/integrator/actions.js
+[new-issue]: https://github.com/phuu/integrator/issues/new
