@@ -13,6 +13,17 @@ const utils = {
     log: runnerUtils.info,
     not: f => (...args) => !f.call(this, ...args),
 
+    allByKeyPromise: o => {
+        var keys = Object.keys(o);
+        return Promise.all(keys.map(k => o[k]))
+            .then(all =>
+                all.reduce((res, v, i) => {
+                    res[keys[i]] = v;
+                    return res;
+                }, {})
+            )
+    },
+
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
 
     pause: (session, t) => {
