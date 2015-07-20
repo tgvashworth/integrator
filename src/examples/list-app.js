@@ -10,7 +10,7 @@ let config; // YUK YUK YUK
 let matcher = new ElementMatcher({ path: 'src/examples/matcher-specs' });
 
 const testUtils = {
-    compareList: utils.effect(model => {
+    compareList: utils.makeEffect(model => {
         return session
             .findByCssSelector('.List-list')
             .then(elem => elem.findAllByCssSelector('li span'))
@@ -23,7 +23,7 @@ const testUtils = {
             });
     }),
 
-    compareCreateText: utils.effect(model => {
+    compareCreateText: utils.makeEffect(model => {
         return matcher.get(session, 'Create-text')
             .then(elem => elem.getProperty('value'))
             .then(value => {
@@ -42,9 +42,9 @@ const model = Immutable.fromJS({
 
 let actions = Immutable.List([
     Action('open app', [], {
-        setup: utils.effect(() => session.get(config.base + '/src/examples/pages/list-app.html')),
+        setup: utils.makeEffect(() => session.get(config.base + '/src/examples/pages/list-app.html')),
 
-        assert: utils.effect(() => {
+        assert: utils.makeEffect(() => {
             return session
                 .getPageTitle()
                 .then(title => {

@@ -25,7 +25,7 @@ const wrapPhase = (action, phaseName) => data =>
             let fn = action.getIn(['spec', phaseName], utils.inherit);
             return fn(model, data.get('fixtures'));
         })
-        .then(utils.effect(result => {
+        .then(utils.makeEffect(result => {
             if (!result) {
                 throw new Error(`Phase "${phaseName}" did not return anything. ` +
                                 `Perhaps you need to wrap it in 'utils.effect'?`);
@@ -34,7 +34,8 @@ const wrapPhase = (action, phaseName) => data =>
         .then(updatedModel => data.set('model', updatedModel))
         .then(updatedData =>
             updatedData.update('ran', ran => ran.concat({ action, phaseName, data, updatedData }))
-        ).catch(why => {
+        )
+        .catch(why => {
             let e = new Error(`${ action.get('name') } (${phaseName}): ${why.message}`);
             e.data = data;
             e.stack = utils.fakeStack(e, why);

@@ -27,12 +27,12 @@ const model = fromJS({
 
 let actions = fromJS([
     Action('open TweetDeck', [], {
-        setup: utils.effect(() => {
+        setup: utils.makeEffect(() => {
             return session.get(config.base)
                 .then(utils.findWithTimeout(session, () => session.findByName('username'), 1000));
         }),
 
-        assert: utils.effect(() => {
+        assert: utils.makeEffect(() => {
             return session
                 .getPageTitle()
                 .then(title => {
@@ -62,7 +62,7 @@ let actions = fromJS([
                 .then(() => model.set('user', fixtures.get('user')));
         },
 
-        assert: utils.effect(model => {
+        assert: utils.makeEffect(model => {
             return session.findByName('username')
                 .then(elem => elem.getProperty('value'))
                 .then(value => {
@@ -87,7 +87,7 @@ let actions = fromJS([
             user: utils.defaultTo(fixtures.get('badUser'))
         },
 
-        setup: utils.effect(() => {
+        setup: utils.makeEffect(() => {
             return session.findByClassName('btn-login')
                 .then(elem => elem.click());
         })

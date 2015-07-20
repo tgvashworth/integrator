@@ -2,6 +2,19 @@ import { inspect } from 'util';
 
 import chalk from 'chalk';
 
+import utils from './utils';
+
+// Errors
+
+function TestsFailedError(message) {
+    Error.call(this);
+    this.message = message;
+    const e = new Error();
+    this.stack = `Error: ${message}\n${e.stack.split('\n').slice(2).join('\n')}`;
+}
+
+TestsFailedError.prototype = Error.prototype;
+
 const runnerUtils = {
     // Logging
     // TODO multicast this to remember what was logged, for JSON output later
@@ -65,11 +78,12 @@ const runnerUtils = {
     },
 
     handleFailure: args => why => {
-        runnerUtils.warning('\nFailed.\n', why.stack);
         if (args.verbose && why.data) {
             runnerUtils.logRan(why.data, args);
         }
-        throw new runnerUtils.TestsFailedError(why.message);
+        let e = new TestsFailedError(why.message);
+        e.stack = utils.fakeStack(e, why);
+        throw e;
     },
 
     logRan: data => {
@@ -90,14 +104,14 @@ const runnerUtils = {
         runnerUtils.info(inspect(data.get('fixtures').toJS(), { depth: 10, colors: true }));
     },
 
-    quit: (session, msg) => () => {
+    makeQuit: (session, { message, code }) => () => {
         try {
-            if (msg) {
-                runnerUtils.info('\nQuitting:', msg);
+            if (message) {
+                runnerUtils.info('\nQuit:', message);
             }
             return session.quit()
                 .then(function () {
-                    process.exit();
+                    process.exit(code);
                 });
         } catch (e) {}
     },
@@ -111,12 +125,11 @@ const runnerUtils = {
                 'You can supply a different hub using --hub <url>'
             ].join('\n');
         }
-    },
-
-    // Errors
-    TestsFailedError: function TestsFailedError(message) {
-        this.message = message;
     }
+
+
 };
+
+runnerUtils.TestsFailedError = TestsFailedError;
 
 export default runnerUtils;

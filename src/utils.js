@@ -12,6 +12,7 @@ const utils = {
     is: (type, x) => (typeof x === type),
     log: runnerUtils.info,
     not: f => (...args) => !f.call(this, ...args),
+    compose: (f, g) => (...args) => f(g(...args)),
 
     allByKeyPromise: o => {
         var keys = Object.keys(o);
@@ -21,40 +22,40 @@ const utils = {
                     res[keys[i]] = v;
                     return res;
                 }, {})
-            )
+            );
     },
 
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
 
-    pause: (session, t) => {
+    makePause: (session, t) => {
         if (typeof t !== 'number') {
             throw new Error('pause utility takes a session and a timeout in milliseconds');
         }
         const time = Math.min(1000, t);
-        return utils.effect(() =>
+        return utils.makeEffect(() =>
             Promise.resolve()
                 .then(utils.timeoutPromise(time))
-                .then(utils.call(session, 'getPageTitle'))
+                .then(utils.makeCall(session, 'getPageTitle'))
                 .then(() => {
                     if (t - time > 0) {
                         throw new Error(); // Use an error to cause recursion
                     }
                 })
-                .catch(utils.pause(session, t - time)));
+                .catch(utils.makePause(session, t - time)));
     },
 
     /**
-     * Create side-effect function that acts as identity of its argument, unless the argument is
+     * Create side-makeEffect function that acts as identity of its argument, unless the argument is
      * mutable.
      *
      * Usage:
      *
-     *      fn = effect(() => mutateAllTheThings())
+     *      fn = makeEffect(() => mutateAllTheThings())
      *      fn(a) // -> Promise(a) (mutateAllTheThings will have been called)
      *
      * Returns a function that calls the passed `fn` and returns a Promise for its argument.
      */
-    effect: fn => (x, ...args) => Promise.resolve(fn(x, ...args)).then(() => x),
+    makeEffect: fn => (x, ...args) => Promise.resolve(fn(x, ...args)).then(() => x),
 
     randomBetween: (min, max) => ~~(min + Math.random() * max),
 
@@ -108,12 +109,12 @@ const utils = {
     makeFindWithTimeout: (session, fn, newTimeout) => () => {
         var originalTimeout = 0;
         return session.getFindTimeout()
-            .then(utils.effect(t => {
+            .then(t => {
                 originalTimeout = t;
-            }))
-            .then(utils.effect(() => session.setFindTimeout(newTimeout)))
+            })
+            .then(() => session.setFindTimeout(newTimeout))
             .then(fn)
-            .then(utils.effect(() => session.setFindTimeout(originalTimeout)));
+            .then(utils.makeEffect(() => session.setFindTimeout(originalTimeout)));
     },
 
     makeRetryable: (n, fn) => () => {
@@ -128,11 +129,19 @@ const utils = {
             });
     },
 
-    call: (o, method, ...args) => () =>
-        o[method].apply(o, args.concat([].slice.call(arguments))),
+    makeCall: (o, method, ...args) => () =>
+        o[method].apply(o, args),
 
-    callOnArg: (method, ...args) => o =>
-        o[method].apply(o, args.concat([].slice.call(arguments))),
+    makeCallOnArg: (method, ...args) => (o) =>
+        o[method].apply(o, args),
+
+    makeCallPartial: (o, method, ...args) => (...innerArgs) =>
+        o[method].apply(o, args.concat(innerArgs)),
+
+    makeCallOnArgPartial: (method, ...args) => (o, ...innerArgs) =>
+        o[method].apply(o, args.concat(innerArgs)),
+
+    makeArity: (n, f) => (...args) => f.apply(this, args.slice(0, n)),
 
     /**
      * Find and return the common prefix of two Iterables as a List.

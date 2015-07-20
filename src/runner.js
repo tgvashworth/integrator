@@ -51,7 +51,7 @@ const dispatchActions = ({ args, suite }) => {
             if (utils.is('undefined', runner)) {
                 runnerUtils.gameOver(`No such action "${actionName}"`);
             }
-            return pPrev.then(utils.effect(() => go(runner)));
+            return pPrev.then(utils.makeEffect(() => go(runner)));
         }, Promise.resolve());
     }
 
@@ -90,7 +90,7 @@ const dispatch = params => {
 
     // Run actions and respond to the result
     return dispatchActions(params)
-        .then(utils.effect(runnerUtils.handleSuccess(args)), runnerUtils.handleFailure(args));
+        .catch(runnerUtils.handleFailure(args));
 };
 
 /**
@@ -110,17 +110,33 @@ const start = (args, initSuite) => {
         .createSession({ browserName: args.browser })
         .then(session => {
             // Quit the session when the process is killed
-            process.on('SIGINT', runnerUtils.quit(session, 'Process killed with SIGINT.'));
+            process.on('SIGINT', runnerUtils.makeQuit(session, {
+                message: 'Process killed with SIGINT.',
+                code: 1
+            }));
             // set up the suite, then go
             return Promise.resolve(initSuite(session, args))
                 .then(suite => ({ args, session, suite }))
-                .then(utils.effect(dispatch))
-                .catch(why => {
-                    if (!(why instanceof runnerUtils.TestsFailedError)) {
-                        runnerUtils.error('There was an error.\n', why.stack);
-                    }
-                })
-                .then(args['stay-open'] ? () => {} : runnerUtils.quit(session, 'All done.'));
+                .then(dispatch)
+                .then(
+                    utils.compose(
+                        utils.always(0),
+                        utils.makeCall(runnerUtils, 'success', '\nPassed.')
+                    ),
+                    utils.compose(
+                        utils.always(1),
+                        why => {
+                            let testsFailed = (why instanceof runnerUtils.TestsFailedError);
+                            runnerUtils.error(
+                                (testsFailed ? '\nFailed.' : 'There was an error.'),
+                                `\n${why.stack}`
+                            );
+                        }
+                    )
+                )
+                .then(utils.makeEffect(args['stay-open'] ? () => {} : utils.makeCall(session, 'quit')))
+                .then(utils.makeEffect(utils.makeCallPartial(runnerUtils, 'info', 'code')))
+                .then(utils.makeCallPartial(process, 'exit'));
         })
         .catch(why => {
             runnerUtils.gameOver(

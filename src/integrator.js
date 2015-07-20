@@ -132,7 +132,7 @@ const randomWalk = (runners, previousRunner) => {
     }
 
     return go(runner, previousRunner)
-        .then(utils.effect(utils.timeoutPromise(500))) // Wait just a moment before going on
+        .then(utils.makeEffect(utils.timeoutPromise(500))) // Wait just a moment before going on
         .then(finishedRunner => randomWalk(runners, finishedRunner));
 };
 
