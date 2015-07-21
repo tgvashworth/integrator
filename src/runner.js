@@ -135,7 +135,6 @@ const start = (args, initSuite) => {
                     )
                 )
                 .then(utils.makeEffect(args['stay-open'] ? () => {} : utils.makeCall(session, 'quit')))
-                .then(utils.makeEffect(utils.makeCallPartial(runnerUtils, 'info', 'code')))
                 .then(utils.makeCallPartial(process, 'exit'));
         })
         .catch(why => {
