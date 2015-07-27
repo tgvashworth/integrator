@@ -3,7 +3,7 @@ import Immutable from 'immutable';
 import runnerUtils from './runner-utils';
 
 const utils = {
-    inherit: x => x,
+    identity: x => x,
     fallback: (f, v) => x => {
         let fv = f(x);
         return (utils.is('undefined', fv) ? v : fv);
@@ -169,8 +169,8 @@ const utils = {
             .map(([left]) => left)
 };
 
-utils.defaultTo = utils.fallback.bind(null, utils.inherit);
-utils.noDefault = utils.inherit;
+utils.defaultTo = utils.fallback.bind(null, utils.identity);
+utils.noDefault = utils.identity;
 
 /**
  * Find keyed value in Immutable iterable by key 'name'.

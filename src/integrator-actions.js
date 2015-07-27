@@ -22,7 +22,7 @@ import utils from './utils';
 const wrapPhase = (action, phaseName) => data =>
     Promise.resolve(data.get('model'))
         .then(model => {
-            let fn = action.getIn(['spec', phaseName], utils.inherit);
+            let fn = action.getIn(['spec', phaseName], utils.identity);
             return fn(model, data.get('fixtures'));
         })
         .then(utils.makeEffect(result => {
