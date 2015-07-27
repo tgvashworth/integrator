@@ -27,6 +27,17 @@ const utils = {
 
     timeoutPromise: t => () => new Promise(resolve => setTimeout(resolve, t)),
 
+    /*
+     * Makes a function that pauses the session for some amount of time.
+     *
+     * Takes a session and a time in milliseconds.
+     *
+     * It does this by ticking every second, then interacting with the session to keep it from
+     * timing out. It recurses, so you might get a stack overflow here if you set the pause time
+     * high enough.
+     *
+     * Returns a (effect) function.
+     */
     makePause: (session, t) => {
         if (typeof t !== 'number') {
             throw new Error('pause utility takes a session and a timeout in milliseconds');
