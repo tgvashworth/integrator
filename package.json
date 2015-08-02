@@ -3,6 +3,7 @@
   "version": "1.1.0",
   "description": "```shell $ make $ make watch ```",
   "main": "out/integrator.js",
+  "bin": "bin/run",
   "scripts": {
     "post-install": "make base-install && make build",
     "test": "make test"
