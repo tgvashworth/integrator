@@ -1,8 +1,0 @@
-FROM node:0.11-onbuild
-ADD . /tests
-WORKDIR /tests
-ENV test "list-app"
-ENV hub_hostport "hub:4444"
-ENV target_hostport "target"
-RUN make base-install
-CMD ./run-example ${test} http://${hub_hostport}/wd/hub https://${target_hostport}
