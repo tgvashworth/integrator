@@ -1,7 +1,7 @@
 {
   "name": "integrator",
   "version": "1.2.5",
-  "description": "```shell $ make $ make watch ```",
+  "description": "An experiment in fixing integration testing.",
   "bin": "bin/run",
   "scripts": {
     "prepublish": "make prepublish",
