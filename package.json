@@ -1,6 +1,6 @@
 {
   "name": "integrator",
-  "version": "1.2.4",
+  "version": "1.2.5",
   "description": "```shell $ make $ make watch ```",
   "bin": "bin/run",
   "scripts": {
