@@ -1,7 +1,5 @@
 import Immutable from 'immutable';
 
-import runnerUtils from './runner-utils';
-
 const utils = {
     identity: x => x,
     fallback: (f, v) => x => {
@@ -10,7 +8,6 @@ const utils = {
     },
     always: x => () => x,
     is: (type, x) => (typeof x === type),
-    log: runnerUtils.info,
     not: f => (...args) => !f.call(this, ...args),
     compose: (f, g) => (...args) => f(g(...args)),
 
