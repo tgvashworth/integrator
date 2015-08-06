@@ -5,7 +5,7 @@
   "main": "out/integrator.js",
   "bin": "bin/run",
   "scripts": {
-    "prepublish": "make base-install && make build",
+    "prepublish": "make prepublish",
     "test": "make test"
   },
   "repository": {

@@ -26,6 +26,9 @@ install: base-install
 build: base-install
 	@babel src --out-dir out >> /dev/null
 
+prepublish:
+	@babel src --out-dir out
+
 selenium-server:
 	@java -jar $(SELENIUM_PATH)
 
