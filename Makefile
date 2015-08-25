@@ -5,6 +5,7 @@ SELENIUM_URL = http://selenium-release.storage.googleapis.com/2.45/$(SELENIUM_JA
 SRC = $(wildcard src/*.js)
 SKETCHES = $(wildcard sketches/*.js)
 EXAMPLES = $(wildcard src/examples/*.js)
+BABEL_CMD = --optional runtime src --out-dir out
 
 .PHONY: base-install install lint server selenium-server grid test
 
@@ -24,10 +25,10 @@ install: base-install
 	@echo "    Done"
 
 build: base-install
-	@babel src --out-dir out >> /dev/null
+	@babel $(BABEL_CMD) >> /dev/null
 
 prepublish:
-	@babel src --out-dir out
+	@babel $(BABEL_CMD)
 
 selenium-server:
 	@java -jar $(SELENIUM_PATH)
