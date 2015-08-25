@@ -1,6 +1,6 @@
 {
   "name": "integrator",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "An experiment in fixing integration testing.",
   "bin": "bin/run",
   "main": "out/integrator",
