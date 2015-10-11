@@ -7,7 +7,7 @@ import { List, Map, fromJS } from 'immutable';
 
 import utils from './utils';
 import runnerUtils from './runner-utils';
-import runner from './runner.js';
+import runner from './runner';
 
 const defaultConfiguration = fromJS({
     hub: 'http://localhost:4444/wd/hub'
