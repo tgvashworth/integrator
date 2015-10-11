@@ -2,34 +2,21 @@
 
 [![Join the chat at https://gitter.im/phuu/integrator](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/phuu/integrator?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-An experiment in fixing integration testing.
+An action-oriented approach to integration testing, simulating users to comprehensively test your app.
 
-Note:
+Key features:
 
-- This isn't ready for you to use
-- This might be crazy
-- *Please* read everything below before trying to use integrator. It's... different.
+- Actions to simulate atomic user tasks
+- Real-user simulation in "random-walk" mode
+- Reusable actions through fixtures
 
-## Current state
-
-I'm working on a suite of actions for the TodoMVC project. If you want to see how integrator looks in use right now, [check that out][todomvc-actions].
-
-There are some big questions in my head:
-
-- can the task runner component of integrator be broken out into its own thing? (build tooling, anyone?)
-- is this insane? does it scale? does it work?
-
-## Try it out?
-
-Don't. You could check out the TodoMVC integrator branch, but it's likely broken and has 0 docs. However, [please tell me what you think of this idea][new-issue].
-
-## Rationale
+## Why does Integrator exist?
 
 There are numerous problems with integration tests today:
 
 - *They don't simulate users.* Only the user-flows that you thought to test are tested, and assertions are coupled to CSS selectors. That's is not how a user sees your application and it results in [change-detector][change-detector] tests.
 
-- *They have implicit dependencies.* Current test frameworks encourage (or don't dissuade, at least) you from writing tests that depend on another test having run, without making this explicit. The result is that test order *might be* important, which is hard to debug and refactor.
+- *They have implicit dependencies.* Current test frameworks encourage you to write tests that depend on the success of another, without an explicit notion of dependency. The result is that test order *might be* important, which is hard to debug and refactor.
 
 - *Tests are hard to write and debug.* This leads to flaky tests, false negatives or (worse) false positives, and untested but critical user flows.
 
@@ -44,7 +31,7 @@ What does that mean specifically?
 - Explicit dependencies
     - Ordering is defined and deterministic
 
-**Integrator** is an experiment in fixing this. It's a test runner and authoring framework that tries to help.
+**Integrator** is a test runner and authoring framework that tries to help.
 
 ## Concepts
 
@@ -54,7 +41,7 @@ Integrator is based around a **suite** of named **actions**. The suite is associ
 
 #### Phases
 
-Actions have four **phases**: *setup*, *assert*, *teardown* and *done*.
+Actions have four **phases**: *setup*, *assert*, *teardown* and *teardown-assert*.
 
 Each action should make some changes to the application (click buttons, type stuff, etc) and then assert that the changes were made successfully. They should be as *atomic as possible*, and all are *optional*.
 
@@ -63,22 +50,22 @@ While the phases can be used for anything, it will be better to use them consist
 - *setup* should do the work of the action, changing the application and updating the model
 - *assert* should check that *setup* work was carried out successfully, and throw if it wasn't. Assertions should generally be made with comparisons between the *state of the page* and the *model*
 - *teardown* should undo any work done in setup that would otherwise prevent a user from carrying on their work (for example, closing a modal)
-- *done* should check that *teardown* was carried out successfully, and throw if it wasn't
+- *teardown-assert* should check that *teardown* was carried out successfully, and throw if it wasn't
 
-It's going to take some time to figure out the correct usage of teardown, but currently my thinking is that you should:
+Teardown should:
 
-- use teardown to undo anything that significantly changes the user's view of the application
-- don't undo changes to the application's data (instead, update the model and compare)
+- undo anything that significantly changes the user's view of the application
+- not undo changes to the application's *data* (instead, update the model and compare)
 
 #### Dependencies
 
-Actions can (should) specify that they are *dependent on other actions*.
+Actions can specify that they are *dependent on other actions*.
 
 Integrator figures out what actions it needs to run by looking at each action's dependencies, running actions in order such that a particular action's dependencies are *always run first*.
 
 Actions that depend on each other *form a graph* that Integrator uses determine what to run when.
 
-It can randomly choose actions from the graph, and moves from action-to-action in way that optimises for the *least amount of work*. It will not teardown anything that it doesn't need to. This mode of operation is is called a 'random walk'.
+In *random-walk* mode Integrator randomly choose actions from the graph, and moves from action-to-action in way that optimises for the *least amount of work*. It will not teardown anything that it doesn't need to.
 
 #### Model
 
@@ -145,7 +132,7 @@ If we wanted to run `G`, the dependencies in order are `A, B, E, C, and F`. Acti
 
 As mentioned above, a test suite is the combination of an action graph and a model. The model should be modified by action phases to track their expected changes to the application state.
 
-For example, in a todo application the model would contain a list of todo items. In the assertion phases (`assert` and `done`), the model list would be checked against the list in real page, as the user sees it.
+For example, in a todo application the model would contain a list of todo items. In the assertion phases (`assert` and `teardown-assert`), the model list would be checked against the list in real page, as the user sees it.
 
 Since the model will change and grow over time, the assertions should be generic and flexible. This means, for example, that the todo list tests should compare the length and text of the complete list every time, rather than checking that a specific item has been added in a specific place. This also aids the reusability of the assertions.
 
@@ -242,7 +229,7 @@ Action('type a really long query into the search box', ['fill in the search box'
 
 #### Fixtures and teardown
 
-Fixtures represent the data an action needs to carry out its work. Since the fixtures an action may receive can change (probably due to 'pass-through' usage), integrator considers the same action with different fixtures to effectively be a different action. During a random walk, if it needs to repeat an action (but with different fixtures), Integrator will run the action's teardown and done phases, then then setup and assert, to make sure that actions run with the correct fixtures.
+Fixtures represent the data an action needs to carry out its work. Since the fixtures an action may receive can change (probably due to 'pass-through' usage), integrator considers the same action with different fixtures to effectively be a different action. During a random walk, if it needs to repeat an action (but with different fixtures), Integrator will run the action's `teardown` phases, then setup and assert, to make sure that actions run with the correct fixtures.
 
 For example, imagine actions `A`, `B` and `C`:
 
@@ -256,7 +243,7 @@ If it then picked `C`, having just run `B`, it will reverse-out (teardown) `B` a
 
 ## Requirements
 
-- [node](https://nodejs.org/) (or [io.js](https://iojs.org), probably) and [npm][npm]
+- [node][node] and [npm][npm]
 
 Optionally, you might use the dockerised Selenium grid. Whatever happens, you need a selenium server.
 
@@ -264,15 +251,12 @@ Optionally, you might use the dockerised Selenium grid. Whatever happens, you ne
 - [docker-compose](https://docs.docker.com/compose/)
 - I've been using [docker-machine](https://docs.docker.com/machine/)
 
-## Related Tools
-
-- [integrator-match](https://github.com/phuu/integrator-match) — no more CSS selectors in integration tests. Also not ready yet.
-
 ### License
 
 MIT
 
 [change-detector]: http://googletesting.blogspot.co.uk/2015/01/testing-on-toilet-change-detector-tests.html
+[node]: https://nodejs.org/
 [npm]: https://www.npmjs.com/
 [todomvc-actions]: https://github.com/phuu/todomvc/blob/integrator/tests/integrator/actions.js
 [new-issue]: https://github.com/phuu/integrator/issues/new
