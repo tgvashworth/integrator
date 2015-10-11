@@ -2,5 +2,4 @@
 
 'use strict';
 
-require('babel/polyfill');
-require(require('path').resolve(__dirname, '../out/runner'));
+require(require('path').resolve(__dirname, '../out/cli'));

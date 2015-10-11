@@ -32,7 +32,7 @@ import {
  * file, but the returned value will be ignored.
  */
 const forwardPhaseNames = ['setup', 'assert'];
-const reversePhaseNames = ['teardown', 'done'];
+const reversePhaseNames = ['teardown', 'teardown-assert'];
 
 /**
  * Exported.

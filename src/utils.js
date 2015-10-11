@@ -1,7 +1,5 @@
 import Immutable from 'immutable';
 
-import runnerUtils from './runner-utils';
-
 const utils = {
     identity: x => x,
     fallback: (f, v) => x => {
@@ -10,7 +8,6 @@ const utils = {
     },
     always: x => () => x,
     is: (type, x) => (typeof x === type),
-    log: runnerUtils.info,
     not: f => (...args) => !f.call(this, ...args),
     compose: (f, g) => (...args) => f(g(...args)),
 
@@ -128,6 +125,18 @@ const utils = {
             .then(utils.makeEffect(() => session.setFindTimeout(originalTimeout)));
     },
 
+    /**
+     * Makes a Promise-returning function auto-retry a certain number of times.
+     *
+     * Example:
+
+            makeRetryable(5, doShadyAsyncThing);
+
+     * If the passed function throws (the Promise rejects), it will be called again with the same
+     * arguments.
+     *
+     * Returns a Promise.
+     */
     makeRetryable: (n, fn) => () => {
         var ctx = this;
         var args = [].slice.call(arguments);

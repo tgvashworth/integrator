@@ -1,6 +1,7 @@
 import { inspect } from 'util';
 
 import chalk from 'chalk';
+import { fromJS } from 'immutable';
 
 import utils from './utils';
 
@@ -51,25 +52,21 @@ const runnerUtils = {
             deps: action.get('deps').map(dep => dep.replace(/\s/g, '_'))
         }));
 
-        console.log('digraph G {');
-
-        nodeNodeNames
-            .map(({name, nodeName}) => {
-                console.log('  node [] ', nodeName, ' {');
-                console.log('    label = "' + name + '"');
-                console.log('  }');
-            });
-
-        console.log();
-
-        nodeNodeNames
-            .map(({nodeName, deps}) => {
-                deps.map(dep => {
-                    console.log('  ', dep, '->', nodeName, '[];');
-                });
-            });
-
-        console.log('}');
+        return [].concat(
+            ['digraph G {'],
+            nodeNodeNames.flatMap(({name, nodeName}) =>
+                [ `  node [] ${nodeName} {`
+                , `    label = "${name}"`
+                , `  }`
+                ]
+            ),
+            nodeNodeNames.flatMap(({nodeName, deps}) =>
+                deps.map(dep =>
+                    `  ${dep} -> ${nodeName} [];`
+                )
+            ),
+            ['}']
+        );
     },
 
     // Running actions
@@ -77,12 +74,10 @@ const runnerUtils = {
         runnerUtils.success('\nPassed.');
     },
 
-    handleFailure: args => why => {
-        if (args.verbose && why.data) {
-            runnerUtils.logRan(why.data, args);
-        }
+    makeTestsFailedError: why => {
         let e = new TestsFailedError(why.message);
         e.stack = utils.fakeStack(e, why);
+        e.data = why.data;
         throw e;
     },
 
@@ -117,16 +112,27 @@ const runnerUtils = {
     },
 
     // UX
-    suggestFix: (args, why) => {
+    suggestFix: (args, config, why) => {
         if (why.message.match(/ECONNREFUSED/i)) {
             return [
                 '\n',
-                `Is the hub running at ${args.hub}?`,
+                `Is the hub running at ${config.hub}?`,
                 'You can supply a different hub using --hub <url>'
             ].join('\n');
         }
-    }
+        return '';
+    },
 
+    // Results
+    Pass: v => fromJS({
+        type: 'pass',
+        value: v
+    }),
+
+    Fail: why => fromJS({
+        type: 'fail',
+        value: why
+    })
 
 };
 
