@@ -78,6 +78,7 @@ const walkActionsPath = (phaseNames, actionsPath, pInput) => // eslint-disable-l
 const buildActionPath = (actions, targetName) =>
     utils.findByName(actions)(targetName)
         .get('deps')
+        .map(dependency => utils.is('string', dependency) ? dependency : dependency.get('name'))
         .flatMap(dependencyName => buildActionPath(actions, dependencyName))
         .add(targetName);
 
