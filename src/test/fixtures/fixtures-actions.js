@@ -2,12 +2,15 @@ import Immutable from 'immutable';
 const { fromJS } = Immutable;
 import { Action } from '../../integrator';
 
+var a = Action('A');
+var b = Action('B', [a]);
+
 const arbitraryComplexGraph = fromJS([
-    Action('A'),
-    Action('B', ['A']),
-    Action('C', ['A']),
-    Action('D', ['B']),
-    Action('E', ['B']),
+    a,
+    b,
+    Action('C', [a]),
+    Action('D', [b]),
+    Action('E', [b]),
     Action('F', ['E', 'C']),
     Action('G', ['F']),
     Action('H', ['E']),
