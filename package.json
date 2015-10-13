@@ -1,12 +1,12 @@
 {
   "name": "integrator",
-  "version": "1.3.0",
   "description": "An experiment in fixing integration testing.",
   "bin": "bin/run",
   "main": "out/integrator",
   "scripts": {
     "prepublish": "make prepublish",
-    "test": "make test"
+    "test": "make test",
+    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "repository": {
     "type": "git",
@@ -21,7 +21,8 @@
   "devDependencies": {
     "babel-eslint": "^2.0.2",
     "eslint": "^0.17.1",
-    "nodemon": "^1.3.7"
+    "nodemon": "^1.3.7",
+    "semantic-release": "^4.3.5"
   },
   "dependencies": {
     "babel": "^5.4.5",
