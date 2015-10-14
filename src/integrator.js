@@ -35,19 +35,19 @@ const forwardPhaseNames = ['setup', 'assert'];
 const reversePhaseNames = ['teardown', 'teardown-assert'];
 
 /**
- * Exported.
+ * exported Suite
  * Wrapper around a Suite representation for use in a Runner.
  */
-const Suite = (actions, model, opts={}) => // eslint-disable-line no-unused-vars
+const Suite = (actions, model, opts={}) =>
     fromJS({ actions, model, opts });
 
 /**
- * Exported.
+ * exported Runner
  * Create a runner function for the given `suite` (of `actions` and initial `model`).
  *
  * This build the 'fixtures' the tests will run in, and will detect data conflicts.
  */
-const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
+const Runner = (suite, targetName) => {
     let [ actions, model ] = [ suite.get('actions'), suite.get('model') ];
     let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
 
@@ -62,14 +62,14 @@ const Runner = (suite, targetName) => { // eslint-disable-line no-unused-vars
 };
 
 /**
- * Exported.
+ * exported go
  * Run the tests from the `runner`.
  *
  * Builds and walks the tree, creating a sequence of actions to be run and kicks things off.
  *
  * Returns a Promise for the result of the actions.
  */
-const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
+const go = (runner, previousRunner) => {
     runnerUtils.info(`\nRunning "${runner.get('targetName')}"`);
 
     // Find the minimal set of actions to take give the current context
@@ -99,7 +99,7 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
 };
 
 /**
- * Exported.
+ * exported Action
  *
  * Usage:
  *
@@ -107,13 +107,16 @@ const go = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
  *
  * Returns an Map.
  */
-const Action = (name, deps, spec) => // eslint-disable-line no-unused-vars
+const Action = (name, deps, spec) =>
     fromJS({
         name,
         deps: OrderedSet(deps),
         spec
     });
 
+/**
+ * exported randomWalk
+ */
 const randomWalk = (runners, previousRunner) => {
     let runner = utils.randomFrom(
         runners.filter(runner => {
@@ -136,7 +139,10 @@ const randomWalk = (runners, previousRunner) => {
         .then(finishedRunner => randomWalk(runners, finishedRunner));
 };
 
-const makeRunners = suite => // eslint-disable-line no-unused-vars
+/**
+ * exported makeRunners
+ */
+const makeRunners = suite =>
     suite.get('actions')
         .map(action => Runner(suite, action.get('name')));
 
