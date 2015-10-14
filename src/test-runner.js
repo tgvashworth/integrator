@@ -1,6 +1,5 @@
 import path from 'path';
 import parseArgs from 'minimist';
-import utils from './utils';
 
 const args = parseArgs(process.argv);
 
@@ -22,11 +21,14 @@ const start = (args, suite) => {
                 })),
             Promise.resolve(args)
         )
-        .catch(why => {
-            console.error(`Failed: ${why.name}`);
-            console.error(why.stack);
-            process.exit(-1); // eslint-disable-line no-process-exit
-        });
+        .then(
+            () => {},
+            why => {
+                console.error(`Failed: ${why.name}`);
+                console.error(why.stack);
+                process.exit(-1); // eslint-disable-line no-process-exit
+            }
+        );
 };
 
 

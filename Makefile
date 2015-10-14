@@ -3,8 +3,6 @@ SELENIUM_JAR = selenium-server-standalone-2.45.0.jar
 SELENIUM_PATH = bin/$(SELENIUM_JAR)
 SELENIUM_URL = http://selenium-release.storage.googleapis.com/2.45/$(SELENIUM_JAR)
 SRC = $(wildcard src/*.js)
-SKETCHES = $(wildcard sketches/*.js)
-EXAMPLES = $(wildcard src/examples/*.js)
 BABEL_CMD = --optional runtime src --out-dir out
 
 .PHONY: base-install install lint server selenium-server grid test
@@ -40,7 +38,7 @@ grid: build
 	@docker-compose --file config/docker-compose.yml up
 
 lint:
-	@$(BIN)eslint $(SRC) $(SKETCHES) $(EXAMPLES) -c .eslintrc
+	@$(BIN)eslint $(SRC) -c .eslintrc
 
 test: build
-	@./bin/test --suite out/test/test-integrator-actions
+	@./bin/test --suite src/test/test-integrator-actions

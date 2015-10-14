@@ -2,4 +2,5 @@
 
 'use strict';
 
-require('../out/test-runner');
+require('babel/register');
+require('../src/test-runner');
