@@ -2,4 +2,5 @@
 
 'use strict';
 
+require('babel/register');
 require(require('path').resolve(__dirname, '../out/cli'));
