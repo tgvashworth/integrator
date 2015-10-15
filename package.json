@@ -33,6 +33,6 @@
     "integrator-match": "^1.1.0",
     "leadfoot": "^1.4.1",
     "minimist": "^1.1.1",
-    "typd": "^2.0.0"
+    "typd": "^2.0.1"
   }
 }
