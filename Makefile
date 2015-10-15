@@ -40,5 +40,5 @@ grid: build
 lint:
 	@$(BIN)eslint $(SRC) -c .eslintrc
 
-test: build
+test:
 	@./bin/test --suite src/test/test-integrator-actions

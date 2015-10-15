@@ -1,5 +1,5 @@
-import Immutable from 'immutable';
-const { fromJS, OrderedSet, List } = Immutable;
+import { fromJS, OrderedSet, List } from 'immutable';
+import Typd from 'typd';
 
 import utils from './utils';
 import runnerUtils from './runner-utils';
@@ -38,8 +38,13 @@ const reversePhaseNames = ['teardown', 'teardown-assert'];
  * exported Suite
  * Wrapper around a Suite representation for use in a Runner.
  */
-const Suite = (actions, model, opts={}) =>
-    fromJS({ actions, model, opts });
+const Suite = Typd(
+    ['actions', Typd.ArrayOf(Typd.Object)],
+    ['model', Typd.Object],
+    ['opts', Typd.optionalOf(Typd.Object)],
+    (actions, model, opts={}) =>
+        fromJS({ actions, model, opts })
+);
 
 /**
  * exported Runner
@@ -107,12 +112,17 @@ const go = (runner, previousRunner) => {
  *
  * Returns an Map.
  */
-const Action = (name, deps, spec) =>
-    fromJS({
-        name,
-        deps: OrderedSet(deps),
-        spec
-    });
+const Action = Typd(
+    ['name', Typd.string],
+    ['deps', Typd.optionalOf(Typd.ArrayOf(Typd.oneOf(Typd.string, Typd.Object)))],
+    ['spec', Typd.optionalOf(Typd.Object)],
+    (name, deps, spec) =>
+        fromJS({
+            name,
+            deps: OrderedSet(deps),
+            spec
+        })
+);
 
 /**
  * exported randomWalk
