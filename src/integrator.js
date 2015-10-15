@@ -12,6 +12,29 @@ import {
     mergeRunners
 } from './integrator-actions';
 
+const TypdImmutable = v => {
+    if (!('__toJS' in v)) {
+        throw new Error('Value is not Immutable Object');
+    }
+};
+
+const TypdImmutableListOf = check => list => {
+    TypdImmutable(list);
+    if (list.constructor !== List) {
+        throw new Error('Value is not Immutable List');
+    }
+    list.forEach(v => check(v));
+};
+
+const TypdAction = v => {
+    TypdImmutable(v);
+    if (!(v.has('name') && v.has('deps') && v.has('spec'))) {
+        throw new Error('Value is not an Action');
+    }
+};
+
+const TypdDeps = Typd.ArrayOf(Typd.oneOf(Typd.string, TypdAction));
+
 /**
  * Phases are run in order, with the 'forward' phases run on the way to the target actions, and the
  * 'reverse' phases run as the runner moves back to reset itself.
@@ -39,8 +62,8 @@ const reversePhaseNames = ['teardown', 'teardown-assert'];
  * Wrapper around a Suite representation for use in a Runner.
  */
 const Suite = Typd(
-    ['actions', Typd.ArrayOf(Typd.Object)],
-    ['model', Typd.Object],
+    ['actions', TypdImmutableListOf(TypdAction)],
+    ['model', TypdImmutable],
     ['opts', Typd.optionalOf(Typd.Object)],
     (actions, model, opts={}) =>
         fromJS({ actions, model, opts })
@@ -114,7 +137,7 @@ const go = (runner, previousRunner) => {
  */
 const Action = Typd(
     ['name', Typd.string],
-    ['deps', Typd.optionalOf(Typd.ArrayOf(Typd.oneOf(Typd.string, Typd.Object)))],
+    ['deps', Typd.optionalOf(TypdDeps)],
     ['spec', Typd.optionalOf(Typd.Object)],
     (name, deps, spec) =>
         fromJS({
