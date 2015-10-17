@@ -11,7 +11,7 @@ import makeLeadfootSession from './leadfoot-session';
 import dispatch from './dispatch';
 
 const runner = (initSuite, args, targetConfiguration) => {
-    return makeLeadfootSession(args, targetConfiguration.toJS())
+    return makeLeadfootSession(targetConfiguration)
         .then(session => {
             // Quit the session when the process is killed
             process.on('SIGINT', utils.makeCall(session, 'quit'));
