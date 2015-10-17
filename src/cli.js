@@ -14,38 +14,24 @@ import utils from './utils';
 // TODO fromJS this
 const args = parseArgs(process.argv);
 
-// --suite
-if (!utils.is('string', args.suite)) {
-    runnerUtils.gameOver(
-        'No suite supplied.',
-        '\nUse: --suite path/to/suite.js'
-    );
-}
+const configFileArg = args._[2];
 
-// Grab the suite
-try {
-    var suite = require(path.resolve(process.cwd(), args.suite));
-} catch (why) {
-    runnerUtils.gameOver(
-        `Failed to load suite at ${args.suite}`,
-        `\n${why.stack}`
-    );
-}
-
-// --configuration-file
-if (!utils.is('string', args['configuration-file'])) {
+// Load config
+if (!utils.is('string', configFileArg)) {
     runnerUtils.gameOver(
         'No configuration file supplied.',
-        '\nUse: --configuration-file path/to/configuration.json'
+        '\nUse: integrator path/to/configuration.js'
     );
 }
+
+const configPath = path.resolve(process.cwd(), configFileArg);
 
 // Get the raw configuration data
 try {
-    var rawConfigurationFile = require(path.resolve(process.cwd(), args['configuration-file']));
+    var rawConfigurationFile = require(configPath);
 } catch (why) {
     runnerUtils.gameOver(
-        `Failed to load configuration file at ${args['configuration-file']}`,
+        `Failed to load configuration file at ${configPath}`,
         `\n${why.stack}`
     );
 }
@@ -54,13 +40,11 @@ try {
 const integratorConfig = fromJS(rawConfigurationFile)
     // Choose some configuration targets
     .update('configurations', Map(), configurations => {
-        if (!utils.is('string', args['configuration-target'])) {
+        if (!utils.is('string', args.configuration)) {
             return configurations;
         }
         // Only use configurations with the supplied name
-        return configurations.filter((configuration, name) => {
-            return (name === args['configuration-target']);
-        });
+        return configurations.filter((_, name) => name === args.configuration);
     })
     .update('configurations', Map(), configurations => {
         // Add the configuration key to the configuration as its name, and convert it to a Seq
@@ -69,14 +53,33 @@ const integratorConfig = fromJS(rawConfigurationFile)
                 return configuration.set('name', name);
             })
             .valueSeq();
-    })
-    ;
+    });
+
+// The path to the suite should be supplied in the config file.
+if (!integratorConfig.has('suite')) {
+    runnerUtils.gameOver(
+        `No suite specified.`,
+        `\nAdd the key 'suite' and a path to ${configFileArg}`
+    );
+}
+
+const suitePath = path.resolve(path.dirname(configPath), integratorConfig.get('suite'));
+
+// Grab the suite
+try {
+    var suite = require(suitePath);
+} catch (why) {
+    runnerUtils.gameOver(
+        `Failed to load suite at ${suitePath}`,
+        `\n${why.stack}`
+    );
+}
+
 
 multiRunner(suite, args, integratorConfig)
     .catch(e => {
         runnerUtils.gameOver(
             'Failed to start integrator',
-            '\n',
-            e.stack
+            `\n${e.stack}`
         );
     });
