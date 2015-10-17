@@ -12,6 +12,10 @@ import {
     mergeRunners
 } from './integrator-actions';
 
+
+/**
+ * Typd definitions
+ */
 const TypdImmutable = v => {
     if (!('__toJS' in v)) {
         throw new Error('Value is not Immutable Object');
