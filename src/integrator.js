@@ -1,4 +1,4 @@
-import { fromJS, OrderedSet, List } from 'immutable';
+import { fromJS, OrderedSet, List, Iterable } from 'immutable';
 import Typd from 'typd';
 
 import utils from './utils';
@@ -18,22 +18,22 @@ import {
  */
 const TypdImmutable = v => {
     if (!('__toJS' in v)) {
-        throw new Error('Value is not Immutable Object');
+        throw new Error('MATCH is not Immutable Object');
     }
 };
 
-const TypdImmutableListOf = check => list => {
-    TypdImmutable(list);
-    if (list.constructor !== List) {
-        throw new Error('Value is not Immutable List');
+const TypdImmutableIterableOf = check => maybeIterable => {
+    TypdImmutable(maybeIterable);
+    if (!Iterable.isIterable(maybeIterable)) {
+        throw new Error('MATCH is not an Immutable Iterable');
     }
-    list.forEach(v => check(v));
+    maybeIterable.forEach(v => check(v));
 };
 
 const TypdAction = v => {
     TypdImmutable(v);
     if (!(v.has('name') && v.has('deps') && v.has('spec'))) {
-        throw new Error('Value is not an Action');
+        throw new Error('MATCH is not an Action');
     }
 };
 
@@ -66,7 +66,7 @@ const reversePhaseNames = ['teardown', 'teardown-assert'];
  * Wrapper around a Suite representation for use in a Runner.
  */
 const Suite = Typd(
-    ['actions', TypdImmutableListOf(TypdAction)],
+    ['actions', TypdImmutableIterableOf(TypdAction)],
     ['model', TypdImmutable],
     ['opts', Typd.optionalOf(Typd.Object)],
     (actions, model, opts={}) =>
