@@ -83,7 +83,10 @@ let buildActionPathTests = buildActionPathData
 /** ============================================================================= */
 
 let minimalActionPathsSuite = Suite(arbitraryComplexGraph, fromJS({}));
-let minimalActionPathsRunners = makeRunners(minimalActionPathsSuite);
+let minimalActionPathsRunners = makeRunners({
+    suite: minimalActionPathsSuite,
+    targetConfiguration: fromJS({})
+});
 let minimalActionPathsData = [
     [ minimalActionPathsRunners, 'A', /* from */ '',
         [ [], ['A'] ] ],
