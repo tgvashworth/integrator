@@ -22,6 +22,7 @@ const runConfigurationTargets = (suite, args, configuration) => {
                     .mergeDeep(configuration.get('common', Map()))
                     .mergeDeep(target);
             const finalTargetConfiguration = targetConfiguration.merge(fromJS({
+                configurationName: configuration.get('name'),
                 targetName: runnerUtils.generateConfigurationName(targetConfiguration)
             }));
             runnerUtils.info(
@@ -49,7 +50,9 @@ const logResult = result => {
         );
     } else {
         runnerUtils.success(
-            `\nPassed: ${configName} ${prettyName}`
+            `\nPassed:`,
+            `\n    on ${configName}`,
+            `\n    in ${prettyName}`
         );
     }
 };

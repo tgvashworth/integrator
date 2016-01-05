@@ -105,7 +105,8 @@ const Runner = (suite, targetName, configuration) => {
 const go = (runner, previousRunner) => {
     runnerUtils.info(
       `\nRunning: "${runner.get('targetName')}"`,
-      `\n  on ${runner.getIn(['configuration', 'targetName'])}`
+      `\n  on ${runner.getIn(['configuration', 'configurationName'])}`,
+      `\n  in ${runner.getIn(['configuration', 'targetName'])}`
     );
 
     // Find the minimal set of actions to take give the current context

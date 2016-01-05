@@ -20,7 +20,8 @@ const dispatchActions = (params) => {
 
         runnerUtils.info(
             '\nMode: critical paths',
-            `\n  on ${targetConfiguration.get('targetName')}`
+            `\n  on ${targetConfiguration.get('configurationName')}`,
+            `\n  in ${targetConfiguration.get('targetName')}`
         );
 
         return suite.getIn(['opts', 'criticalPaths']).reduce((pPrev, actionName) => {
@@ -41,7 +42,8 @@ const dispatchActions = (params) => {
         }
         runnerUtils.info(
             `\nMode: action`,
-            `\n  on ${targetConfiguration.get('targetName')}`
+            `\n  on ${targetConfiguration.get('configurationName')}`,
+            `\n  in ${targetConfiguration.get('targetName')}`
         );
         return go(runner);
     }
