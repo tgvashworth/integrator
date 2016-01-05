@@ -12,7 +12,8 @@ const dispatchActions = ({ suite, args }) => {
         if (!suite.getIn(['opts', 'criticalPaths'])) {
             runnerUtils.gameOver(
                 'Suite has no critical paths defined.',
-                '\n  You can supply these with the `criticalPaths` key of your suite\'s options'
+                '\n  You can supply these with the `criticalPaths` key of your suite\'s config.',
+                '\n  It should be an array of action names.'
             );
         }
 
@@ -42,6 +43,8 @@ const dispatchActions = ({ suite, args }) => {
         runnerUtils.info('\nMode: random walk.');
         return randomWalk(runners);
     }
+
+    runnerUtils.info('\nMode: none selected, doing nothing.');
 
     return Promise.resolve(true);
 };

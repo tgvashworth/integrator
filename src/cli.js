@@ -75,7 +75,6 @@ try {
     );
 }
 
-
 multiRunner(suite, args, integratorConfig)
     .catch(e => {
         runnerUtils.gameOver(

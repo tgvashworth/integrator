@@ -58,7 +58,8 @@ const multiRunner = (suite, args, integratorConfig) => {
             .get('configurations', List())
             .flatMap(configuration => {
                 runnerUtils.info(
-                    `Running: ${configuration.get('name')}`
+                    `Running: ${configuration.get('name')}`,
+                    `\n  in ${configuration.get('targets', List()).count()} configurations:`
                 );
                 return runConfigurationTargets(suite, args, configuration);
             })
