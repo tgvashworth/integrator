@@ -4,14 +4,17 @@
   "bin": "bin/run",
   "main": "out/integrator",
   "scripts": {
-    "prepublish": "make prepublish",
-    "test": "make test",
+    "build": "babel --optional runtime src --out-dir out",
+    "watch": "babel --watch --optional runtime src --out-dir out",
+    "test": "npm run lint && npm run specs",
+    "specs": "./bin/test --suite src/test/test-integrator-actions",
+    "lint": "eslint src/**/*.js -c .eslintrc",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "config": {
     "ghooks": {
-      "pre-commit": "make lint",
-      "pre-push": "make lint test"
+      "pre-commit": "npm run lint",
+      "pre-push": "npm test"
     }
   },
   "repository": {
