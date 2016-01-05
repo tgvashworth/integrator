@@ -21,14 +21,16 @@ const runConfigurationTargets = (suite, args, configuration) => {
                 defaultConfiguration
                     .mergeDeep(configuration.get('common', Map()))
                     .mergeDeep(target);
+            const finalTargetConfiguration = targetConfiguration.merge(fromJS({
+                targetName: runnerUtils.generateConfigurationName(targetConfiguration)
+            }));
             runnerUtils.info(
-                `   `,
-                runnerUtils.generateConfigurationName(targetConfiguration)
+                `   ${finalTargetConfiguration.get('targetName')}`
             );
-            return runner(suite, args, targetConfiguration)
+            return runner(suite, args, finalTargetConfiguration)
                 .then(runResult => fromJS({
                     runResult,
-                    targetConfiguration,
+                    targetConfiguration: finalTargetConfiguration,
                     configuration
                 }));
         });
@@ -38,15 +40,16 @@ const logResult = result => {
     const runResult = result.get('runResult');
     const type = runResult.get('type');
     const value = runResult.get('value');
-    const name = result.getIn(['configuration', 'name']);
+    const configName = result.getIn(['configuration', 'name']);
+    const prettyName = result.getIn(['targetConfiguration', 'targetName']);
     if (type === 'fail') {
         runnerUtils.error(
-            `\nFailed: ${name}`,
+            `\nFailed: ${configName} ${prettyName}`,
             `\n${value.stack}`
         );
     } else {
         runnerUtils.success(
-            `\nPassed: ${name}`
+            `\nPassed: ${configName} ${prettyName}`
         );
     }
 };
@@ -72,7 +75,7 @@ const multiRunner = (suite, args, integratorConfig) => {
         .then(handleFinished)
         .catch((why) => {
             runnerUtils.gameOver(
-                'Something went wrong.',
+                '\nSomething went wrong.',
                 `\n${why.stack}`
             );
         });

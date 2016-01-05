@@ -132,8 +132,7 @@ const runnerUtils = {
             config.getIn(['capabilities', 'browser']),
             config.getIn(['capabilities', 'browser_version']),
             config.getIn(['capabilities', 'resolution']),
-            (config.getIn(['capabilities', 'browserstack.debug']) ? '(debug)' : ''),
-            (config.getIn(['hub']) ? `@ ${config.getIn(['hub'])}` : '')
+            (config.getIn(['capabilities', 'browserstack.debug']) ? '(debug)' : '')
         ].filter(Boolean).join(' ');
     },
 

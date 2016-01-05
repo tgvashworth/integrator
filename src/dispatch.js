@@ -18,7 +18,10 @@ const dispatchActions = (params) => {
             );
         }
 
-        runnerUtils.info('\nMode: critical paths.');
+        runnerUtils.info(
+            '\nMode: critical paths',
+            `\n  on ${targetConfiguration.get('targetName')}`
+        );
 
         return suite.getIn(['opts', 'criticalPaths']).reduce((pPrev, actionName) => {
             let runner = utils.findByKey('targetName')(runners)(actionName);
@@ -36,7 +39,10 @@ const dispatchActions = (params) => {
         if (utils.is('undefined', runner)) {
             runnerUtils.gameOver(`No such action "${args.action}"`);
         }
-        runnerUtils.info('\nMode: action.');
+        runnerUtils.info(
+            `\nMode: action`,
+            `\n  on ${targetConfiguration.get('targetName')}`
+        );
         return go(runner);
     }
 
