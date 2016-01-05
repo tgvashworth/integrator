@@ -21,6 +21,10 @@ const runConfigurationTargets = (suite, args, configuration) => {
                 defaultConfiguration
                     .mergeDeep(configuration.get('common', Map()))
                     .mergeDeep(target);
+            runnerUtils.info(
+                `   `,
+                runnerUtils.generateConfigurationName(targetConfiguration)
+            );
             return runner(suite, args, targetConfiguration)
                 .then(runResult => fromJS({
                     runResult,

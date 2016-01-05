@@ -123,6 +123,20 @@ const runnerUtils = {
         return '';
     },
 
+    generateConfigurationName: (config) => {
+        return [
+            config.getIn(['capabilities', 'platform']),
+            config.getIn(['capabilities', 'os']),
+            config.getIn(['capabilities', 'os_version']),
+            config.getIn(['capabilities', 'browserName']),
+            config.getIn(['capabilities', 'browser']),
+            config.getIn(['capabilities', 'browser_version']),
+            config.getIn(['capabilities', 'resolution']),
+            (config.getIn(['capabilities', 'browserstack.debug']) ? '(debug)' : ''),
+            (config.getIn(['hub']) ? `@ ${config.getIn(['hub'])}` : '')
+        ].filter(Boolean).join(' ');
+    },
+
     // Results
     Pass: v => fromJS({
         type: 'pass',

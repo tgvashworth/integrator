@@ -79,13 +79,14 @@ const Suite = Typd(
  *
  * This build the 'fixtures' the tests will run in, and will detect data conflicts.
  */
-const Runner = (suite, targetName) => {
+const Runner = (suite, targetName, configuration) => {
     let [ actions, model ] = [ suite.get('actions'), suite.get('model') ];
     let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
 
     return fromJS({
         targetName,
         target: utils.findByName(actions)(targetName),
+        configuration,
         model,
         actionPath,
         fixtures: buildFixtures(actionPath),
@@ -102,7 +103,10 @@ const Runner = (suite, targetName) => {
  * Returns a Promise for the result of the actions.
  */
 const go = (runner, previousRunner) => {
-    runnerUtils.info(`\nRunning "${runner.get('targetName')}"`);
+    runnerUtils.info(
+      `\nRunning "${runner.get('targetName')}"`,
+      `on ${runnerUtils.generateConfigurationName(runner.get('configuration'))}`
+    );
 
     // Find the minimal set of actions to take give the current context
     let [ reverseActionPath, forwardActionPath ] = minimalActionPaths(runner, previousRunner);
@@ -179,8 +183,8 @@ const randomWalk = (runners, previousRunner) => {
 /**
  * exported makeRunners
  */
-const makeRunners = suite =>
+const makeRunners = ({ suite, targetConfiguration }) =>
     suite.get('actions')
-        .map(action => Runner(suite, action.get('name')));
+        .map(action => Runner(suite, action.get('name'), targetConfiguration));
 
 export { Action, Suite, Runner, go, randomWalk, makeRunners, utils, assert };

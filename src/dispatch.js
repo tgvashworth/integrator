@@ -1,8 +1,9 @@
 import { go, utils, randomWalk, makeRunners } from './integrator';
 import runnerUtils from './runner-utils'
 
-const dispatchActions = ({ suite, args }) => {
-    const runners = makeRunners(suite);
+const dispatchActions = (params) => {
+    const { suite, args, targetConfiguration } = params;
+    const runners = makeRunners(params);
 
     // TODO support pulling what to run from configuration
 
