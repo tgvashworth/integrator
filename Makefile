@@ -11,16 +11,10 @@ base-install:
 	@npm install
 
 install: base-install
-	@echo "Git hooks..."
-	@ln -s -f ../../hooks/pre-commit .git/hooks/pre-commit
-	@chmod +x .git/hooks/pre-commit
-	@ln -s -f ../../hooks/pre-push .git/hooks/pre-push
-	@chmod +x .git/hooks/pre-push
-	@echo "Dependencies..."
-	@echo "    Downloading selenium-server..."
+	@echo "Downloading selenium-server..."
 	@rm $(SELENIUM_PATH)
 	wget $(SELENIUM_URL) --quiet -O $(SELENIUM_PATH)
-	@echo "    Done"
+	@echo "Downloaded selenium-server."
 
 build: base-install
 	@babel $(BABEL_CMD) >> /dev/null
