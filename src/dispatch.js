@@ -56,15 +56,6 @@ const dispatchActions = ({ suite, args }) => {
  * the dispatchActions function.
  */
 const dispatch = params => {
-    let { args } = params;
-
-    // --graph
-    // Output graphviz that can be used to graph the dependency tree
-    if (utils.is('boolean', args.graph) && args.graph) {
-        throw new Error('Not implemented.');
-        // return runnerUtils.actionGraph(args, suite);
-    }
-
     // Run actions and respond to the result
     return dispatchActions(params)
         .catch(runnerUtils.makeTestsFailedError);
