@@ -28,7 +28,7 @@ const runConfigurationTargets = (suite, args, configuration) => {
         })
         .map(targetConfiguration => {
             runnerUtils.info(
-                `   ${targetConfiguration.get('targetName')}`
+                `    ${targetConfiguration.get('targetName')}`
             );
             return runner(suite, args, targetConfiguration)
                 .then(runResult => fromJS({
@@ -53,8 +53,8 @@ const logResult = result => {
     } else {
         runnerUtils.success(
             `\nPassed:`,
-            `\n    on ${configName}`,
-            `\n    in ${prettyName}`
+            `\n  on ${configName}`,
+            `\n  in ${prettyName}`
         );
     }
 };

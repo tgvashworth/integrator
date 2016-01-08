@@ -3,6 +3,9 @@
   "description": "An experiment in fixing integration testing.",
   "bin": "bin/run",
   "main": "out/integrator",
+  "files": [
+    "out"
+  ],
   "scripts": {
     "build": "babel --optional runtime src --out-dir out",
     "watch": "babel --watch --optional runtime src --out-dir out",
