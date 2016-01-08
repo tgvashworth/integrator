@@ -137,16 +137,18 @@ const utils = {
      *
      * Returns a Promise.
      */
-    makeRetryable: (n, fn) => () => {
-        var ctx = this;
-        var args = [].slice.call(arguments);
-        return fn.apply(ctx, args)
-            .catch(why => {
-                if (n > 0) {
-                    return utils.makeRetryable(n - 1, fn).apply(ctx, args);
-                }
-                throw why;
-            });
+    makeRetryable: (n, fn) => {
+        return function retrying() {
+            var ctx = this;
+            var args = [].slice.call(arguments);
+            return fn.apply(ctx, args)
+                .catch(why => {
+                    if (n > 0) {
+                        return utils.makeRetryable(n - 1, fn).apply(ctx, args);
+                    }
+                    throw why;
+                });
+        };
     },
 
     makeCall: (o, method, ...args) => () =>
