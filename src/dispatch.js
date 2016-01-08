@@ -18,7 +18,7 @@ const dispatchActions = (params) => {
             );
         }
 
-        runnerUtils.info(
+        runnerUtils.success(
             '\nMode: critical paths',
             `\n  on ${targetConfiguration.get('configurationName')}`,
             `\n  in ${targetConfiguration.get('targetName')}`

@@ -103,7 +103,7 @@ const Runner = (suite, targetName, configuration) => {
  * Returns a Promise for the result of the actions.
  */
 const go = (runner, previousRunner) => {
-    runnerUtils.info(
+    runnerUtils.section(
       `\nRunning: "${runner.get('targetName')}"`,
       `\n  on ${runner.getIn(['configuration', 'configurationName'])}`,
       `\n  in ${runner.getIn(['configuration', 'targetName'])}`

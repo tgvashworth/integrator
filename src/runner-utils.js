@@ -36,6 +36,10 @@ const runnerUtils = {
         console.log(...msgs);
     },
 
+    section: (msg, ...msgs) => {
+        console.log(chalk.blue(msg), ...msgs);
+    },
+
     success: (msg, ...msgs) => {
         console.log(chalk.green(msg), ...msgs);
     },
