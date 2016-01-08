@@ -41,7 +41,7 @@
     "fnkit": "^1.0.1",
     "immutable": "^3.7.3",
     "integrator-match": "^1.1.0",
-    "leadfoot": "^1.4.1",
+    "leadfoot": "^1.6.5",
     "minimist": "^1.1.1",
     "typd": "^3.0.0"
   }
