@@ -4,7 +4,8 @@
   "bin": "bin/run",
   "main": "out/integrator",
   "files": [
-    "out"
+    "out",
+    "bin"
   ],
   "scripts": {
     "build": "babel --optional runtime src --out-dir out",
