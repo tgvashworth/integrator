@@ -13,6 +13,7 @@
     "test": "npm run lint && npm run specs",
     "specs": "./bin/test --suite src/test/test-integrator-actions",
     "lint": "eslint src/**/*.js -c .eslintrc",
+    "prepublish": "npm run build",
     "semantic-release": "semantic-release pre && npm publish && semantic-release post"
   },
   "config": {
