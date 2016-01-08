@@ -124,7 +124,7 @@ const go = (runner, previousRunner) => {
     }
 
     let pInput = Promise.resolve(mergeRunners(runner, previousRunner));
-    return walkActionsPath(
+    let pRun = walkActionsPath(
         forwardPhaseNames,
         forwardActionPath,
         walkActionsPath(
@@ -133,6 +133,13 @@ const go = (runner, previousRunner) => {
             pInput
         )
     );
+    return pRun.then(utils.makeEffect(() => {
+        runnerUtils.section(
+            `\nFinished: "${runner.get('targetName')}"`,
+            `\n  on ${runner.getIn(['configuration', 'configurationName'])}`,
+            `\n  in ${runner.getIn(['configuration', 'targetName'])}`
+        );
+    }));
 };
 
 /**
