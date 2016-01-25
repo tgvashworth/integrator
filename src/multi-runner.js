@@ -66,19 +66,48 @@ const handleFinished = results => {
         .map(utils.makeEffect(logResult));
 };
 
-const multiRunner = (initSuite, args, integratorConfig) => {
-    var pRunners =
-        integratorConfig
-            .get('environments', List())
-            .flatMap(environment => {
-                runnerUtils.info(
-                    `Running: ${environment.get('envName')}`,
-                    `\n  in ${environment.get('targets', List()).count()} configurations:`
+const makeRunPlugins = (phase, integratorConfig) => () => {
+    var pPlugins = integratorConfig
+        .get('environments', List())
+        .flatMap(environment => environment.get('plugins', List()))
+        .map(plugin => {
+            if (plugin.hasOwnProperty(phase) && !utils.is('function', plugin[phase])) {
+                runnerUtils.gameOver(
+                    `Plugin ${plugin.constructor.name} '${phase}' ` +
+                        `property is not a function`
                 );
-                return runEnvironmentTargets(initSuite, args, environment);
-            })
-            .toJS();
-    return Promise.all(pRunners)
+            }
+            return plugin[phase](integratorConfig);
+        });
+
+    return Promise.all(pPlugins)
+        .catch(why => {
+            runnerUtils.gameOver(
+                `Plugins failed to run successfully`,
+                `\n${why ? why.stack : ''}`
+            );
+        });
+};
+
+const makeRunTargets = (initSuite, args, integratorConfig) => () => {
+    var pTargets = integratorConfig
+        .get('environments', List())
+        .flatMap(environment => {
+            runnerUtils.info(
+                `Running: ${environment.get('envName')}`,
+                `\n  in ${environment.get('targets', List()).count()} configurations:`
+            );
+            return runEnvironmentTargets(initSuite, args, environment);
+        })
+        .toJS()
+    return Promise.all(pTargets);
+};
+
+const multiRunner = (initSuite, args, integratorConfig) => {
+    return Promise.resolve()
+        .then(utils.makeEffect(makeRunPlugins('before', integratorConfig)))
+        .then(makeRunTargets(initSuite, args, integratorConfig))
+        .then(utils.makeEffect(makeRunPlugins('after', integratorConfig)))
         .then(handleFinished)
         .catch((why) => {
             runnerUtils.gameOver(
