@@ -67,11 +67,11 @@ let buildActionPathData = [
 ];
 let buildActionPathTests = buildActionPathData
     .map(data => {
-        var [ actions, targetName, expected ] = data.map(x => fromJS(x));
+        var [ actions, actionName, expected ] = data.map(x => fromJS(x));
         return {
-            name: `${targetName} => ${expected}`,
+            name: `${actionName} => ${expected}`,
             test: () => {
-                let result = buildActionPath(actions, targetName);
+                let result = buildActionPath(actions, actionName);
                 assert.ok(
                     Immutable.is(result, expected),
                     `Got ${result}`
@@ -85,7 +85,7 @@ let buildActionPathTests = buildActionPathData
 let minimalActionPathsSuite = Suite(arbitraryComplexGraph, fromJS({}));
 let minimalActionPathsRunners = makeRunners({
     suite: minimalActionPathsSuite,
-    targetConfiguration: fromJS({})
+    target: fromJS({})
 });
 let minimalActionPathsData = [
     [ minimalActionPathsRunners, 'A', /* from */ '',
@@ -105,12 +105,12 @@ let minimalActionPathsData = [
 ];
 let minimalActionPathsTests = minimalActionPathsData
     .map(data => {
-        var [ runners, targetName, previousTargetName, [ expectedReverse, expectedForward ] ] = data.map(x => fromJS(x));
+        var [ runners, actionName, previousActionName, [ expectedReverse, expectedForward ] ] = data.map(x => fromJS(x));
         return {
-            name: `${targetName} from ${previousTargetName || '{}'} => [ ${expectedReverse}, ${expectedForward} ]`,
+            name: `${actionName} from ${previousActionName || '{}'} => [ ${expectedReverse}, ${expectedForward} ]`,
             test: () => {
-                let runner = utils.findByKey('targetName')(runners)(targetName);
-                let previousRunner = utils.findByKey('targetName')(runners)(previousTargetName);
+                let runner = utils.findByKey('actionName')(runners)(actionName);
+                let previousRunner = utils.findByKey('actionName')(runners)(previousActionName);
                 let [ resultReverse, resultForward ] = minimalActionPaths(runner, previousRunner);
                 let resultReverseNames = resultReverse.map(utils.pluck('name')).toList();
                 let resultForwardNames = resultForward.map(utils.pluck('name')).toList();

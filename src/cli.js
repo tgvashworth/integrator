@@ -39,18 +39,18 @@ try {
 // Produce a config for the given arguments
 const integratorConfig = fromJS(rawConfigurationFile)
     // Choose some configuration targets
-    .update('configurations', Map(), configurations => {
-        if (!utils.is('string', args.configuration)) {
-            return configurations;
+    .update('environments', Map(), environments => {
+        if (!utils.is('string', args.environment)) {
+            return environments;
         }
         // Only use configurations with the supplied name
-        return configurations.filter((_, name) => name === args.configuration);
+        return environments.filter((_, name) => name === args.environment);
     })
-    .update('configurations', Map(), configurations => {
-        // Add the configuration key to the configuration as its name, and convert it to a Seq
-        return configurations
-            .map((configuration, name) => {
-                return configuration.set('name', name);
+    .update('environments', Map(), environments => {
+        // Save the environment's name for easy access later
+        return environments
+            .map((environment, name) => {
+                return environment.set('envName', name);
             })
             .valueSeq();
     });
@@ -67,7 +67,7 @@ const suitePath = path.resolve(path.dirname(configPath), integratorConfig.get('s
 
 // Grab the suite
 try {
-    var suite = require(suitePath);
+    var initSuite = require(suitePath);
 } catch (why) {
     runnerUtils.gameOver(
         `Failed to load suite at ${suitePath}`,
@@ -75,7 +75,13 @@ try {
     );
 }
 
-multiRunner(suite, args, integratorConfig)
+if (!utils.is('function', initSuite)) {
+    runnerUtils.gameOver(
+        `The exported value from ${suitePath} must be a function`
+    );
+}
+
+multiRunner(initSuite, args, integratorConfig)
     .catch(e => {
         runnerUtils.gameOver(
             'Failed to start integrator',

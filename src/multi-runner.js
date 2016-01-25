@@ -13,28 +13,28 @@ const defaultConfiguration = fromJS({
     hub: 'http://localhost:4444/wd/hub'
 });
 
-const runConfigurationTargets = (suite, args, configuration) => {
-    return configuration
+const runEnvironmentTargets = (initSuite, args, environment) => {
+    return environment
         .get('targets', List())
-        .map(target => {
-            const targetConfiguration =
+        .map(targetConfiguration => {
+            const target =
                 defaultConfiguration
-                    .mergeDeep(configuration.get('common', Map()))
-                    .mergeDeep(target);
-            return targetConfiguration.merge(fromJS({
-                configurationName: configuration.get('name'),
-                targetName: runnerUtils.generateConfigurationName(targetConfiguration)
+                    .mergeDeep(environment.get('common', Map()))
+                    .mergeDeep(targetConfiguration);
+            return target.merge(fromJS({
+                envName: environment.get('envName'),
+                targetName: runnerUtils.generateTargetName(target)
             }));
         })
-        .map(targetConfiguration => {
+        .map(target => {
             runnerUtils.info(
-                `    ${targetConfiguration.get('targetName')}`
+                `    ${target.get('targetName')}`
             );
-            return runner(suite, args, targetConfiguration)
+            return runner(initSuite, args, target)
                 .then(runResult => fromJS({
                     runResult,
-                    targetConfiguration,
-                    configuration
+                    target,
+                    environment
                 }));
         });
 };
@@ -43,17 +43,19 @@ const logResult = result => {
     const runResult = result.get('runResult');
     const type = runResult.get('type');
     const value = runResult.get('value');
-    const configName = result.getIn(['configuration', 'name']);
-    const prettyName = result.getIn(['targetConfiguration', 'targetName']);
+    const envName = result.getIn(['target', 'envName']);
+    const prettyName = result.getIn(['target', 'targetName']);
     if (type === 'fail') {
         runnerUtils.error(
-            `\nFailed: ${configName} ${prettyName}`,
+            `\nFailed:`,
+            `\n  on ${envName}`,
+            `\n  in ${prettyName}`
             `\n${value.stack}`
         );
     } else {
         runnerUtils.success(
             `\nPassed:`,
-            `\n  on ${configName}`,
+            `\n  on ${envName}`,
             `\n  in ${prettyName}`
         );
     }
@@ -64,16 +66,16 @@ const handleFinished = results => {
         .map(utils.makeEffect(logResult));
 };
 
-const multiRunner = (suite, args, integratorConfig) => {
+const multiRunner = (initSuite, args, integratorConfig) => {
     var pRunners =
         integratorConfig
-            .get('configurations', List())
-            .flatMap(configuration => {
+            .get('environments', List())
+            .flatMap(environment => {
                 runnerUtils.info(
-                    `Running: ${configuration.get('name')}`,
-                    `\n  in ${configuration.get('targets', List()).count()} configurations:`
+                    `Running: ${environment.get('envName')}`,
+                    `\n  in ${environment.get('targets', List()).count()} configurations:`
                 );
-                return runConfigurationTargets(suite, args, configuration);
+                return runEnvironmentTargets(initSuite, args, environment);
             })
             .toJS();
     return Promise.all(pRunners)

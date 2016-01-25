@@ -2,7 +2,7 @@ import { go, utils, randomWalk, makeRunners } from './integrator';
 import runnerUtils from './runner-utils'
 
 const dispatchActions = (params) => {
-    const { suite, args, targetConfiguration } = params;
+    const { suite, args, target } = params;
     const runners = makeRunners(params);
 
     // TODO support pulling what to run from configuration
@@ -20,12 +20,12 @@ const dispatchActions = (params) => {
 
         runnerUtils.success(
             '\nMode: critical paths',
-            `\n  on ${targetConfiguration.get('configurationName')}`,
-            `\n  in ${targetConfiguration.get('targetName')}`
+            `\n  on ${target.get('envName')}`,
+            `\n  in ${target.get('targetName')}`
         );
 
         return suite.getIn(['opts', 'criticalPaths']).reduce((pPrev, actionName) => {
-            let runner = utils.findByKey('targetName')(runners)(actionName);
+            let runner = utils.findByKey('actionName')(runners)(actionName);
             if (utils.is('undefined', runner)) {
                 runnerUtils.gameOver(`No such action "${actionName}"`);
             }
@@ -36,24 +36,24 @@ const dispatchActions = (params) => {
     // --action
     // Run a specific action
     if (utils.is('string', args.action)) {
-        let runner = utils.findByKey('targetName')(runners)(args.action);
+        let runner = utils.findByKey('actionName')(runners)(args.action);
         if (utils.is('undefined', runner)) {
             runnerUtils.gameOver(`No such action "${args.action}"`);
         }
-        runnerUtils.info(
+        runnerUtils.success(
             `\nMode: action`,
-            `\n  on ${targetConfiguration.get('configurationName')}`,
-            `\n  in ${targetConfiguration.get('targetName')}`
+            `\n  on ${target.get('envName')}`,
+            `\n  in ${target.get('targetName')}`
         );
         return go(runner);
     }
 
     if (utils.is('boolean', args['random-walk']) && args['random-walk']) {
-        runnerUtils.info('\nMode: random walk.');
+        runnerUtils.success('\nMode: random walk.');
         return randomWalk(runners);
     }
 
-    runnerUtils.info('\nMode: none selected, doing nothing.');
+    runnerUtils.error('\nMode: none selected, doing nothing.');
 
     return Promise.resolve(true);
 };

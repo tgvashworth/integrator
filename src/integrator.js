@@ -79,14 +79,14 @@ const Suite = Typd(
  *
  * This build the 'fixtures' the tests will run in, and will detect data conflicts.
  */
-const Runner = (suite, targetName, configuration) => {
+const Runner = (suite, actionName, target) => {
     let [ actions, model ] = [ suite.get('actions'), suite.get('model') ];
-    let actionPath = buildActionPath(actions, targetName).map(utils.findByName(actions));
+    let actionPath = buildActionPath(actions, actionName).map(utils.findByName(actions));
 
     return fromJS({
-        targetName,
-        target: utils.findByName(actions)(targetName),
-        configuration,
+        actionName,
+        action: utils.findByName(actions)(actionName),
+        target,
         model,
         actionPath,
         fixtures: buildFixtures(actionPath),
@@ -104,9 +104,10 @@ const Runner = (suite, targetName, configuration) => {
  */
 const go = (runner, previousRunner) => {
     runnerUtils.section(
-      `\nRunning: "${runner.get('targetName')}"`,
-      `\n  on ${runner.getIn(['configuration', 'configurationName'])}`,
-      `\n  in ${runner.getIn(['configuration', 'targetName'])}`
+      `\nRunning: "${runner.get('actionName')}"`,
+      (previousRunner ? `\n  having run "${previousRunner.get('actionName')}"` : ''),
+      `\n  on ${runner.getIn(['target', 'envName'])}`,
+      `\n  in ${runner.getIn(['target', 'targetName'])}`
     );
 
     // Find the minimal set of actions to take give the current context
@@ -135,9 +136,9 @@ const go = (runner, previousRunner) => {
     );
     return pRun.then(utils.makeEffect(() => {
         runnerUtils.section(
-            `\nFinished: "${runner.get('targetName')}"`,
-            `\n  on ${runner.getIn(['configuration', 'configurationName'])}`,
-            `\n  in ${runner.getIn(['configuration', 'targetName'])}`
+            `\nFinished: "${runner.get('actionName')}"`,
+            `\n  on ${runner.getIn(['target', 'envName'])}`,
+            `\n  in ${runner.getIn(['target', 'targetName'])}`
         );
     }));
 };
@@ -169,13 +170,13 @@ const Action = Typd(
 const randomWalk = (runners, previousRunner) => {
     let runner = utils.randomFrom(
         runners.filter(runner => {
-            if (!runner.getIn(['target', 'deps']).size) {
+            if (!runner.getIn(['action', 'deps']).size) {
                 return false;
             }
             if (!previousRunner) {
                 return true;
             }
-            return runner.get('targetName') !== previousRunner.get('targetName');
+            return runner.get('actionName') !== previousRunner.get('actionName');
         })
     );
 
@@ -191,8 +192,8 @@ const randomWalk = (runners, previousRunner) => {
 /**
  * exported makeRunners
  */
-const makeRunners = ({ suite, targetConfiguration }) =>
+const makeRunners = ({ suite, target }) =>
     suite.get('actions')
-        .map(action => Runner(suite, action.get('name'), targetConfiguration));
+        .map(action => Runner(suite, action.get('name'), target));
 
 export { Action, Suite, Runner, go, randomWalk, makeRunners, utils, assert };

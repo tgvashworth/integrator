@@ -115,19 +115,7 @@ const runnerUtils = {
         } catch (e) {}
     },
 
-    // UX
-    suggestFix: (args, config, why) => {
-        if (why.message.match(/ECONNREFUSED/i)) {
-            return [
-                '\n',
-                `Is the hub running at ${config.hub}?`,
-                'You can supply a different hub using --hub <url>'
-            ].join('\n');
-        }
-        return '';
-    },
-
-    generateConfigurationName: (config) => {
+    generateTargetName: (config) => {
         return [
             config.getIn(['capabilities', 'platform']),
             config.getIn(['capabilities', 'os']),
@@ -136,7 +124,8 @@ const runnerUtils = {
             config.getIn(['capabilities', 'browser']),
             config.getIn(['capabilities', 'browser_version']),
             config.getIn(['capabilities', 'resolution']),
-            (config.getIn(['capabilities', 'browserstack.debug']) ? '(debug)' : '')
+            (config.getIn(['capabilities', 'browserstack.debug']) ? '(debug)' : ''),
+            (config.getIn(['capabilities', 'browserstack.local']) ? '(local)' : '')
         ].filter(Boolean).join(' ');
     },
 

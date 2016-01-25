@@ -64,8 +64,8 @@ const walkActionsPath = (phaseNames, actionsPath, pInput) => // eslint-disable-l
     actionsPath.reduce(attachActions(phaseNames), pInput);
 
 /**
- * Build an OrderedSet of action names should be run to execute and teardown the action
- * specified by `targetName`.
+ * Build an OrderedSet of action names that should be run to execute and teardown the action
+ * specified by `actionName`.
  *
  * Recurses into the dependency tree of each dependency, left-to-right, to produce the ordered set
  * of action required to run the target action.
@@ -75,12 +75,12 @@ const walkActionsPath = (phaseNames, actionsPath, pInput) => // eslint-disable-l
  *
  * Returns an OrderedSet of action names to be run.
  */
-const buildActionPath = (actions, targetName) =>
-    utils.findByName(actions)(targetName)
+const buildActionPath = (actions, actionName) =>
+    utils.findByName(actions)(actionName)
         .get('deps')
         .map(dependency => utils.is('string', dependency) ? dependency : dependency.get('name'))
         .flatMap(dependencyName => buildActionPath(actions, dependencyName))
-        .add(targetName);
+        .add(actionName);
 
 /**
  * Build the fixtures for the tests to run with. Walks the action path backwards to build up a

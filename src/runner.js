@@ -10,14 +10,14 @@ import runnerUtils from './runner-utils';
 import makeLeadfootSession from './leadfoot-session';
 import dispatch from './dispatch';
 
-const runner = (initSuite, args, targetConfiguration) => {
-    return makeLeadfootSession(targetConfiguration)
+const runner = (initSuite, args, target) => {
+    return makeLeadfootSession(target)
         .then(session => {
             // Quit the session when the process is killed
             process.on('SIGINT', utils.makeCall(session, 'quit'));
             // Set up the suite, then go
-            return Promise.resolve(initSuite(session, args, targetConfiguration))
-                .then(suite => ({ suite, session, args, targetConfiguration }))
+            return Promise.resolve(initSuite(session, args, target))
+                .then(suite => ({ suite, session, args, target }))
                 .then(dispatch)
                 // We have to recover failures to collect and report on the results
                 .then(runnerUtils.Pass, runnerUtils.Fail)
