@@ -27,11 +27,8 @@ Fixing it requires taking some of the manual work out of creating and maintainin
 What does that mean specifically?
 
 - Explicit, reproducible setup & teardown
-- Real user simulation
-    - Chaotic testing
-    - No CSS selectors!
-- Explicit dependencies
-    - Ordering is defined and deterministic
+- Real user simulation in a chaotic testing ("random-walk") mode
+- Explicit dependencies where ordering is well-defined and deterministic
 
 **Integrator** is a test runner and authoring framework that tries to help.
 
