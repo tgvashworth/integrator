@@ -49,7 +49,7 @@ const logResult = result => {
         runnerUtils.error(
             `\nFailed:`,
             `\n  on ${envName}`,
-            `\n  in ${prettyName}`
+            `\n  in ${prettyName}`,
             `\n${value.stack}`
         );
     } else {
