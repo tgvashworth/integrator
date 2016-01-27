@@ -67,12 +67,16 @@ const handleFinished = results => {
 };
 
 const makeRunPlugins = (phase, integratorConfig) => () => {
+    runnerUtils.section(`\nRunning plugins (${phase}):\n`);
+
     var pPlugins = integratorConfig
         .get('environments', List())
         .flatMap(environment => environment.get('plugins', List()))
+        .toJS()
+        .filter(plugin => plugin.hasOwnProperty(phase))
         .map(plugin => {
             if (plugin.hasOwnProperty(phase) && !utils.is('function', plugin[phase])) {
-                runnerUtils.gameOver(
+                return runnerUtils.gameOver(
                     `Plugin ${plugin.constructor.name} '${phase}' ` +
                         `property is not a function`
                 );
@@ -104,6 +108,7 @@ const makeRunTargets = (initSuite, args, integratorConfig) => () => {
 };
 
 const multiRunner = (initSuite, args, integratorConfig) => {
+    runnerUtils.success('integrator\n===========================');
     return Promise.resolve()
         .then(utils.makeEffect(makeRunPlugins('before', integratorConfig)))
         .then(makeRunTargets(initSuite, args, integratorConfig))
