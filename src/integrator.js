@@ -12,7 +12,6 @@ import {
     mergeRunners
 } from './integrator-actions';
 
-
 /**
  * Typd definitions
  */

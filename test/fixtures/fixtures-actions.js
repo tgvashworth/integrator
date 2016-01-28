@@ -1,6 +1,5 @@
-import Immutable from 'immutable';
-const { fromJS } = Immutable;
-import { Action } from '../../integrator';
+import Immutable, { fromJS } from 'immutable';
+import { Action } from '../../src/integrator';
 
 var a = Action('A');
 var b = Action('B', [a]);
