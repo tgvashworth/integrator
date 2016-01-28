@@ -1,6 +1,4 @@
-/* elint-disable no-unused-vars */
-import Immutable from 'immutable';
-const { Map, fromJS, List } = Immutable;
+import Immutable, { Map, fromJS, List } from 'immutable';
 import utils from './utils';
 
 /**
@@ -19,7 +17,7 @@ import utils from './utils';
  * Returns a function that takes the full RunnerData object and return a Promise for a new version
  * with changes made by the action, or a fails with an error to be caught futher on.
  */
-const wrapPhase = (action, phaseName) => data =>
+export const wrapPhase = (action, phaseName) => data =>
     Promise.resolve(data.get('model'))
         .then(model => {
             let fn = action.getIn(['spec', phaseName], utils.identity);
@@ -48,7 +46,7 @@ const wrapPhase = (action, phaseName) => data =>
  *
  * Returns a Promise for the result of these phases.
  */
-const attachActions = orderedPhaseNames => (pPreviousData, action) =>
+export const attachActions = orderedPhaseNames => (pPreviousData, action) =>
     orderedPhaseNames.reduce(
         (pPrev, phaseName) => pPrev.then(wrapPhase(action, phaseName)),
         pPreviousData
@@ -60,7 +58,7 @@ const attachActions = orderedPhaseNames => (pPreviousData, action) =>
  *
  * Returns a Promise for the result of these actions.
  */
-const walkActionsPath = (phaseNames, actionsPath, pInput) => // eslint-disable-line no-unused-vars
+export const walkActionsPath = (phaseNames, actionsPath, pInput) =>
     actionsPath.reduce(attachActions(phaseNames), pInput);
 
 /**
@@ -75,7 +73,7 @@ const walkActionsPath = (phaseNames, actionsPath, pInput) => // eslint-disable-l
  *
  * Returns an OrderedSet of action names to be run.
  */
-const buildActionPath = (actions, actionName) =>
+export const buildActionPath = (actions, actionName) =>
     utils.findByName(actions)(actionName)
         .get('deps')
         .map(dependency => utils.is('string', dependency) ? dependency : dependency.get('name'))
@@ -89,7 +87,7 @@ const buildActionPath = (actions, actionName) =>
  *
  * Takes a List of Actions, returns a Map.
  */
-const buildFixtures = actionPath => { // eslint-disable-line no-unused-vars
+export const buildFixtures = actionPath => {
     const initialFixtureData = fromJS({ fixtures: {}, fixturesSources: {} });
     return actionPath.reverse()
         // Creates [action, k, v] triples for every k/v pair in the action's fixtures spec
@@ -127,7 +125,7 @@ const buildFixtures = actionPath => { // eslint-disable-line no-unused-vars
  *
  * Returns a List of Maps in the form Map { action: action, fixtures: filteredFixtures }
  */
-const actionPathWithRelevantFixtures = runner =>
+export const actionPathWithRelevantFixtures = runner =>
     runner.get('actionPath')
         .map(action => {
             let relevantFixturesKeys = action.getIn(['spec', 'fixtures'], Map()).keySeq();
@@ -147,7 +145,7 @@ const actionPathWithRelevantFixtures = runner =>
  * Retuns a tuple (ok, Array) containing two Iterable<Action> representing the reverse and forward
  * actions.
  */
-const minimalActionPaths = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
+export const minimalActionPaths = (runner, previousRunner) => {
     // No previous runner so we can just run forward through the actions
     if (!previousRunner) {
         return [ List(), runner.get('actionPath') ];
@@ -175,7 +173,7 @@ const minimalActionPaths = (runner, previousRunner) => { // eslint-disable-line 
 /**
  * Merges two runners by copying the previous runner's final model over
  */
-const mergeRunners = (runner, previousRunner) => { // eslint-disable-line no-unused-vars
+export const mergeRunners = (runner, previousRunner) => {
     if (!previousRunner) {
         return runner;
     }
@@ -184,17 +182,3 @@ const mergeRunners = (runner, previousRunner) => { // eslint-disable-line no-unu
         .set('model', previousRunner.get('model'))
         .set('ran', previousRunner.get('ran'));
 };
-
-var exports = {
-    wrapPhase,
-    attachActions,
-    walkActionsPath,
-    buildActionPath,
-    buildFixtures,
-    commonPrefix: utils.commonPrefix,
-    actionPathWithRelevantFixtures,
-    minimalActionPaths,
-    mergeRunners
-};
-
-export default exports;

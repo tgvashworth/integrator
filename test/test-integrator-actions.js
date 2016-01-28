@@ -1,10 +1,9 @@
-import Immutable from 'immutable';
-const { fromJS, OrderedSet } = Immutable;
-import utils from '../utils';
-import assert from '../assert';
+import test from 'ava';
+import Immutable, { fromJS, OrderedSet } from 'immutable';
 
-import { Suite, makeRunners } from '../integrator';
-import { buildActionPath, commonPrefix, minimalActionPaths } from '../integrator-actions';
+import utils from '../src/utils';
+import { Suite, makeRunners } from '../src/integrator';
+import { buildActionPath, minimalActionPaths } from '../src/integrator-actions';
 import { arbitraryComplexGraph } from './fixtures/fixtures-actions';
 
 /** ============================================================================= */
@@ -16,18 +15,15 @@ let commonPrefixData = [
     [ [ fromJS({ a: 10 }) ], [ fromJS({ a: 10 }) ], [ fromJS({ a: 10 }) ] ]
 ];
 let commonPrefixTests = commonPrefixData
-    .map(data => {
+    .forEach(data => {
         let [ ia, ib, expected ] = data.map(x => fromJS(x));
-        return {
-            name: `${ia} & ${ib} => ${expected}`,
-            test: () => {
-                let result = commonPrefix(ia, ib);
-                assert.ok(
-                    Immutable.is(result, expected),
-                    `Got ${result}`
-                );
-            }
-        };
+        test(`${ia} & ${ib} => ${expected}`, (t) => {
+            let result = utils.commonPrefix(ia, ib);
+            t.ok(
+                Immutable.is(result, expected),
+                `Got ${result}`
+            );
+        });
     });
 
 /** ============================================================================= */
@@ -66,18 +62,15 @@ let buildActionPathData = [
         OrderedSet([ 'A', 'B', 'E', 'H', 'J', 'C', 'F', 'G', 'K', 'L', 'M', 'N', 'O' ]) ],
 ];
 let buildActionPathTests = buildActionPathData
-    .map(data => {
+    .forEach(data => {
         var [ actions, actionName, expected ] = data.map(x => fromJS(x));
-        return {
-            name: `${actionName} => ${expected}`,
-            test: () => {
-                let result = buildActionPath(actions, actionName);
-                assert.ok(
-                    Immutable.is(result, expected),
-                    `Got ${result}`
-                );
-            }
-        };
+        test(`${actionName} => ${expected}`, (t) => {
+            let result = buildActionPath(actions, actionName);
+            t.ok(
+                Immutable.is(result, expected),
+                `Got ${result}`
+            );
+        });
     });
 
 /** ============================================================================= */
@@ -104,31 +97,21 @@ let minimalActionPathsData = [
         [ ['O', 'N', 'M', 'L', 'K', 'G', 'F', 'C', 'J', 'H', 'E', 'B', 'A'], ['K'] ] ],
 ];
 let minimalActionPathsTests = minimalActionPathsData
-    .map(data => {
+    .forEach(data => {
         var [ runners, actionName, previousActionName, [ expectedReverse, expectedForward ] ] = data.map(x => fromJS(x));
-        return {
-            name: `${actionName} from ${previousActionName || '{}'} => [ ${expectedReverse}, ${expectedForward} ]`,
-            test: () => {
-                let runner = utils.findByKey('actionName')(runners)(actionName);
-                let previousRunner = utils.findByKey('actionName')(runners)(previousActionName);
-                let [ resultReverse, resultForward ] = minimalActionPaths(runner, previousRunner);
-                let resultReverseNames = resultReverse.map(utils.pluck('name')).toList();
-                let resultForwardNames = resultForward.map(utils.pluck('name')).toList();
-                assert.ok(
-                    Immutable.is(resultReverseNames, expectedReverse),
-                    `Reverse got ${resultReverseNames}`
-                );
-                assert.ok(
-                    Immutable.is(resultForwardNames, expectedForward),
-                    `Forward got ${resultForwardNames}`
-                );
-            }
-        };
+        test(`${actionName} from ${previousActionName || '{}'} => [ ${expectedReverse}, ${expectedForward} ]`, (t) => {
+            let runner = utils.findByKey('actionName')(runners)(actionName);
+            let previousRunner = utils.findByKey('actionName')(runners)(previousActionName);
+            let [ resultReverse, resultForward ] = minimalActionPaths(runner, previousRunner);
+            let resultReverseNames = resultReverse.map(utils.pluck('name')).toList();
+            let resultForwardNames = resultForward.map(utils.pluck('name')).toList();
+            t.ok(
+                Immutable.is(resultReverseNames, expectedReverse),
+                `Reverse got ${resultReverseNames}`
+            );
+            t.ok(
+                Immutable.is(resultForwardNames, expectedForward),
+                `Forward got ${resultForwardNames}`
+            );
+        })
     });
-
-
-export default () => fromJS([]).concat(
-    commonPrefixTests,
-    buildActionPathTests,
-    minimalActionPathsTests
-);
