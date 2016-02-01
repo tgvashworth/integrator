@@ -51,6 +51,7 @@
     "integrator-match": "^1.1.0",
     "leadfoot": "^1.6.5",
     "minimist": "^1.1.1",
-    "typd": "^3.0.0"
+    "typd": "^3.0.0",
+    "winston": "^1.1.1"
   }
 }
