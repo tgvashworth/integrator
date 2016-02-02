@@ -34,3 +34,26 @@ test('passes session in context', t => {
     };
     return dispatch({ suite, session });
 });
+
+test('runs only the selected action if one is passed', t => {
+    t.plan(1);
+    const session = {};
+    const Example1 = createClass({
+        run() {
+            t.pass();
+        }
+    });
+    const Example2 = createClass({
+        run() {
+            t.fail();
+        }
+    });
+    const suite = {
+        'example test': new Example1(),
+        'another example test': new Example2()
+    };
+    const args = {
+        only: 'example test'
+    };
+    return dispatch({ suite, session, args });
+});
