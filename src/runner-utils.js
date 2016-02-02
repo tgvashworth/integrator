@@ -4,7 +4,7 @@ import chalk from 'chalk';
 import { fromJS } from 'immutable';
 
 import utils from './utils';
-import { logger } from './logging';
+import logger from './logging';
 
 // Errors
 
