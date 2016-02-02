@@ -1,5 +1,12 @@
 import { run } from 'action-graph';
 
+const filter = (args, name, action) => {
+    if (args.only && args.only !== name) {
+        return false;
+    }
+    return true;
+};
+
 export default function dispatch(params = {}) {
     const {
         suite = {},
@@ -7,19 +14,12 @@ export default function dispatch(params = {}) {
         session
     } = params;
 
-    const filter = (name, action) => {
-        if (args.only && args.only !== name) {
-            return false;
-        }
-        return true;
-    };
-
     return Promise.resolve()
         .then(() => {
             return Object.keys(suite)
                 .reduce((pPrev, name) => {
                     const action = suite[name];
-                    if (!filter(name, action)) {
+                    if (!filter(args, name, action)) {
                         return pPrev;
                     }
                     return pPrev.then(() => {
