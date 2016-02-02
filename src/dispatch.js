@@ -1,11 +1,16 @@
 import { run } from 'action-graph';
 
-const filter = (args, name, action) => {
+const filterForArgs = (args, name) => {
     if (args.only && args.only !== name) {
         return false;
     }
     return true;
 };
+
+const getActionsForArgs = (args, suite) =>
+    Object.keys(suite)
+        .filter(name => filterForArgs(args, name))
+        .map(name => suite[name]);
 
 export default function dispatch(params = {}) {
     const {
@@ -14,19 +19,16 @@ export default function dispatch(params = {}) {
         session
     } = params;
 
-    return Promise.resolve()
-        .then(() => {
-            return Object.keys(suite)
-                .reduce((pPrev, name) => {
-                    const action = suite[name];
-                    if (!filter(args, name, action)) {
-                        return pPrev;
-                    }
-                    return pPrev.then(() => {
-                        return run(action, {
-                            session: session
-                        });
+    return Promise.resolve().then(() => {
+        return getActionsForArgs(args, suite).reduce(
+            (pPrev, action) => {
+                return pPrev.then(() => {
+                    return run(action, {
+                        session: session
                     });
-                }, Promise.resolve());
-        });
+                });
+            },
+            Promise.resolve()
+        );
+    });
 };
