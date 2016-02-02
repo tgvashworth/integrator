@@ -10,7 +10,7 @@
   "scripts": {
     "build": "babel src -d out",
     "watch": "babel --watch src -d out",
-    "test": "npm run lint",
+    "test": "npm run lint && npm run specs",
     "specs": "ava --require babel-register",
     "lint": "eslint src/**/*.js -c .eslintrc",
     "prepublish": "npm run build",
@@ -45,10 +45,10 @@
     "semantic-release": "^4.3.5"
   },
   "dependencies": {
+    "action-graph": "^1.0.0",
     "chalk": "^1.0.0",
     "fnkit": "^1.0.1",
     "immutable": "^3.7.3",
-    "integrator-match": "^1.1.0",
     "leadfoot": "^1.6.5",
     "minimist": "^1.1.1",
     "typd": "^3.0.0",
