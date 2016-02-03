@@ -17,8 +17,10 @@ test('by default, runs all tests', t => {
         }
     });
     const suite = {
-        'example test': new Example(),
-        'another example test': new Example()
+        actions: {
+            'example test': new Example(),
+            'another example test': new Example()
+        }
     };
     return dispatch({ suite })
         .catch(err => {
@@ -38,7 +40,9 @@ test('passes session in context', t => {
         }
     });
     const suite = {
-        'example test': new Example()
+        actions: {
+            'example test': new Example()
+        }
     };
     return dispatch({ suite, session });
 });
@@ -58,8 +62,10 @@ test('runs only the selected action if one is passed', t => {
         }
     });
     const suite = {
-        'example test': new Example1(),
-        'another example test': new Example2()
+        actions: {
+            'example test': new Example1(),
+            'another example test': new Example2()
+        }
     };
     const args = {
         only: 'example test'
@@ -75,13 +81,15 @@ test('converts throws into TestsFailedErrors', t => {
         }
     });
     const suite = {
-        example: new Example()
+        actions: {
+            example: new Example()
+        }
     };
     return dispatch({ suite })
         .then(
             () => t.fail(),
             (err) => {
-                t.same(err.action, suite.example);
+                t.same(err.action, suite.actions.example);
                 t.same(err.constructor, runnerUtils.TestsFailedError);
                 t.same(err.message, 'Nope.');
             }

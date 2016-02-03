@@ -10,9 +10,9 @@ const filterForArgs = (args, name) => {
 };
 
 const getActionsForArgs = (args, suite) =>
-    Object.keys(suite)
+    Object.keys(suite.actions)
         .filter(name => filterForArgs(args, name))
-        .map(name => suite[name]);
+        .map(name => suite.actions[name]);
 
 export default function dispatch(params = {}) {
     const {
