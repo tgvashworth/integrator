@@ -11,23 +11,30 @@ test('importable', t => {
 test('by default, runs all tests', t => {
     t.plan(2);
     const Example = createClass({
-        run() {
+        run(state) {
             t.pass();
+            return state;
         }
     });
     const suite = {
         'example test': new Example(),
         'another example test': new Example()
     };
-    return dispatch({ suite });
+    return dispatch({ suite })
+        .catch(err => {
+            console.log(err);
+            throw err;
+        });
 });
 
 test('passes session in context', t => {
     t.plan(1);
     const session = {};
     const Example = createClass({
-        run(context = {}) {
+        run(state) {
+            const { context } = this;
             t.same(context.session, session);
+            return state;
         }
     });
     const suite = {
@@ -40,8 +47,9 @@ test('runs only the selected action if one is passed', t => {
     t.plan(1);
     const session = {};
     const Example1 = createClass({
-        run() {
+        run(state) {
             t.pass();
+            return state;
         }
     });
     const Example2 = createClass({

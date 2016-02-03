@@ -33,7 +33,7 @@ export default function dispatch(params = {}) {
                     );
                     return run(action, {
                         session: session
-                    });
+                    }, Map());
                 });
             },
             Promise.resolve()
