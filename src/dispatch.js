@@ -38,5 +38,6 @@ export default function dispatch(params = {}) {
             },
             Promise.resolve()
         );
-    });
+    })
+    .catch(runnerUtils.makeTestsFailedError);
 };

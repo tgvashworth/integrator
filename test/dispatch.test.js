@@ -1,6 +1,7 @@
 import test from 'ava';
 import { createClass } from 'action-graph';
 
+import runnerUtils from '../src/runner-utils';
 import dispatch from '../src/dispatch';
 
 test('importable', t => {
@@ -56,4 +57,24 @@ test('runs only the selected action if one is passed', t => {
         only: 'example test'
     };
     return dispatch({ suite, session, args });
+});
+
+test('converts throws into TestsFailedErrors', t => {
+    t.plan(2);
+    const Example = createClass({
+        run() {
+            throw new Error('Nope.');
+        }
+    });
+    const suite = {
+        example: new Example()
+    };
+    return dispatch({ suite })
+        .then(
+            () => t.fail(),
+            (err) => {
+                t.same(err.constructor, runnerUtils.TestsFailedError);
+                t.same(err.message, 'Nope.');
+            }
+        );
 });

@@ -8,14 +8,13 @@ import logger from './logging';
 
 // Errors
 
-function TestsFailedError(message) {
-    Error.call(this);
-    this.message = message;
-    const e = new Error();
-    this.stack = `Error: ${message}\n${e.stack.split('\n').slice(2).join('\n')}`;
+class TestsFailedError {
+    constructor({ message, data, stack }) {
+        this.message = message;
+        this.data = data;
+        this.stack = stack;
+    }
 }
-
-TestsFailedError.prototype = Error.prototype;
 
 const runnerUtils = {
     // Logging
@@ -79,11 +78,10 @@ const runnerUtils = {
         runnerUtils.success('\nPassed.');
     },
 
+    TestsFailedError: TestsFailedError,
+
     makeTestsFailedError: why => {
-        let e = new TestsFailedError(why.message);
-        e.stack = utils.fakeStack(e, why);
-        e.data = why.data;
-        throw e;
+        throw new TestsFailedError(why);
     },
 
     logRan: data => {
@@ -142,7 +140,5 @@ const runnerUtils = {
     })
 
 };
-
-runnerUtils.TestsFailedError = TestsFailedError;
 
 export default runnerUtils;
