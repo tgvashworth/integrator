@@ -26,11 +26,13 @@ export default function dispatch(params = {}) {
         return getActionsForArgs(args, suite).reduce(
             (pPrev, action) => {
                 return pPrev.then(() => {
-                    runnerUtils.success(
-                        `\nRunning: ${action.getDescription()}`,
-                        `\n  on ${target.get('envName')}`,
-                        `\n  in ${target.get('targetName')}`
-                    );
+                    if (target.has('envName')) {
+                        runnerUtils.success(
+                            `\nRunning: ${action.getDescription()}`,
+                            `\n  on ${target.get('envName')}`,
+                            `\n  in ${target.get('targetName')}`
+                        );
+                    }
                     return run(action, {
                         session: session
                     }, suite.initialState);
