@@ -2,7 +2,7 @@
   "name": "integrator",
   "description": "An experiment in fixing integration testing.",
   "bin": "bin/run",
-  "main": "out/integrator",
+  "main": "out/index",
   "files": [
     "out",
     "bin"
