@@ -1,4 +1,5 @@
 import test from 'ava';
+import { fromJS } from 'immutable';
 import { createClass } from 'action-graph';
 
 import runnerUtils from '../src/runner-utils';
@@ -45,6 +46,24 @@ test('passes session in context', t => {
         }
     };
     return dispatch({ suite, session });
+});
+
+test('passes initialState', t => {
+    t.plan(1);
+    const initialState = fromJS({});
+    const Example = createClass({
+        run(state) {
+            t.same(state, initialState);
+            return state;
+        }
+    });
+    const suite = {
+        actions: {
+            'example test': new Example()
+        },
+        initialState: initialState
+    };
+    return dispatch({ suite });
 });
 
 test('runs only the selected action if one is passed', t => {
