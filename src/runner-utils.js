@@ -4,7 +4,6 @@ import chalk from 'chalk';
 import { fromJS } from 'immutable';
 
 import utils from './utils';
-import logger from './logging';
 
 // Errors
 
@@ -18,22 +17,22 @@ class TestsFailedError {
 
 const runnerUtils = {
     // Logging
-    // TODO multicast this to remember what was logged, for JSON output later #29 #39
+    // TODO multicast this to remember what was logged, for JSON output later
     gameOver: (...msgs) => {
         runnerUtils.error(...msgs);
         process.exit(1);
     },
 
     error: (msg, ...msgs) => {
-        logger.error(chalk.red(msg), ...msgs);
+        console.error(chalk.red(msg), ...msgs);
     },
 
     warning: (msg, ...msgs) => {
-        logger.error(chalk.yellow(msg), ...msgs);
+        console.error(chalk.yellow(msg), ...msgs);
     },
 
     info: (...msgs) => {
-        logger.log(...msgs);
+        console.log(...msgs);
     },
 
     section: (msg, ...msgs) => {
@@ -41,7 +40,7 @@ const runnerUtils = {
     },
 
     success: (msg, ...msgs) => {
-        logger.log(chalk.green(msg), ...msgs);
+        console.log(chalk.green(msg), ...msgs);
     },
 
     // Actions
