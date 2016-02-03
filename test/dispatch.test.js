@@ -60,7 +60,7 @@ test('runs only the selected action if one is passed', t => {
 });
 
 test('converts throws into TestsFailedErrors', t => {
-    t.plan(2);
+    t.plan(3);
     const Example = createClass({
         run() {
             throw new Error('Nope.');
@@ -73,6 +73,7 @@ test('converts throws into TestsFailedErrors', t => {
         .then(
             () => t.fail(),
             (err) => {
+                t.same(err.action, suite.example);
                 t.same(err.constructor, runnerUtils.TestsFailedError);
                 t.same(err.message, 'Nope.');
             }

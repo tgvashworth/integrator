@@ -9,9 +9,9 @@ import logger from './logging';
 // Errors
 
 class TestsFailedError {
-    constructor({ message, data, stack }) {
+    constructor({ message, action, stack }) {
         this.message = message;
-        this.data = data;
+        this.action = action;
         this.stack = stack;
     }
 }
