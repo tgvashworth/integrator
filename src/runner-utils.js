@@ -4,37 +4,35 @@ import chalk from 'chalk';
 import { fromJS } from 'immutable';
 
 import utils from './utils';
-import { logger } from './logging';
 
 // Errors
 
-function TestsFailedError(message) {
-    Error.call(this);
-    this.message = message;
-    const e = new Error();
-    this.stack = `Error: ${message}\n${e.stack.split('\n').slice(2).join('\n')}`;
+class TestsFailedError {
+    constructor({ message, action, stack }) {
+        this.message = message;
+        this.action = action;
+        this.stack = stack;
+    }
 }
-
-TestsFailedError.prototype = Error.prototype;
 
 const runnerUtils = {
     // Logging
-    // TODO multicast this to remember what was logged, for JSON output later #29 #39
+    // TODO multicast this to remember what was logged, for JSON output later
     gameOver: (...msgs) => {
         runnerUtils.error(...msgs);
         process.exit(1);
     },
 
     error: (msg, ...msgs) => {
-        logger.error(chalk.red(msg), ...msgs);
+        console.error(chalk.red(msg), ...msgs);
     },
 
     warning: (msg, ...msgs) => {
-        logger.error(chalk.yellow(msg), ...msgs);
+        console.error(chalk.yellow(msg), ...msgs);
     },
 
     info: (...msgs) => {
-        logger.log(...msgs);
+        console.log(...msgs);
     },
 
     section: (msg, ...msgs) => {
@@ -42,7 +40,7 @@ const runnerUtils = {
     },
 
     success: (msg, ...msgs) => {
-        logger.log(chalk.green(msg), ...msgs);
+        console.log(chalk.green(msg), ...msgs);
     },
 
     // Actions
@@ -79,11 +77,10 @@ const runnerUtils = {
         runnerUtils.success('\nPassed.');
     },
 
+    TestsFailedError: TestsFailedError,
+
     makeTestsFailedError: why => {
-        let e = new TestsFailedError(why.message);
-        e.stack = utils.fakeStack(e, why);
-        e.data = why.data;
-        throw e;
+        throw new TestsFailedError(why);
     },
 
     logRan: data => {
@@ -142,7 +139,5 @@ const runnerUtils = {
     })
 
 };
-
-runnerUtils.TestsFailedError = TestsFailedError;
 
 export default runnerUtils;

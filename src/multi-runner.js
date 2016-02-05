@@ -13,32 +13,6 @@ const defaultConfiguration = fromJS({
     hub: 'http://localhost:4444/wd/hub'
 });
 
-const runEnvironmentTargets = (initSuite, args, environment) => {
-    return environment
-        .get('targets', List())
-        .map(targetConfiguration => {
-            const target =
-                defaultConfiguration
-                    .mergeDeep(environment.get('common', Map()))
-                    .mergeDeep(targetConfiguration);
-            return target.merge(fromJS({
-                envName: environment.get('envName'),
-                targetName: runnerUtils.generateTargetName(target)
-            }));
-        })
-        .map(target => {
-            runnerUtils.info(
-                `    ${target.get('targetName')}`
-            );
-            return runner(initSuite, args, target)
-                .then(runResult => fromJS({
-                    runResult,
-                    target,
-                    environment
-                }));
-        });
-};
-
 const logResult = result => {
     const runResult = result.get('runResult');
     const type = runResult.get('type');
@@ -47,7 +21,7 @@ const logResult = result => {
     const prettyName = result.getIn(['target', 'targetName']);
     if (type === 'fail') {
         runnerUtils.error(
-            `\nFailed:`,
+            `\nFailed: ${value.action.getDescription()}`,
             `\n  on ${envName}`,
             `\n  in ${prettyName}`,
             `\n${value.stack}`
@@ -90,6 +64,35 @@ const makeRunPlugins = (phase, integratorConfig) => () => {
                 `Plugins failed to run successfully`,
                 `\n${why ? why.stack : ''}`
             );
+        });
+};
+
+const getTargetsFromEnvironment = environment =>
+    environment
+        .get('targets', List())
+        .map(targetConfiguration => {
+            const target =
+                defaultConfiguration
+                    .mergeDeep(environment.get('common', Map()))
+                    .mergeDeep(targetConfiguration);
+            return target.merge(fromJS({
+                envName: environment.get('envName'),
+                targetName: runnerUtils.generateTargetName(target)
+            }));
+        })
+
+const runEnvironmentTargets = (initSuite, args, environment) => {
+    return getTargetsFromEnvironment(environment)
+        .map(target => {
+            runnerUtils.info(
+                `    ${target.get('targetName')}`
+            );
+            return runner(initSuite, args, target)
+                .then(runResult => fromJS({
+                    runResult,
+                    target,
+                    environment
+                }));
         });
 };
 

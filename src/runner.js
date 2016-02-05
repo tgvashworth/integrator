@@ -15,9 +15,8 @@ const runner = (initSuite, args, target) => {
         .then(session => {
             // Quit the session when the process is killed
             process.on('SIGINT', utils.makeCall(session, 'quit'));
-            // Set up the suite, then go
-            return Promise.resolve(initSuite(session, args, target))
-                .then(suite => ({ suite, session, args, target }))
+            const suite = initSuite();
+            return Promise.resolve({ suite, args, session, target })
                 .then(dispatch)
                 // We have to recover failures to collect and report on the results
                 .then(runnerUtils.Pass, runnerUtils.Fail)

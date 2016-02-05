@@ -63,7 +63,13 @@ const utils = {
      *
      * Returns a function that calls the passed `fn` and returns a Promise for its argument.
      */
-    makeEffect: fn => (x, ...args) => Promise.resolve(fn(x, ...args)).then(() => x),
+    makeEffect: fn => {
+        return function (x, ...args) {
+            var ctx = this;
+            return Promise.resolve(fn.call(ctx, x, ...args))
+                .then(() => x);
+        };
+    },
 
     randomBetween: (min, max) => ~~(min + Math.random() * max),
 
