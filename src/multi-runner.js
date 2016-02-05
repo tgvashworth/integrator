@@ -21,7 +21,7 @@ const logResult = result => {
     const prettyName = result.getIn(['target', 'targetName']);
     if (type === 'fail') {
         runnerUtils.error(
-            `\nFailed:`,
+            `\nFailed: ${value.action.getDescription()}`,
             `\n  on ${envName}`,
             `\n  in ${prettyName}`,
             `\n${value.stack}`
