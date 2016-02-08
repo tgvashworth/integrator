@@ -47,7 +47,6 @@ const makeRunPlugins = (phase, integratorConfig) => () => {
         .get('environments', List())
         .flatMap(environment => environment.get('plugins', List()))
         .toJS()
-        .filter(plugin => plugin.hasOwnProperty(phase))
         .map(plugin => {
             if (plugin.hasOwnProperty(phase) && !utils.is('function', plugin[phase])) {
                 return runnerUtils.gameOver(
