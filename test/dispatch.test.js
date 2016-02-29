@@ -114,3 +114,28 @@ test('converts throws into TestsFailedErrors', t => {
             }
         );
 });
+
+test('propagates action-graph run path errors', t => {
+    t.plan(3);
+    const Dep = createClass({ displayName: 'dep' });
+    const Example = createClass({
+        displayName: 'example',
+        getDependencies() {
+            return [ Dep ];
+        }
+    });
+    const suite = {
+        actions: {
+            example: new Example()
+        }
+    };
+    return dispatch({ suite })
+        .then(
+            () => t.fail(),
+            (err) => {
+                t.same(err.action, suite.actions.example);
+                t.same(err.constructor, runnerUtils.TestsFailedError);
+                t.same(err.message, 'Action "example" depends on "dep" but matching instances are missing');
+            }
+        );
+});
