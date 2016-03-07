@@ -7,7 +7,17 @@ import { List, Map, fromJS } from 'immutable';
 
 import utils from './utils';
 import runnerUtils from './runner-utils';
-import runner from './runner';
+import dispatch from './dispatch';
+import makeLeadfootSession from './leadfoot-session';
+
+const getSession = config => {
+    return makeLeadfootSession(config)
+        .then(session => {
+            // Quit the session when the process is killed
+            process.on('SIGINT', utils.makeCall(session, 'quit'));
+            return session;
+        });
+};
 
 const defaultConfiguration = fromJS({
     hub: 'http://localhost:4444/wd/hub'
@@ -86,7 +96,7 @@ const runEnvironmentTargets = (initSuite, args, environment) => {
             runnerUtils.info(
                 `    ${target.get('targetName')}`
             );
-            return runner(initSuite, args, target)
+            return dispatch({ suite: initSuite(), args, target, getSession })
                 .then(runResult => fromJS({
                     runResult,
                     target,

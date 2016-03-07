@@ -1,6 +1,22 @@
 import { Map } from 'immutable';
 import { run } from 'action-graph';
 import runnerUtils from './runner-utils';
+import utils from './utils';
+
+const defaultSession = {
+    quit: () => {}
+};
+
+const runner = ({ action, suite, target, session }) => {
+    const context = {
+        session: session
+    };
+    return run(action, context, suite.initialState)
+        .catch(runnerUtils.makeTestsFailedError)
+        // We have to recover failures to collect and report on the results
+        .then(runnerUtils.Pass, runnerUtils.Fail)
+        .then(utils.makeEffect(() => (typeof session.quit === 'function') && session.quit()));
+};
 
 const filterForArgs = (args, name) => {
     if (args.only && args.only !== name) {
@@ -18,7 +34,7 @@ export default function dispatch(params = {}) {
     const {
         suite = {},
         args = {},
-        session,
+        getSession = () => Promise.resolve(defaultSession),
         target = Map()
     } = params;
 
@@ -26,20 +42,21 @@ export default function dispatch(params = {}) {
         return getActionsForArgs(args, suite).reduce(
             (pPrev, action) => {
                 return pPrev.then(() => {
-                    if (target.has('envName')) {
+                    if (target.get('envName')) {
                         runnerUtils.success(
                             `\nRunning: ${action.getDescription()}`,
                             `\n  on ${target.get('envName')}`,
                             `\n  in ${target.get('targetName')}`
                         );
                     }
-                    return run(action, {
-                        session: session
-                    }, suite.initialState);
+                    const config = target.mergeDeepIn(['capabilities'], Map({
+                        name: action.getDescription()
+                    }));
+                    return Promise.resolve(getSession(config))
+                        .then(session => runner({ suite, session, action, args, target }));
                 });
             },
             Promise.resolve()
         );
-    })
-    .catch(runnerUtils.makeTestsFailedError);
+    });
 };

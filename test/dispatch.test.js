@@ -45,7 +45,7 @@ test('passes session in context', t => {
             'example test': new Example()
         }
     };
-    return dispatch({ suite, session });
+    return dispatch({ suite, getSession: () => session });
 });
 
 test('passes initialState', t => {
@@ -89,12 +89,13 @@ test('runs only the selected action if one is passed', t => {
     const args = {
         only: 'example test'
     };
-    return dispatch({ suite, session, args });
+    return dispatch({ suite, getSession: () => session, args });
 });
 
-test('converts throws into TestsFailedErrors', t => {
-    t.plan(3);
+test('converts throws into TestsFailedErrors and bundles in Fail object', t => {
+    t.plan(4);
     const Example = createClass({
+        displayName: 'thrower example',
         run() {
             throw new Error('Nope.');
         }
@@ -106,8 +107,9 @@ test('converts throws into TestsFailedErrors', t => {
     };
     return dispatch({ suite })
         .then(
-            () => t.fail(),
-            (err) => {
+            (res) => {
+                const err = res.get('value');
+                t.same(res.get('type'), 'fail');
                 t.same(err.action, suite.actions.example);
                 t.same(err.constructor, runnerUtils.TestsFailedError);
                 t.same(err.message, 'Nope.');
@@ -116,7 +118,7 @@ test('converts throws into TestsFailedErrors', t => {
 });
 
 test('propagates action-graph run path errors', t => {
-    t.plan(3);
+    t.plan(4);
     const Dep = createClass({ displayName: 'dep' });
     const Example = createClass({
         displayName: 'example',
@@ -131,8 +133,9 @@ test('propagates action-graph run path errors', t => {
     };
     return dispatch({ suite })
         .then(
-            () => t.fail(),
-            (err) => {
+            (res) => {
+                const err = res.get('value');
+                t.same(res.get('type'), 'fail');
                 t.same(err.action, suite.actions.example);
                 t.same(err.constructor, runnerUtils.TestsFailedError);
                 t.same(err.message, 'Action "example" depends on "dep" but matching instances are missing');
