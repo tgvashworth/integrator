@@ -11,7 +11,7 @@ Status: **Prototype**. TweetDeck uses it, but it's not ready for general use.
 
 There are numerous problems with integration tests today:
 
-- *They don't simulate users.* Only the user-flows that you thought to test are tested, and assertions are coupled to CSS selectors. That's is not how a user sees your application and it results in [change-detector][change-detector] tests.
+- *They don't simulate users.* Only the user-flows that you thought to test are tested, and assertions are coupled to CSS selectors. That's not how a user sees your application and it results in [change-detector][change-detector] tests.
 
 - *They have implicit dependencies.* Current test frameworks encourage you to write tests that depend on the success of another, without an explicit notion of dependency. The result is that test order *might be* important, which is hard to debug and refactor.
 
