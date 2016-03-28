@@ -1,5 +1,2 @@
-build/
-jspm_packages/
+dist/
 node_modules/
-selenium-server-*
-out/

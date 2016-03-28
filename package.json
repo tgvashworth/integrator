@@ -1,56 +1,16 @@
 {
   "name": "integrator",
   "description": "An experiment in fixing integration testing.",
-  "bin": "bin/run",
-  "main": "out/index",
-  "files": [
-    "out",
-    "bin"
-  ],
-  "scripts": {
-    "build": "babel src -d out",
-    "watch": "babel --watch src -d out",
-    "test": "npm run lint && npm run specs",
-    "specs": "ava --require babel-register",
-    "lint": "eslint src/**/*.js -c .eslintrc",
-    "prepublish": "npm run build",
-    "semantic-release": "semantic-release pre && npm publish && semantic-release post"
-  },
-  "config": {
-    "ghooks": {
-      "pre-commit": "npm run lint",
-      "pre-push": "npm test"
-    }
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/phuu/integrator.git"
   },
-  "author": "",
+  "author": "Tom Ashworth <tgvashworth@gmail.com>",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/phuu/integrator/issues"
   },
   "homepage": "https://github.com/phuu/integrator",
-  "devDependencies": {
-    "ava": "^0.11.0",
-    "babel-cli": "^6.4.5",
-    "babel-core": "^6.4.5",
-    "babel-eslint": "^4.1.6",
-    "babel-plugin-transform-runtime": "^6.4.3",
-    "babel-preset-es2015": "^6.3.13",
-    "eslint": "^1.6.0",
-    "ghooks": "^1.0.1",
-    "nodemon": "^1.3.7",
-    "semantic-release": "^4.3.5"
-  },
-  "dependencies": {
-    "action-graph": "^1.3.0",
-    "chalk": "^1.0.0",
-    "fnkit": "^1.0.1",
-    "immutable": "^3.7.3",
-    "leadfoot": "^1.6.5",
-    "minimist": "^1.1.1",
-    "typd": "^3.0.0"
-  }
+  "devDependencies": { },
+  "dependencies": { }
 }
