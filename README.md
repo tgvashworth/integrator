@@ -4,25 +4,15 @@ An action-oriented approach to integration testing, simulating users to comprehe
 
 Status: **Prototype**. TweetDeck uses it, but it's not ready for general use.
 
-## Why does Integrator exist?
+- Reproducible setup & teardown for easy debugging
+- Explicit dependencies
+- Promotes code reuse
 
-There are numerous problems with integration tests today:
+## Install
 
-- *They don't simulate users.* Only the user-flows that you thought to test are tested, and assertions are coupled to CSS selectors. That's is not how a user sees your application and it results in [change-detector][change-detector] tests.
-
-- *They have implicit dependencies.* Current test frameworks encourage you to write tests that depend on the success of another, without an explicit notion of dependency. The result is that test order *might be* important, which is hard to debug and refactor.
-
-- *Tests are hard to write and debug.* This leads to flaky tests, false negatives or (worse) false positives, and untested but critical user flows.
-
-Fixing it requires taking some of the manual work out of creating and maintaining these tests, providing a framework that helps the test author to avoid writing bad tests.
-
-What does that mean specifically?
-
-- Explicit, reproducible setup & teardown
-- Real user simulation in a chaotic testing
-- Explicit dependencies where ordering is well-defined and deterministic
-
-**Integrator** is a test runner and authoring framework that tries to help.
+```
+npm install integrator
+```
 
 ### License
 
