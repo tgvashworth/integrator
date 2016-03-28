@@ -26,8 +26,8 @@
   "homepage": "https://github.com/phuu/integrator",
   "devDependencies": {
     "ghooks": "^1.0.1",
-    "tslint": "^3.0.0",
-    "typescript": "^1.6.2",
+    "tslint": "^3.6.0",
+    "typescript": "^1.8.9",
     "typings": "^0.7.9"
   },
   "dependencies": {}
