@@ -6,12 +6,22 @@
         "sourceMap": false,
         "outDir": "dist"
     },
+    "filesGlob": [
+        "src/**/*.ts",
+        "typings/main.d.ts"
+    ],
     "files": [
+        "src/createAction.test.ts",
+        "src/createAction.ts",
+        "src/index.ts",
         "typings/main.d.ts"
     ],
     "exclude": [
         "typings/browser.d.ts",
         "typings/browser",
         "node_modules"
-    ]
+    ],
+    "atom": {
+        "rewriteTsconfig": true
+    }
 }
