@@ -1,7 +1,9 @@
 {
   "name": "integrator",
   "version": false,
-  "dependencies": {},
+  "dependencies": {
+    "lodash": "registry:npm/lodash#4.0.0+20160305082308"
+  },
   "ambientDependencies": {
     "node": "registry:dt/node#4.0.0+20160319033040"
   }
