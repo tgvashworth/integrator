@@ -3,27 +3,32 @@ import * as _ from "lodash";
 export interface ActionSpec {
   displayName?: string;
   getDefaultProps?: () => {};
+  getDescription?: () => string;
 }
-export interface Action {
+export interface Action<T> {
   displayName: string;
-  props: {};
-  getDefaultProps: () => {};
+  props: T;
+  getDefaultProps: () => T;
+  getDescription: () => string;
 }
-export interface ActionClass {
+export interface ActionClass<T> {
   displayName: string;
-  new(props?: any): Action;
+  new(props?: any): Action<T>;
 }
 
 /**
  * createAction creates an Action class according to the supplied spec.
  */
-export default function createAction<T>(spec: ActionSpec = {}): ActionClass {
+export default function createAction<T>(
+  spec: ActionSpec = {}
+): ActionClass<T> {
   const {
     displayName = "unnamed action",
-    getDefaultProps
+    getDefaultProps,
+    getDescription
   } = spec;
 
-  class AnonymousAction implements Action {
+  class AnonymousAction implements Action<T> {
     static displayName = displayName;
     displayName: string;
     props: T;
@@ -43,6 +48,14 @@ export default function createAction<T>(spec: ActionSpec = {}): ActionClass {
         typeof getDefaultProps === "function"
           ? getDefaultProps.call(this)
           : {}
+      );
+    }
+
+    getDescription() {
+      return (
+        typeof getDescription === "function"
+          ? getDescription.call(this)
+          : displayName
       );
     }
   }

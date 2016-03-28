@@ -72,3 +72,42 @@ test("Action instantiation merges input with default props", t => {
     <Props>{ a: 1, b: 2 }
   );
 });
+
+// getDescription
+
+test("createAction has default getDescription", t => {
+  const Action = createAction();
+  const action = new Action();
+  t.same(
+    action.getDescription(),
+    action.displayName
+  );
+});
+
+test("createAction can overwrite getDescription", t => {
+  interface Props { a: number; }
+  const Action = createAction<Props>({
+    getDescription: () => "example!"
+  });
+  const action = new Action();
+  t.same(
+    action.getDescription(),
+    "example!"
+  );
+});
+
+
+test("Actions can use props in getDescription", t => {
+  interface Props { a: number; }
+  const Action = createAction<Props>({
+    getDefaultProps: () => ({ a: 10 }),
+    getDescription() {
+      return `a is ${this.props.a}`;
+    }
+  });
+  const action = new Action;
+  t.same(
+    action.getDescription(),
+    "a is 10"
+  );
+});
