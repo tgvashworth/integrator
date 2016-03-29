@@ -4,6 +4,8 @@ export interface ActionSpec {
   displayName?: string;
   getDefaultProps?: () => {};
   getDescription?: () => string;
+  before?: () => Action<any>[];
+  after?: () => Action<any>[];
   run?: (v: any) => any | Promise<any>;
 }
 export interface Action<T> {
@@ -11,6 +13,8 @@ export interface Action<T> {
   props: T;
   getDefaultProps: () => T;
   getDescription: () => string;
+  before: () => Action<any>[];
+  after: () => Action<any>[];
   run: (v?: any) => Promise<any>;
 }
 export interface ActionClass<T> {
@@ -28,7 +32,9 @@ export default function createAction<T>(
     displayName = "unnamed action",
     getDefaultProps,
     getDescription,
-    run
+    before,
+    after,
+    run,
   } = spec;
 
   class AnonymousAction implements Action<T> {
@@ -63,6 +69,28 @@ export default function createAction<T>(
         typeof getDescription === "function"
           ? getDescription.call(this)
           : displayName
+      );
+    }
+
+    /**
+     * before lists sub-Actions that will run before this Action's run method.
+     */
+    before(): Action<any>[] {
+      return (
+        typeof before === "function"
+          ? before.call(this)
+          : []
+      );
+    }
+
+    /**
+     * after lists sub-Actions that will run before this Action's run method.
+     */
+    after(): Action<any>[] {
+      return (
+        typeof after === "function"
+          ? after.call(this)
+          : []
       );
     }
 

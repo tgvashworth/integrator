@@ -1,5 +1,5 @@
 import test from "ava";
-import createAction from "./createAction";
+import createAction, { Action } from "./createAction";
 
 test("createAction is importable", t => {
   t.ok(createAction);
@@ -138,8 +138,66 @@ test("createAction can overwrite run but is still passed arg", t => {
     });
 });
 
+// before
+
+test("createAction has default before with no actions", t => {
+  const Action = createAction();
+  const action = new Action();
+  t.same(
+    action.before(),
+    []
+  );
+});
+
+test("createAction can overwrite before", t => {
+  const SubAction = createAction();
+  const subAction = new SubAction;
+  const Action = createAction({
+    before() {
+      return [
+        subAction
+      ];
+    }
+  });
+  const action = new Action();
+  t.same(
+    action.before(),
+    [ subAction ]
+  );
+});
+
+// after
+
+test("createAction has default after with no actions", t => {
+  const Action = createAction();
+  const action = new Action();
+  t.same(
+    action.after(),
+    []
+  );
+});
+
+test("createAction can overwrite after", t => {
+  const SubAction = createAction();
+  const subAction = new SubAction;
+  const Action = createAction({
+    after() {
+      return [
+        subAction
+      ];
+    }
+  });
+  const action = new Action();
+  t.same(
+    action.after(),
+    [ subAction ]
+  );
+});
+
+// General
+
 test("createAction calls methods with correct context", t => {
-  t.plan(4);
+  t.plan(5);
   const Action = createAction({
     getDefaultProps() {
       t.same(this.constructor, Action);
@@ -151,12 +209,23 @@ test("createAction calls methods with correct context", t => {
       return "";
     },
 
+    before() {
+      t.same(this.constructor, Action);
+      return [];
+    },
+
+    after() {
+      t.same(this.constructor, Action);
+      return [];
+    },
+
     run() {
       t.same(this.constructor, Action);
     }
   });
   const action = new Action();
-  action.getDefaultProps();
   action.getDescription();
+  action.before();
+  action.after();
   return action.run();
 });
