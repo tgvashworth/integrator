@@ -13,6 +13,8 @@
     "files": [
         "src/createAction.test.ts",
         "src/createAction.ts",
+        "src/explodeAction.test.ts",
+        "src/explodeAction.ts",
         "src/index.ts",
         "typings/main.d.ts"
     ],
