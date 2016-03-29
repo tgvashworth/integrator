@@ -135,7 +135,7 @@ const Login = createGoal({
 
   getDefaultProps() {
     return {
-      user: undefined
+      user: undefined // { username: string, password: string }
     };
   }
 
@@ -148,6 +148,8 @@ const Login = createGoal({
     return [ OpenTheApp ];
   },
 
+  // Setup is where the Goal list the Actions that make it up. It's just an
+  // array of actions, run in order.
   setup() {
     return [
       new FillInForm({
@@ -158,6 +160,27 @@ const Login = createGoal({
         ],
         autoSubmit: true
       })
+    ];
+  }
+});
+```
+
+Once a goal has `setup`, and there is no further work to do (more on that later), the Goal will `teardown`. This is another method that works just like `setup` - it's a list of Actions.
+
+The `teardown` method should undo the significant UI or mode changes that `setup` introduced like logging-in or opening a modal.
+
+```js
+const Login = createGoal({
+  setup() {
+    return [
+      new FillInForm({ ... })
+    ];
+  }
+
+  teardown() {
+    return [
+      new ClearCookies({ ... }),
+      new Refresh()
     ];
   }
 });
