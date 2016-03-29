@@ -13,6 +13,8 @@
     "files": [
         "src/createAction.test.ts",
         "src/createAction.ts",
+        "src/createGoal.test.ts",
+        "src/createGoal.ts",
         "src/explodeAction.test.ts",
         "src/explodeAction.ts",
         "src/index.ts",
