@@ -17,6 +17,8 @@
         "src/createGoal.ts",
         "src/explodeAction.test.ts",
         "src/explodeAction.ts",
+        "src/explodeGoal.test.ts",
+        "src/explodeGoal.ts",
         "src/index.ts",
         "src/runActionPair.test.ts",
         "src/runActionPair.ts",
