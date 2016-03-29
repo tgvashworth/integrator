@@ -51,7 +51,11 @@ export default function createAction<T>(
       );
     }
 
-    getDescription() {
+    /**
+     * getDescription allows action authors to write useful, human-readable descriptions of what
+     * their actions do.
+     */
+    getDescription(): string {
       return (
         typeof getDescription === "function"
           ? getDescription.call(this)
