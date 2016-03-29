@@ -6,7 +6,10 @@ export interface ActionSpec {
   getDescription?: () => string;
   before?: () => Action<any>[];
   after?: () => Action<any>[];
-  run?: (v: any) => any | Promise<any>;
+  run?: (v?: any) => any | Promise<any>;
+}
+export interface ActionRun {
+  (v?: any): Promise<any>;
 }
 export interface Action<T> {
   displayName: string;
@@ -15,7 +18,7 @@ export interface Action<T> {
   getDescription: () => string;
   before: () => Action<any>[];
   after: () => Action<any>[];
-  run: (v?: any) => Promise<any>;
+  run: ActionRun;
 }
 export interface ActionClass<T> {
   displayName: string;
