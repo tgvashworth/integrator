@@ -2,11 +2,11 @@
 
 An action-oriented approach to integration testing, simulating users to comprehensively test your app.
 
-Status: **Prototype**. TweetDeck uses it, but it's not ready for general use.
-
 - Reproducible setup & teardown for easy debugging
 - Explicit dependencies
 - Promotes code reuse
+
+Status: **Prototype**. TweetDeck uses it, but it's not ready for general use.
 
 ## Install
 
