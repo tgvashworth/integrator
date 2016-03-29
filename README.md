@@ -119,6 +119,50 @@ const FillInForm = createAction({
 });
 ```
 
+## Goals
+
+Goals model user flows within your app, and are formed of collections of Actions. They may also depend on other Goals to make sure that, for example, to *send a message* the user has *opened the app* and *logged in*.
+
+Like Actions, Goals are configurable using `props`.
+
+Here's an example:
+
+```js
+import { createGoal } from "integrator";
+
+const Login = createGoal({
+  displayName: "Login",
+
+  getDefaultProps() {
+    return {
+      user: undefined
+    };
+  }
+
+  getDescription() {
+    return `login as ${this.props.user.username}`;
+  },
+
+  // A Goal can specify another kind of Goal that must have run first.
+  getDependencies() {
+    return [ OpenTheApp ];
+  },
+
+  setup() {
+    return [
+      new FillInForm({
+        selector: ".js-login-form",
+        fields: [
+          { selector: "username", text: this.props.user.username },
+          { selector: "password", text: this.props.user.password }
+        ],
+        autoSubmit: true
+      })
+    ];
+  }
+});
+```
+
 ### License
 
 MIT
