@@ -18,6 +18,8 @@
         "src/index.ts",
         "src/runActionPair.test.ts",
         "src/runActionPair.ts",
+        "src/runActionPairs.test.ts",
+        "src/runActionPairs.ts",
         "typings/main.d.ts"
     ],
     "exclude": [
