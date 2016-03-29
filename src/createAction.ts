@@ -55,8 +55,8 @@ export default function createAction<T>(
     }
 
     /**
-     * getDescription allows action authors to write useful, human-readable descriptions of what
-     * their actions do.
+     * getDescription allows action authors to write useful, human-readable
+     * descriptions of what their actions do.
      */
     getDescription(): string {
       return (
@@ -67,8 +67,8 @@ export default function createAction<T>(
     }
 
     /**
-     * run is the main part of an Action - it's where the action should do its work. Always returns
-     * a Promise.
+     * run is the main part of an Action - it's where the action should do its
+     * work. Always returns a Promise.
      */
     run(v, ...args) {
       return Promise.resolve()
