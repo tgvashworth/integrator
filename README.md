@@ -20,7 +20,9 @@ npm install integrator
 
 ### Actions
 
-Actions are where you do the work of your test. They represent an the atomic units of behaviour, like clicking or typing. Here's an example:
+Actions are where you do the work of your test. They represent an the atomic units of behaviour, like clicking or typing.
+
+Here's an example:
 
 ```js
 import { createAction } from "integrator";
@@ -35,14 +37,14 @@ const Click = createAction({
     return {
       selector: undefined
     };
-  }
+  },
 
   // Actions can specify human-readable descriptions which are used in logging
   // to help the user of your action figure out what is going on. This method
   // is able to use the Action's props to make a more useful description.
   getDescription() {
     return `click on ${this.props.on}`;
-  }
+  },
 
   // Run is where the bulk of the Action's work happens. It will call out to
   // the test server to make changes to the app, and return a Promise for the
@@ -51,6 +53,68 @@ const Click = createAction({
     return this.context.session
       .findByCssSelector(this.props.selector)
       .then(elem => elem.click());
+  }
+});
+```
+
+Actions can reuse other actions `before` and `after` their own `run` method. Something like this:
+
+```js
+const SelectListItem = createAction({
+  getDefaultProps() {
+    return {
+      listSelector: undefined,
+      itemText: undefined
+    };
+  },
+
+  // The `before` method returns an array of Actions that represent work to do.
+  before() {
+    return [
+      new Click({ on: this.props.listSelector })
+    ];
+  }
+
+  run() {
+    return this.context.session
+      .findDisplayedByLinkText(this.props.itemText)
+      .then(elem => elem.click());
+  }
+
+  // `after` has the same form as `before`
+  after() {
+    return [];
+  }
+});
+```
+
+Using `props` to generate sub-Actions can lead to some powerful actions:
+
+```js
+const FillInForm = createAction({
+  getDefaultProps() {
+    return {
+      selector: undefined,
+      fields: [], // { selector: string, text: string }
+      autoSubmit: false
+    };
+  },
+
+  before() {
+    const { selector } = this.props;
+    return this.props.fields.map(field => new Type({
+      into: `${selector} ${field.selector}`,
+      text: field.text
+    }));
+  },
+
+  after() {
+    return []
+      .concat(
+        this.props.autoSubmit
+          ? [ new Click({ on: `${this.props.selector} button[type=submit]` }) ]
+          : []
+      );
   }
 });
 ```
