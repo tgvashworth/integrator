@@ -59,3 +59,60 @@ test("explodeAction should recurse into Action#before and Action#after", t => {
     <ActionPair[]>[ [a, a.run], [c, c.run], [b, b.run] ]
   );
 });
+
+
+test(
+  "explodeAction should doubly recurse into Action#before and Action#after",
+  t => {
+    /*
+           G
+         /   \
+        C     F
+       / \   / \
+      A   B D   E
+
+      result: a, c, b, g, d, f, e
+     */
+    const A = createAction({ displayName: "A" });
+    const a = new A;
+    const B = createAction({ displayName: "B" });
+    const b = new B;
+    const C = createAction({
+      displayName: "C",
+      before: () => [ a ],
+      after: () => [ b ]
+    });
+    const c = new C;
+
+    const D = createAction({ displayName: "D" });
+    const d = new D;
+    const E = createAction({ displayName: "E" });
+    const e = new E;
+    const F = createAction({
+      displayName: "F",
+      before: () => [ d ],
+      after: () => [ e ]
+    });
+    const f = new F;
+
+    const G = createAction({
+      displayName: "G",
+      before: () => [ c ],
+      after: () => [ f ]
+    });
+    const g = new G;
+
+    t.same(
+      explodeAction(g),
+      <ActionPair[]>[
+        [a, a.run],
+        [c, c.run],
+        [b, b.run],
+        [g, g.run],
+        [d, d.run],
+        [f, f.run],
+        [e, e.run]
+      ]
+    );
+  }
+);
