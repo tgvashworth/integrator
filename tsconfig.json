@@ -16,6 +16,8 @@
         "src/explodeAction.test.ts",
         "src/explodeAction.ts",
         "src/index.ts",
+        "src/runActionPair.test.ts",
+        "src/runActionPair.ts",
         "typings/main.d.ts"
     ],
     "exclude": [
