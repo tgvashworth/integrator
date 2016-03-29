@@ -60,3 +60,58 @@ test("explodeGoal explodes setup and teardown action", t => {
     }
   );
 });
+
+test("explodeGoal can handle a big action tree", t => {
+  /*
+         X
+       /   \
+      C     F
+     / \   / \
+    A   B D   E
+
+    setup: a, c, b
+    teardown: d, f, e
+   */
+  const A = createAction({ displayName: "A" });
+  const a = new A;
+  const B = createAction({ displayName: "B" });
+  const b = new B;
+  const C = createAction({
+    displayName: "C",
+    before: () => [ a ],
+    after: () => [ b ]
+  });
+  const c = new C;
+
+  const D = createAction({ displayName: "D" });
+  const d = new D;
+  const E = createAction({ displayName: "E" });
+  const e = new E;
+  const F = createAction({
+    displayName: "F",
+    before: () => [ d ],
+    after: () => [ e ]
+  });
+  const f = new F;
+
+  const X = createGoal({
+    setup: () => [ c ],
+    teardown: () => [ f ]
+  });
+  const x = new X;
+  t.same(
+    explodeGoal(x),
+    <ExplodedGoal>{
+      setup: [
+        [x, [a, a.run] ],
+        [x, [c, c.run] ],
+        [x, [b, b.run] ]
+      ],
+      teardown: [
+        [x, [d, d.run] ],
+        [x, [f, f.run] ],
+        [x, [e, e.run] ]
+      ]
+    }
+  );
+});
