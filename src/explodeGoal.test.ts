@@ -41,3 +41,22 @@ test("explodeGoal explodes teardown action", t => {
     <ExplodedGoal>{ setup: [], teardown: [ [a, [x, x.run]] ] }
   );
 });
+
+test("explodeGoal explodes setup and teardown action", t => {
+  const X = createAction();
+  const x = new X;
+  const Y = createAction();
+  const y = new Y;
+  const A = createGoal({
+    setup: () => [ x ],
+    teardown: () => [ y ]
+  });
+  const a = new A;
+  t.same(
+    explodeGoal(a),
+    <ExplodedGoal>{
+      setup: [ [a, [x, x.run]] ],
+      teardown: [ [a, [y, y.run]] ]
+    }
+  );
+});
