@@ -111,3 +111,52 @@ test("Actions can use props in getDescription", t => {
     "a is 10"
   );
 });
+
+// run
+
+test("createAction has default run which passes arg", t => {
+  const Action = createAction();
+  const action = new Action();
+  return action.run(1)
+    .then(v => {
+      t.same(v, 1);
+    });
+});
+
+test("createAction can overwrite run but is still passed arg", t => {
+  t.plan(2);
+  const Action = createAction({
+    run: v => {
+      t.same(v, 1);
+      return 2;
+    }
+  });
+  const action = new Action();
+  return action.run(1)
+    .then(v => {
+      t.same(v, 2);
+    });
+});
+
+test("createAction calls methods with correct context", t => {
+  t.plan(4);
+  const Action = createAction({
+    getDefaultProps() {
+      t.same(this.constructor, Action);
+      return {};
+    },
+
+    getDescription() {
+      t.same(this.constructor, Action);
+      return "";
+    },
+
+    run() {
+      t.same(this.constructor, Action);
+    }
+  });
+  const action = new Action();
+  action.getDefaultProps();
+  action.getDescription();
+  return action.run();
+});

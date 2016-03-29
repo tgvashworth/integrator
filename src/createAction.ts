@@ -4,12 +4,14 @@ export interface ActionSpec {
   displayName?: string;
   getDefaultProps?: () => {};
   getDescription?: () => string;
+  run?: (v: any) => any | Promise<any>;
 }
 export interface Action<T> {
   displayName: string;
   props: T;
   getDefaultProps: () => T;
   getDescription: () => string;
+  run: (v?: any) => Promise<any>;
 }
 export interface ActionClass<T> {
   displayName: string;
@@ -25,7 +27,8 @@ export default function createAction<T>(
   const {
     displayName = "unnamed action",
     getDefaultProps,
-    getDescription
+    getDescription,
+    run
   } = spec;
 
   class AnonymousAction implements Action<T> {
@@ -61,6 +64,19 @@ export default function createAction<T>(
           ? getDescription.call(this)
           : displayName
       );
+    }
+
+    /**
+     * run is the main part of an Action - it's where the action should do its work. Always returns
+     * a Promise.
+     */
+    run(v, ...args) {
+      return Promise.resolve()
+        .then(() => (
+          typeof run === "function"
+            ? run.call(this, v, ...args)
+            : v
+        ));
     }
   }
 
