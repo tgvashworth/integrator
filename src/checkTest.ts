@@ -7,18 +7,21 @@ import { Goal, GoalClass } from "./createGoal";
  */
 export default function checkTest(test: Test): void {
   const goals = test.goals;
-  const goalConstructors =
-    <GoalClass<any>[]>test.goals.map(g => g.constructor);
-  test.goals
-    .forEach(goal => {
-      goal.getDependencies()
-        .forEach((dep: GoalClass<any>) => {
-          if (!_.includes<GoalClass<any>>(goalConstructors, dep)) {
-            throw new Error([
-              `Test "${test.name}" does not satisfy the dependencies of Goal "${goal.getDescription()}".`,
-              `An instance of required Goal "${dep.displayName}" is missing.`
-            ].join(" "));
-          }
-        });
-    });
+  const goalConstructors = <GoalClass<any>[]>test.goals.map(g => g.constructor);
+
+  type GoalDepPair = [Goal<any>, GoalClass<any>];
+  const goalDepPairs = <GoalDepPair[]>_.flatMap(
+    test.goals,
+    goal => goal.getDependencies().map(dep => [goal, dep])
+  );
+
+  goalDepPairs.forEach((pair: GoalDepPair) => {
+    const [goal, dep] = pair;
+    if (!_.includes(goalConstructors, dep)) {
+      throw new Error([
+        `Test "${test.name}" does not satisfy the dependencies of Goal "${goal.getDescription()}".`,
+        `An instance of required Goal "${dep.displayName}" is missing.`
+      ].join(" "));
+    }
+  });
 }
