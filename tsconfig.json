@@ -11,6 +11,8 @@
         "typings/main.d.ts"
     ],
     "files": [
+        "src/checkTest.test.ts",
+        "src/checkTest.ts",
         "src/createAction.test.ts",
         "src/createAction.ts",
         "src/createGoal.test.ts",

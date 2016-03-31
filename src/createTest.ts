@@ -11,7 +11,7 @@ export class Test {
 }
 
 /**
- * createTest is a factory Tests.
+ * createTest is a factory for Tests.
  */
 export default function createTest(
   name: string,
