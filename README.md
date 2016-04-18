@@ -16,7 +16,7 @@ npm install integrator
 
 ## Concepts
 
-**Note**: this list is incomplete - it should match what is implemented.
+**Note**: this list is incomplete - it should match what has been implemented.
 
 ### Actions
 
@@ -184,6 +184,23 @@ const Login = createGoal({
     ];
   }
 });
+```
+
+## Tests
+
+Tests use Goals to represent a sequence of steps you expect your users to take. It's named, like a unit test, so you can see what passed and failed within your integration test suite.
+
+Here's an example:
+
+```js
+import { createTest } from "integrator";
+
+const SendAMessageTest = createTest("Send a message", [
+  new OpenTheApp(),
+  new Login({ as: defaultUser }),
+  new CreateNewMessage({ text: "Hello, world!" }),
+  new SendMessage()
+]);
 ```
 
 ### License
