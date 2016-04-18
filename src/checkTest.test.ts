@@ -35,3 +35,21 @@ test("checkTest throws for invalid Goal", t => {
     checkTest(test);
   }, desired);
 });
+
+test("checkTest throws when imlementation is after dependent", t => {
+  const A = createGoal({
+    displayName: "A"
+  });
+  const B = createGoal({
+    displayName: "B",
+    getDependencies: () => [ A ]
+  });
+  const test = createTest("example", [ new B, new A ]);
+  const desired = [
+    `Test "example" does not satisfy the dependencies of Goal "B".`,
+    `An instance of required Goal "A" is missing.`
+  ].join(" ");
+  t.throws(() => {
+    checkTest(test);
+  }, desired);
+});
