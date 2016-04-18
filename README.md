@@ -117,7 +117,7 @@ const FillInForm = createAction({
 });
 ```
 
-## Goals
+### Goals
 
 Goals model user flows within your app, and are formed of collections of Actions. They may also depend on other Goals to make sure that, for example, to *send a message* the user has *opened the app* and *logged in*.
 
@@ -184,7 +184,7 @@ const Login = createGoal({
 });
 ```
 
-## Tests
+### Tests
 
 Tests use Goals to represent a sequence of steps you expect your users to take. It's named, like a unit test, so you can see what passed and failed within your integration test suite.
 
