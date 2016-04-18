@@ -11,12 +11,10 @@ Status: **Prototype**. TweetDeck uses it, but it's not ready for general use.
 ## Install
 
 ```
-npm install integrator
+$ npm install --save-dev integrator
 ```
 
 ## Concepts
-
-**Note**: this list is incomplete - it should match what has been implemented.
 
 ### Actions
 
