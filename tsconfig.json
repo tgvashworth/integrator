@@ -23,6 +23,8 @@
         "src/explodeAction.ts",
         "src/explodeGoal.test.ts",
         "src/explodeGoal.ts",
+        "src/explodeTest.test.ts",
+        "src/explodeTest.ts",
         "src/index.ts",
         "src/runActionPair.test.ts",
         "src/runActionPair.ts",
