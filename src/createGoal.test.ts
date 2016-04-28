@@ -3,27 +3,27 @@ import createAction, { Action } from "./createAction";
 import createGoal, { Goal } from "./createGoal";
 
 test("createGoal is importable", t => {
-  t.ok(createGoal);
+  t.truthy(createGoal);
 });
 
 test("createGoal handles no spec", t => {
-  t.ok(createGoal());
+  t.truthy(createGoal());
 });
 
 // displayName
 
 test("createGoal has default static displayName", t => {
-  t.same(createGoal().displayName, "unnamed goal");
+  t.deepEqual(createGoal().displayName, "unnamed goal");
 });
 
 test("createGoal has default instance displayName", t => {
   const Goal = createGoal<{}>();
   const i = new Goal;
-  t.same(i.displayName, "unnamed goal");
+  t.deepEqual(i.displayName, "unnamed goal");
 });
 
 test("createGoal copies displayName to static property", t => {
-  t.same(
+  t.deepEqual(
     createGoal({ displayName: "The Example" }).displayName,
     "The Example"
   );
@@ -32,7 +32,7 @@ test("createGoal copies displayName to static property", t => {
 test("createGoal copies displayName to instance property", t => {
   const Goal = createGoal({ displayName: "The Example" });
   const i = new Goal;
-  t.same(
+  t.deepEqual(
     i.displayName,
     "The Example"
   );
@@ -43,7 +43,7 @@ test("createGoal copies displayName to instance property", t => {
 test("createGoal has default getDefaultProps", t => {
   const Goal = createGoal();
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.getDefaultProps(),
     {}
   );
@@ -55,7 +55,7 @@ test("createGoal can overwrite getDefaultProps", t => {
     getDefaultProps: () => ({ a: 1 })
   });
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.getDefaultProps(),
     <Props>{ a: 1 }
   );
@@ -68,7 +68,7 @@ test("Goal instantiation merges input with default props", t => {
     getDefaultProps: () => ({ a: 1 })
   });
   const goal = new Goal({ b: 2 });
-  t.same(
+  t.deepEqual(
     goal.props,
     <Props>{ a: 1, b: 2 }
   );
@@ -79,7 +79,7 @@ test("Goal instantiation merges input with default props", t => {
 test("createGoal has default getDescription", t => {
   const Goal = createGoal();
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.getDescription(),
     goal.displayName
   );
@@ -91,7 +91,7 @@ test("createGoal can overwrite getDescription", t => {
     getDescription: () => "example!"
   });
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.getDescription(),
     "example!"
   );
@@ -107,7 +107,7 @@ test("Goals can use props in getDescription", t => {
     }
   });
   const goal = new Goal;
-  t.same(
+  t.deepEqual(
     goal.getDescription(),
     "a is 10"
   );
@@ -118,7 +118,7 @@ test("Goals can use props in getDescription", t => {
 test("createGoal has default getDependencies with no Actions", t => {
   const Goal = createGoal();
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.setup(),
     []
   );
@@ -134,7 +134,7 @@ test("createGoal can overwrite getDependencies", t => {
     }
   });
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.getDependencies(),
     [ DependencyGoal ]
   );
@@ -146,7 +146,7 @@ test("createGoal can overwrite getDependencies", t => {
 test("createGoal has default setup with no goals", t => {
   const Goal = createGoal();
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.setup(),
     []
   );
@@ -163,7 +163,7 @@ test("createGoal can overwrite setup", t => {
     }
   });
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.setup(),
     [ action ]
   );
@@ -174,7 +174,7 @@ test("createGoal can overwrite setup", t => {
 test("createGoal has default teardown with no goals", t => {
   const Goal = createGoal();
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.teardown(),
     []
   );
@@ -191,7 +191,7 @@ test("createGoal can overwrite teardown", t => {
     }
   });
   const goal = new Goal();
-  t.same(
+  t.deepEqual(
     goal.teardown(),
     [ action ]
   );
@@ -203,27 +203,27 @@ test("createGoal calls methods with correct context", t => {
   t.plan(5);
   const Goal = createGoal({
     getDefaultProps() {
-      t.same(this.constructor, Goal);
+      t.deepEqual(this.constructor, Goal);
       return {};
     },
 
     getDescription() {
-      t.same(this.constructor, Goal);
+      t.deepEqual(this.constructor, Goal);
       return "";
     },
 
     getDependencies() {
-      t.same(this.constructor, Goal);
+      t.deepEqual(this.constructor, Goal);
       return [];
     },
 
     setup() {
-      t.same(this.constructor, Goal);
+      t.deepEqual(this.constructor, Goal);
       return [];
     },
 
     teardown() {
-      t.same(this.constructor, Goal);
+      t.deepEqual(this.constructor, Goal);
       return [];
     }
   });

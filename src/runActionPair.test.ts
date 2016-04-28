@@ -4,7 +4,7 @@ import { ActionPair } from "./explodeAction";
 import runActionPair from "./runActionPair";
 
 test("runActionPair is importable", t => {
-  t.ok(runActionPair);
+  t.truthy(runActionPair);
 });
 
 test("runActionPair runs an action", t => {

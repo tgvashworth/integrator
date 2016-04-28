@@ -5,7 +5,7 @@ import getEnvironmentTargets, {
 } from "./getEnvironmentTargets";
 
 test("getEnvironmentTargets is importable", t => {
-  t.ok(getEnvironmentTargets);
+  t.truthy(getEnvironmentTargets);
 });
 
 test("getEnvironmentTargets gets targets for simple config", t => {
@@ -16,7 +16,7 @@ test("getEnvironmentTargets gets targets for simple config", t => {
       }
     }
   };
-  t.same(
+  t.deepEqual(
     getEnvironmentTargets(config, "cloud"),
     <EnvironmentTarget[]>[
       { browser: "chrome" }

@@ -4,13 +4,13 @@ import createGoal, { Goal } from "./createGoal";
 import explodeGoal, { GoalPair, ExplodedGoal } from "./explodeGoal";
 
 test("explodeGoal is importable", t => {
-  t.ok(explodeGoal);
+  t.truthy(explodeGoal);
 });
 
 test("explodeGoal should return an object with lists of GoalPairs", t => {
   const A = createGoal();
   const a = new A;
-  t.same(
+  t.deepEqual(
     explodeGoal(a),
     { setup: [], teardown: [] }
   );
@@ -23,7 +23,7 @@ test("explodeGoal explodes setup action", t => {
     setup: () => [ x ]
   });
   const a = new A;
-  t.same(
+  t.deepEqual(
     explodeGoal(a),
     <ExplodedGoal>{ setup: [ [a, [x, x.run]] ], teardown: [] }
   );
@@ -36,7 +36,7 @@ test("explodeGoal explodes teardown action", t => {
     teardown: () => [ x ]
   });
   const a = new A;
-  t.same(
+  t.deepEqual(
     explodeGoal(a),
     <ExplodedGoal>{ setup: [], teardown: [ [a, [x, x.run]] ] }
   );
@@ -52,7 +52,7 @@ test("explodeGoal explodes setup and teardown action", t => {
     teardown: () => [ y ]
   });
   const a = new A;
-  t.same(
+  t.deepEqual(
     explodeGoal(a),
     <ExplodedGoal>{
       setup: [ [a, [x, x.run]] ],
@@ -99,7 +99,7 @@ test("explodeGoal can handle a big action tree", t => {
     teardown: () => [ f ]
   });
   const x = new X;
-  t.same(
+  t.deepEqual(
     explodeGoal(x),
     <ExplodedGoal>{
       setup: [

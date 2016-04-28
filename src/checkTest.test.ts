@@ -4,7 +4,7 @@ import createTest, { Test } from "./createTest";
 import checkTest from "./checkTest";
 
 test("checkTest is importable", t => {
-  t.ok(checkTest);
+  t.truthy(checkTest);
 });
 
 test("checkTest does not throw for valid Goal", t => {

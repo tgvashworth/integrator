@@ -3,13 +3,13 @@ import createAction, { Action } from "./createAction";
 import explodeAction, { ActionPair } from "./explodeAction";
 
 test("explodeAction is importable", t => {
-  t.ok(explodeAction);
+  t.truthy(explodeAction);
 });
 
 test("explodeAction should return a list of pairs [action, action.run]", t => {
   const A = createAction();
   const a = new A;
-  t.same(
+  t.deepEqual(
     explodeAction(a),
     <ActionPair[]>[ [a, a.run] ]
   );
@@ -23,7 +23,7 @@ test("explodeAction should recurse into Action#before", t => {
     before: () => [ a ]
   });
   const b = new B;
-  t.same(
+  t.deepEqual(
     explodeAction(b),
     <ActionPair[]>[ [a, a.run], [b, b.run] ]
   );
@@ -37,7 +37,7 @@ test("explodeAction should recurse into Action#after", t => {
     after: () => [ a ]
   });
   const b = new B;
-  t.same(
+  t.deepEqual(
     explodeAction(b),
     <ActionPair[]>[ [b, b.run], [a, a.run] ]
   );
@@ -54,7 +54,7 @@ test("explodeAction should recurse into Action#before and Action#after", t => {
     after: () => [ b ]
   });
   const c = new C;
-  t.same(
+  t.deepEqual(
     explodeAction(c),
     <ActionPair[]>[ [a, a.run], [c, c.run], [b, b.run] ]
   );
@@ -102,7 +102,7 @@ test(
     });
     const g = new G;
 
-    t.same(
+    t.deepEqual(
       explodeAction(g),
       <ActionPair[]>[
         [a, a.run],

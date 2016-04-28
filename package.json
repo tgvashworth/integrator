@@ -7,7 +7,7 @@
     "watch": "npm run clean && tsc --pretty --watch",
     "test": "npm run build && npm run specs && npm run lint",
     "lint": "find src -name '*.ts' | xargs tslint",
-    "specs": "ava dist/**/*.test.js"
+    "specs": "ava \"dist/**/*.test.js\""
   },
   "config": {
     "ghooks": {
@@ -26,7 +26,7 @@
   },
   "homepage": "https://github.com/phuu/integrator",
   "devDependencies": {
-    "ava": "^0.13.0",
+    "ava": "^0.14.0",
     "ghooks": "^1.0.1",
     "tslint": "^3.6.0",
     "typescript": "^1.8.9",

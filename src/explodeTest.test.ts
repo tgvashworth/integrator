@@ -6,12 +6,12 @@ import { GoalPair, ExplodedGoal } from "./explodeGoal";
 import explodeTest, { TestPair, ExplodedTest } from "./explodeTest";
 
 test("explodeTest is importable", t => {
-  t.ok(explodeTest);
+  t.truthy(explodeTest);
 });
 
 test("explodeTest should return an array of TestPairs", t => {
   const a = createTest("a", []);
-  t.same(
+  t.deepEqual(
     explodeTest(a),
     []
   );
@@ -28,7 +28,7 @@ test("explodeTest explodes Goal with setup Action", t => {
       a
     ]);
     const goalPair = <GoalPair>[ a, [ x, x.run ] ];
-    t.same(
+    t.deepEqual(
       explodeTest(q),
       [ <TestPair>[ q, goalPair ] ]
     );
@@ -47,7 +47,7 @@ test("explodeTest explodes Goal with setup and teardown Action", t => {
     const q = createTest("t", [ a ]);
     const setupGoalPair = <GoalPair>[ a, [ x, x.run ] ];
     const teardownGoalPair = <GoalPair>[ a, [ y, y.run ] ];
-    t.same(
+    t.deepEqual(
       explodeTest(q),
       [
         <TestPair>[ q, setupGoalPair ],
@@ -75,7 +75,7 @@ test("explodeTest explodes Goals with setup and teardown Actions", t => {
     const ayGoalPair = <GoalPair>[ a, [ y, y.run ] ];
     const bxGoalPair = <GoalPair>[ b, [ x, x.run ] ];
     const byGoalPair = <GoalPair>[ b, [ y, y.run ] ];
-    t.same(
+    t.deepEqual(
       explodeTest(q),
       [
         <TestPair>[ q, axGoalPair ],
