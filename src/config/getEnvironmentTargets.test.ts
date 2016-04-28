@@ -23,3 +23,48 @@ test("getEnvironmentTargets gets targets for simple config", t => {
     ]
   );
 });
+
+test("getEnvironmentTargets merges common config", t => {
+  const config: IntegratorConfig = {
+    environments: {
+      cloud: {
+        common: { version: "latest" },
+        targets: [ { browser: "chrome" } ]
+      }
+    }
+  };
+  t.deepEqual(
+    getEnvironmentTargets(config, "cloud"),
+    <EnvironmentTarget[]>[
+      { browser: "chrome", version: "latest" }
+    ]
+  );
+});
+
+test("getEnvironmentTargets handles missing environment", t => {
+  const config: IntegratorConfig = {
+    environments: {
+      cloud: {
+        targets: []
+      }
+    }
+  };
+  t.deepEqual(
+    getEnvironmentTargets(config, "missing"),
+    <EnvironmentTarget[]>[]
+  );
+});
+
+test("getEnvironmentTargets handles bad targets", t => {
+  const config: IntegratorConfig = {
+    environments: {
+      cloud: {
+        targets: <EnvironmentTarget[]>{}
+      }
+    }
+  };
+  t.deepEqual(
+    getEnvironmentTargets(config, "cloud"),
+    <EnvironmentTarget[]>[]
+  );
+});
