@@ -30,7 +30,7 @@
     "ghooks": "^1.0.1",
     "tslint": "^3.6.0",
     "typescript": "^1.8.9",
-    "typings": "^0.7.9"
+    "typings": "^0.8.1"
   },
   "dependencies": {
     "lodash": "^4.6.1"
