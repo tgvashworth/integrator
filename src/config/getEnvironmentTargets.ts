@@ -1,5 +1,7 @@
+import { merge } from "lodash";
+
 export type EnvironmentTarget = {
-  [key: string]: string
+  [key: string]: any
 }
 // This is here until there's a better place for it!
 export type IntegratorConfig = {
@@ -33,5 +35,5 @@ export default function getEnvironmentTargets(
       : []
   );
   return <EnvironmentTarget[]>targets
-    .map(target => Object.assign({}, target, common));
+    .map(target => merge({}, target, common));
 }
