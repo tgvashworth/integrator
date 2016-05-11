@@ -41,6 +41,24 @@ test("getEnvironmentTargets merges common config", t => {
   );
 });
 
+test("getEnvironmentTargets merges common config for multiple targets", t => {
+  const config: IntegratorConfig = {
+    environments: {
+      cloud: {
+        common: { version: "latest" },
+        targets: [ { browser: "chrome" }, { browser: "firefox" } ]
+      }
+    }
+  };
+  t.deepEqual(
+    getEnvironmentTargets(config, "cloud"),
+    <EnvironmentTarget[]>[
+      { browser: "chrome", version: "latest" },
+      { browser: "firefox", version: "latest" }
+    ]
+  );
+});
+
 test("getEnvironmentTargets handles missing environment", t => {
   const config: IntegratorConfig = {
     environments: {
