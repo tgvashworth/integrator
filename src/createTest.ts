@@ -15,7 +15,7 @@ export class Test {
  */
 export default function createTest(
   name: string,
-  goals: Goal<any>[]
+  goals: Goal<any>[] = []
 ): Test {
   return new Test(name, goals);
 }

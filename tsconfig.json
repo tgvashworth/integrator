@@ -13,8 +13,11 @@
     "files": [
         "src/checkTest.test.ts",
         "src/checkTest.ts",
+        "src/config/config.ts",
         "src/config/getEnvironmentTargets.test.ts",
         "src/config/getEnvironmentTargets.ts",
+        "src/config/selectTests.test.ts",
+        "src/config/selectTests.ts",
         "src/createAction.test.ts",
         "src/createAction.ts",
         "src/createGoal.test.ts",

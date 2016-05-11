@@ -1,15 +1,13 @@
 import test from "ava";
-import getEnvironmentTargets, {
-  IntegratorConfig,
-  EnvironmentTarget
-} from "./getEnvironmentTargets";
+import { Config, EnvironmentTarget } from "./config";
+import getEnvironmentTargets from "./getEnvironmentTargets";
 
 test("getEnvironmentTargets is importable", t => {
   t.truthy(getEnvironmentTargets);
 });
 
 test("getEnvironmentTargets gets targets for simple config", t => {
-  const config: IntegratorConfig = {
+  const config: Config = {
     environments: {
       cloud: {
         targets: [ { browser: "chrome" } ]
@@ -25,7 +23,7 @@ test("getEnvironmentTargets gets targets for simple config", t => {
 });
 
 test("getEnvironmentTargets merges common config", t => {
-  const config: IntegratorConfig = {
+  const config: Config = {
     environments: {
       cloud: {
         common: { version: "latest" },
@@ -42,7 +40,7 @@ test("getEnvironmentTargets merges common config", t => {
 });
 
 test("getEnvironmentTargets deep merges common config", t => {
-  const config: IntegratorConfig = {
+  const config: Config = {
     environments: {
       cloud: {
         common: { capabilities: { version: "latest" } },
@@ -59,7 +57,7 @@ test("getEnvironmentTargets deep merges common config", t => {
 });
 
 test("getEnvironmentTargets merges common config for multiple targets", t => {
-  const config: IntegratorConfig = {
+  const config: Config = {
     environments: {
       cloud: {
         common: { version: "latest" },
@@ -77,7 +75,7 @@ test("getEnvironmentTargets merges common config for multiple targets", t => {
 });
 
 test("getEnvironmentTargets handles missing environment", t => {
-  const config: IntegratorConfig = {
+  const config: Config = {
     environments: {
       cloud: {
         targets: []
@@ -91,7 +89,7 @@ test("getEnvironmentTargets handles missing environment", t => {
 });
 
 test("getEnvironmentTargets handles bad targets", t => {
-  const config: IntegratorConfig = {
+  const config: Config = {
     environments: {
       cloud: {
         targets: <EnvironmentTarget[]>{}

@@ -1,20 +1,8 @@
 import { merge } from "lodash";
-
-export type EnvironmentTarget = {
-  [key: string]: any
-}
-// This is here until there's a better place for it!
-export type IntegratorConfig = {
-  environments: {
-    [key: string]: {
-      common?: EnvironmentTarget
-      targets: EnvironmentTarget[]
-    }
-  }
-}
+import { Config, EnvironmentTarget } from "./config";
 
 export default function getEnvironmentTargets(
-  config: IntegratorConfig,
+  config: Config,
   environment: string
 ): EnvironmentTarget[] {
   const env = config.environments[environment];
