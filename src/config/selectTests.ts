@@ -1,4 +1,4 @@
-import { Args, Config, EnvironmentTarget } from "./config";
+import { Args } from "./config";
 import { Test } from "../createTest";
 
 export default function selectTests(

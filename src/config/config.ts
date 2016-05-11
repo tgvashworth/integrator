@@ -4,16 +4,18 @@ export type Args = {
 }
 
 export type Config = {
-  environments: {
-    [key: string]: Environment
-  }
-}
-
-export type EnvironmentTarget = {
-  [key: string]: any
+  environments: EnvironmentConfig
 }
 
 export type Environment = {
   common?: EnvironmentTarget
-  targets: EnvironmentTarget[]
+  targets?: EnvironmentTarget[]
+}
+
+export type EnvironmentConfig = {
+  [key: string]: Environment
+}
+
+export type EnvironmentTarget = {
+  [key: string]: any
 }

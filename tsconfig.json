@@ -16,6 +16,8 @@
         "src/config/config.ts",
         "src/config/getEnvironmentTargets.test.ts",
         "src/config/getEnvironmentTargets.ts",
+        "src/config/selectEnvironments.test.ts",
+        "src/config/selectEnvironments.ts",
         "src/config/selectTests.test.ts",
         "src/config/selectTests.ts",
         "src/createAction.test.ts",

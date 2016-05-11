@@ -1,5 +1,5 @@
 import test from "ava";
-import { Args, Config, EnvironmentTarget } from "./config";
+import { Args } from "./config";
 import createTest from "../createTest";
 import selectTests from "./selectTests";
 
@@ -8,12 +8,19 @@ test("selectTests is importable", t => {
 });
 
 test("selectTests will do nothing with no args", t => {
-  const tests = [
-    createTest("one"),
-    createTest("two")
-  ];
+  const A = createTest("A");
+  const B = createTest("B");
   t.deepEqual(
-    selectTests({}, tests),
-    tests
+    selectTests({}, [A, B]),
+    [A, B]
+  );
+});
+
+test("selectTests will select relevant tests", t => {
+  const A = createTest("A");
+  const B = createTest("B");
+  t.deepEqual(
+    selectTests({ test: "A" }, [A, B]),
+    [A]
   );
 });
