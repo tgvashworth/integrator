@@ -1,5 +1,5 @@
 import { flatMap } from "lodash";
-import { Goal } from "./createGoal";
+import { Goal } from "../createGoal";
 import explodeAction, { ActionPair } from "./explodeAction";
 
 export type GoalPair = [ Goal<any>, ActionPair ];

@@ -1,7 +1,7 @@
 import test from "ava";
-import createAction, { Action } from "./createAction";
-import createGoal, { Goal } from "./createGoal";
-import createTest, { Test } from "./createTest";
+import createAction, { Action } from "../createAction";
+import createGoal, { Goal } from "../createGoal";
+import createTest, { Test } from "../createTest";
 import { GoalPair, ExplodedGoal } from "./explodeGoal";
 import explodeTest, { TestPair, ExplodedTest } from "./explodeTest";
 

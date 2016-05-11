@@ -1,6 +1,6 @@
 import { flatMap } from "lodash";
 import { Action, ActionRun } from "../createAction";
-import { ActionPair } from "../explodeAction";
+import { ActionPair } from "../explode/explodeAction";
 
 /**
  * runActionPair runs a single action from an ActionPair [ action, action.run ]

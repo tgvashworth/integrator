@@ -1,6 +1,6 @@
 import { flatMap, reverse } from "lodash";
-import { Test } from "./createTest";
-import { Goal } from "./createGoal";
+import { Test } from "../createTest";
+import { Goal } from "../createGoal";
 import explodeGoal, { ExplodedGoal, GoalPair } from "./explodeGoal";
 
 export type TestPair = [ Test, GoalPair ];

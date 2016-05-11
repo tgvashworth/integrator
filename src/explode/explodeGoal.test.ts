@@ -1,6 +1,6 @@
 import test from "ava";
-import createAction, { Action } from "./createAction";
-import createGoal, { Goal } from "./createGoal";
+import createAction, { Action } from "../createAction";
+import createGoal, { Goal } from "../createGoal";
 import explodeGoal, { GoalPair, ExplodedGoal } from "./explodeGoal";
 
 test("explodeGoal is importable", t => {

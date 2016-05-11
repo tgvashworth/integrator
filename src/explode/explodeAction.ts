@@ -1,5 +1,5 @@
 import { flatMap } from "lodash";
-import { Action, ActionRun } from "./createAction";
+import { Action, ActionRun } from "../createAction";
 
 export type ActionPair = [ Action<any>, ActionRun ];
 
