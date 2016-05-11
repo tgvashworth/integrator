@@ -28,10 +28,10 @@
         "src/explodeTest.test.ts",
         "src/explodeTest.ts",
         "src/index.ts",
-        "src/runActionPair.test.ts",
-        "src/runActionPair.ts",
-        "src/runActionPairs.test.ts",
-        "src/runActionPairs.ts",
+        "src/run/runActionPair.test.ts",
+        "src/run/runActionPair.ts",
+        "src/run/runActionPairs.test.ts",
+        "src/run/runActionPairs.ts",
         "typings/main.d.ts"
     ],
     "exclude": [

@@ -1,6 +1,6 @@
 import test from "ava";
-import createAction, { Action } from "./createAction";
-import { ActionPair } from "./explodeAction";
+import createAction, { Action } from "../createAction";
+import { ActionPair } from "../explodeAction";
 import runActionPairs from "./runActionPairs";
 
 test("runActionPairs is importable", t => {
